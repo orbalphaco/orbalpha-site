@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — systematic futures tools</title>
+<meta name="description" content="research first. backtest everything. deploy what survives.">
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background: #ECEEF1;
+  color: #202124;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: #D3E3FD;
+  color: #202124;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  font-size: 14px;
+}
+
+header .logo {
+  font-weight: bold;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+header .url {
+  font-size: 12px;
+}
+
+main {
+  flex: 1;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+.section-marker {
+  color: #1A73E8;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.hero {
+  margin-bottom: 48px;
+}
+
+.hero h1 {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  font-weight: normal;
+  color: #202124;
+  margin-bottom: 24px;
+}
+
+.hero p {
+  font-size: 13px;
+  color: #5F6368;
+  line-height: 1.8;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #DADCE0;
+  margin: 48px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.grid-col h2 {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: bold;
+  color: #202124;
+  margin-bottom: 12px;
+}
+
+.grid-col p {
+  font-size: 12px;
+  color: #5F6368;
+  line-height: 1.8;
+}
+
+.philosophy p {
+  font-size: 13px;
+  color: #5F6368;
+  line-height: 1.8;
+}
+
+footer {
+  background: #D3E3FD;
+  color: #202124;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  header, footer {
+    padding: 12px 16px;
+  }
+
+  main {
+    padding: 32px 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ORBAlpha</span>
+  <span class="url">orbalpha.com</span>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="section-marker">// ORBAlpha</div>
+    <h1>simple.</h1>
+    <p>
+      one strategy. one framework. one opening range.<br>
+      everything else is built on top.
+    </p>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-marker">// what we build</div>
+    <div class="grid">
+      <div class="grid-col">
+        <h2>indicators</h2>
+        <p>
+          tradingview-native<br>
+          pine script<br>
+          futures
+        </p>
+      </div>
+      <div class="grid-col">
+        <h2>strategies</h2>
+        <p>
+          complete systems<br>
+          entry to exit<br>
+          every rule defined
+        </p>
+      </div>
+      <div class="grid-col">
+        <h2>research</h2>
+        <p>
+          academic roots<br>
+          backtested<br>
+          open parameter
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section class="philosophy">
+    <div class="section-marker">// philosophy</div>
+    <p>research first. backtest everything. deploy what survives.</p>
+  </section>
+
+</main>
+
+<footer>
+  <span>&copy; 2026 ORBAlpha.com</span>
+  <span>hello@orbalpha.com</span>
+</footer>
+
+</body>
+</html>
