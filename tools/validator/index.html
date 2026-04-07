@@ -994,6 +994,29 @@
         // STATISTICAL CALCULATIONS
         // ═══════════════════════════════════════════════════════════════════════
 
+        // Shared helper for annualized risk ratios (Sharpe, Sortino, Calmar).
+        // Consolidated here to prevent the Calmar bug from recurring across
+        // single-strategy and portfolio views — both call this same function.
+        function calculateRiskRatios(profits, trades, totalPnL, maxDD, mean, stdDev, downsideDev) {
+            // Derive actual trade frequency from date range
+            let tradesPerYear = 252; // fallback if no dates
+            let years = 1;
+            const tradeDates = trades.map(t => t.date ? new Date(t.date) : null).filter(d => d && !isNaN(d));
+            if (tradeDates.length >= 2) {
+                tradeDates.sort((a, b) => a - b);
+                const firstDate = tradeDates[0];
+                const lastDate = tradeDates[tradeDates.length - 1];
+                const dateRangeDays = (lastDate - firstDate) / (1000 * 60 * 60 * 24);
+                years = Math.max(dateRangeDays / 365.25, 0.1);
+                tradesPerYear = profits.length / years;
+            }
+            const sharpe = stdDev > 0 ? (mean / stdDev) * Math.sqrt(tradesPerYear) : 0;
+            const sortino = downsideDev > 0 ? (mean / downsideDev) * Math.sqrt(tradesPerYear) : 0;
+            const annualizedReturn = totalPnL / years;
+            const calmar = maxDD > 0 ? (annualizedReturn / maxDD) : 0;
+            return { sharpe, sortino, calmar };
+        }
+
         function calculateBasicStats(trades) {
             const profits = trades.map(t => t.profit);
             const wins = profits.filter(p => p > 0);
@@ -1033,24 +1056,8 @@
                 : 0;
             const downsideDev = Math.sqrt(downsideVariance);
 
-            // Calculate actual trades per year from date range
-            let tradesPerYear = 252; // fallback if no dates
-            let years = 1;
-            const tradeDates = trades.map(t => t.date ? new Date(t.date) : null).filter(d => d && !isNaN(d));
-            if (tradeDates.length >= 2) {
-                tradeDates.sort((a, b) => a - b);
-                const firstDate = tradeDates[0];
-                const lastDate = tradeDates[tradeDates.length - 1];
-                const dateRangeDays = (lastDate - firstDate) / (1000 * 60 * 60 * 24);
-                years = Math.max(dateRangeDays / 365.25, 0.1); // floor at ~1 month
-                tradesPerYear = profits.length / years;
-            }
-
-            // Annualized using actual trade frequency
-            const sharpe = stdDev > 0 ? (mean / stdDev) * Math.sqrt(tradesPerYear) : 0;
-            const sortino = downsideDev > 0 ? (mean / downsideDev) * Math.sqrt(tradesPerYear) : 0;
-            const annualizedReturn = totalPnL / years;
-            const calmar = maxDD > 0 ? (annualizedReturn / maxDD) : 0;
+            // Use shared helper for annualized ratios
+            const { sharpe, sortino, calmar } = calculateRiskRatios(profits, trades, totalPnL, maxDD, mean, stdDev, downsideDev);
 
             return {
                 totalTrades: profits.length,
@@ -2164,7 +2171,7 @@ ${score.verdict}
             }
 
             // Create a virtual "combined" strategy
-            const combinedTrades = allTrades.map(t => ({ profit: t.profit }));
+            const combinedTrades = allTrades.map(t => ({ profit: t.profit, date: t.date || null }));
 
             const stats = calculateBasicStats(combinedTrades);
             const stability = analyzeStability(combinedTrades);
