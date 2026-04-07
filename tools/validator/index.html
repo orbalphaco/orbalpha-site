@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBAlpha — Strategy Statistical Validator</title>
+    <meta name="description" content="Monte Carlo simulation, confidence scoring, and stability analysis for any TradingView strategy.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #ECEEF1;
+            min-height: 100vh;
+            padding: 0;
+            color: #202124;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* System Bar */
+        .system-bar {
+            background: #D3E3FD;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 32px;
+        }
+
+        .system-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+        }
+
+        .system-id {
+            font-weight: bold;
+            font-size: 15px;
+            color: #202124;
+        }
+
+        .system-sub {
+            font-size: 12px;
+            color: #5F6368;
+        }
+
+        .back-link {
+            font-size: 12px;
+            color: #1A73E8;
+            text-decoration: none;
+        }
+
+        /* Mobile notice */
+        .mobile-notice {
+            display: none;
+            font-size: 12px;
+            color: #5F6368;
+            text-align: center;
+            padding: 8px;
+            background: #ECEEF1;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-notice {
+                display: block;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .section {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #DADCE0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        .section-icon {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #202124;
+        }
+
+        .section-title::before {
+            content: '// ';
+            color: #5F6368;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed #DADCE0;
+            border-radius: 0;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            background: #ffffff;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #1A73E8;
+            background: #ffffff;
+        }
+
+        .drop-zone-icon {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #5F6368;
+        }
+
+        .drop-zone-text {
+            font-size: 1.1rem;
+            color: #5F6368;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone-hint {
+            font-size: 0.85rem;
+            color: #5F6368;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Strategy Cards */
+        .strategy-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .strategy-card {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 15px;
+            border: 1px solid #DADCE0;
+            cursor: pointer;
+        }
+
+        .strategy-card:hover {
+            border-color: #1A73E8;
+        }
+
+        .strategy-card.selected {
+            border-color: #1A73E8;
+            background: #ffffff;
+        }
+
+        .strategy-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .strategy-name {
+            font-weight: 600;
+            color: #202124;
+        }
+
+        .strategy-grade {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .grade-A { color: #4ade80; }
+        .grade-B { color: #1A73E8; }
+        .grade-C { color: #fbbf24; }
+        .grade-D { color: #f97316; }
+        .grade-F { color: #ef4444; }
+
+        .strategy-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            color: #5F6368;
+        }
+
+        .stat-value {
+            color: #202124;
+            font-weight: 500;
+        }
+
+        .remove-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: none;
+            color: #ef4444;
+            padding: 4px 8px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Results Panel */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: #ECEEF1;
+            border-radius: 0;
+            padding: 20px;
+            border: 1px solid #DADCE0;
+        }
+
+        .result-card h3 {
+            color: #202124;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Score Display */
+        .score-display {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 4px solid;
+        }
+
+        .score-circle.grade-A { border-color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+        .score-circle.grade-B { border-color: #1A73E8; background: rgba(26, 115, 232, 0.1); }
+        .score-circle.grade-C { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+        .score-circle.grade-D { border-color: #f97316; background: rgba(249, 115, 22, 0.1); }
+        .score-circle.grade-F { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+        .score-letter {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .score-number {
+            font-size: 1.2rem;
+            color: #5F6368;
+        }
+
+        .score-breakdown {
+            text-align: left;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-metric {
+            color: #5F6368;
+            font-size: 0.9rem;
+        }
+
+        .score-value {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-bar {
+            width: 60px;
+            height: 6px;
+            background: #DADCE0;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 0;
+        }
+
+        .score-bar-fill.excellent { background: #4ade80; }
+        .score-bar-fill.good { background: #1A73E8; }
+        .score-bar-fill.marginal { background: #fbbf24; }
+        .score-bar-fill.poor { background: #ef4444; }
+
+        /* Confidence Intervals */
+        .ci-display {
+            background: #ECEEF1;
+            border-radius: 0;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .ci-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .ci-label {
+            color: #5F6368;
+        }
+
+        .ci-value {
+            font-weight: 600;
+        }
+
+        .ci-range {
+            color: #5F6368;
+            font-size: 0.85rem;
+        }
+
+        .significant { color: #4ade80; }
+        .not-significant { color: #ef4444; }
+
+        /* Monte Carlo Chart */
+        .mc-chart-container {
+            height: 300px;
+            position: relative;
+            background: #ffffff;
+            border-radius: 0;
+            overflow: hidden;
+            border: 1px solid #DADCE0;
+        }
+
+        #mcChart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .mc-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .mc-stat {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #DADCE0;
+        }
+
+        .mc-stat-label {
+            font-size: 0.75rem;
+            color: #5F6368;
+            margin-bottom: 5px;
+        }
+
+        .mc-stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #202124;
+        }
+
+        /* Stability Comparison */
+        .stability-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stability-half {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 15px;
+            border: 1px solid #DADCE0;
+        }
+
+        .stability-half h4 {
+            color: #5F6368;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .stability-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .stability-verdict {
+            text-align: center;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0;
+            font-weight: 600;
+        }
+
+        .stability-verdict.stable {
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+        }
+
+        .stability-verdict.unstable {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .stability-verdict.caution {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+        }
+
+        /* Risk Metrics Table */
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        .metrics-table th {
+            color: #5F6368;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .metrics-table td {
+            font-size: 0.95rem;
+        }
+
+        .metric-rating {
+            padding: 2px 8px;
+            border-radius: 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .rating-excellent { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .rating-good { background: rgba(26, 115, 232, 0.2); color: #1A73E8; }
+        .rating-marginal { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .rating-poor { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        /* No Data State */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #5F6368;
+        }
+
+        .no-data-icon {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #5F6368;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #DADCE0;
+            border-top-color: #1A73E8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .btn-primary {
+            background: #202124;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #202124;
+        }
+
+        .btn-secondary {
+            background: #ECEEF1;
+            color: #202124;
+            border: 1px solid #DADCE0;
+        }
+
+        .btn-secondary:hover {
+            background: #ECEEF1;
+        }
+
+        .btn-danger {
+            background: #202124;
+            color: #ffffff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #DADCE0;
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #5F6368;
+            cursor: pointer;
+            border-radius: 0;
+            font-size: 0.95rem;
+            font-family: 'Courier New', Courier, monospace;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab:hover {
+            color: #202124;
+            background: transparent;
+        }
+
+        .tab.active {
+            color: #1A73E8;
+            background: transparent;
+            border-bottom: 2px solid #1A73E8;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background: #202124;
+            color: #ECEEF1;
+            text-align: left;
+            border-radius: 0;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Footer */
+        footer {
+            background: #D3E3FD;
+            color: #202124;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 32px;
+            font-size: 12px;
+        }
+
+        footer .auth {
+            color: #5F6368;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mc-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stability-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .system-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 12px 16px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            footer {
+                padding: 12px 16px;
+            }
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="system-bar">
+      <div class="system-bar-left">
+        <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/>
+          <text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text>
+        </svg>
+        <div>
+          <div class="system-id">ORBAlpha SYSTEM v2.1</div>
+          <div class="system-sub">// strategy statistical validator</div>
+        </div>
+      </div>
+      <a href="/" class="back-link">&larr; back to orbalpha.com</a>
+    </div>
+
+    <div class="mobile-notice">// best viewed on desktop</div>
+
+    <div class="container">
+        <!-- Upload Section -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">IMPORT STRATEGIES</span>
+            </div>
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">// CSV</div>
+                <div class="drop-zone-text">Drop TradingView CSV exports here</div>
+                <div class="drop-zone-hint">or click to browse files</div>
+                <input type="file" id="fileInput" accept=".csv" multiple>
+            </div>
+            <div class="strategy-cards" id="strategyCards"></div>
+            <div style="text-align: center; margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-secondary" onclick="debugData()" style="font-size: 0.85rem; padding: 8px 16px; display: none;" id="debugBtn">Debug Data</button>
+                <button class="btn btn-danger" onclick="clearAllStrategies()" style="font-size: 0.85rem; padding: 8px 16px; display: none;" id="clearAllBtn">Clear All Strategies</button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section" id="resultsSection">
+            <div class="section-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="section-title">VALIDATION RESULTS</span>
+                </div>
+                <button class="btn btn-primary" id="exportBtn" onclick="exportForClaude()" style="display: none;">
+                    Export for Claude
+                </button>
+            </div>
+
+            <div id="noDataState" class="no-data">
+                <div class="no-data-icon">// DATA</div>
+                <p>Import a strategy CSV to see validation results</p>
+            </div>
+
+            <div id="loadingState" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Running Monte Carlo simulation...</p>
+            </div>
+
+            <div id="resultsContent" class="hidden">
+                <div class="tabs">
+                    <button class="tab active" data-tab="overview">Overview</button>
+                    <button class="tab" data-tab="confidence">Confidence</button>
+                    <button class="tab" data-tab="montecarlo">Monte Carlo</button>
+                    <button class="tab" data-tab="stability">Stability</button>
+                    <button class="tab" data-tab="metrics">Risk Metrics</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="tab-overview">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <div class="score-display">
+                                <div class="score-circle" id="scoreCircle">
+                                    <div class="score-letter" id="scoreLetter">-</div>
+                                    <div class="score-number" id="scoreNumber">0/100</div>
+                                </div>
+                                <div id="scoreVerdict" style="color: #5F6368; font-size: 0.9rem;"></div>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                            <h3>// Score Breakdown</h3>
+                            <div class="score-breakdown" id="scoreBreakdown"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confidence Tab -->
+                <div class="tab-content" id="tab-confidence">
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h3>// Win Rate Analysis</h3>
+                            <div class="ci-display" id="winRateCI"></div>
+                        </div>
+                        <div class="result-card">
+                            <h3>// Profit Factor Analysis</h3>
+                            <div class="ci-display" id="profitFactorCI"></div>
+                        </div>
+                    </div>
+                    <div class="result-card" style="margin-top: 20px;">
+                        <h3>// Statistical Significance</h3>
+                        <div id="significanceResult"></div>
+                    </div>
+                </div>
+
+                <!-- Monte Carlo Tab -->
+                <div class="tab-content" id="tab-montecarlo">
+                    <div class="result-card">
+                        <h3>// Monte Carlo Simulation (1,000 iterations)</h3>
+                        <div class="mc-chart-container">
+                            <canvas id="mcChart"></canvas>
+                        </div>
+                        <div class="mc-stats" id="mcStats"></div>
+                    </div>
+                </div>
+
+                <!-- Stability Tab -->
+                <div class="tab-content" id="tab-stability">
+                    <div class="result-card">
+                        <h3>// First Half vs Second Half</h3>
+                        <div class="stability-grid" id="stabilityGrid"></div>
+                        <div class="stability-verdict" id="stabilityVerdict"></div>
+                    </div>
+                </div>
+
+                <!-- Risk Metrics Tab -->
+                <div class="tab-content" id="tab-metrics">
+                    <div class="result-card">
+                        <h3>// Professional Risk Metrics</h3>
+                        <table class="metrics-table" id="metricsTable">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                    <th>Rating</th>
+                                    <th>Benchmark</th>
+                                </tr>
+                            </thead>
+                            <tbody id="metricsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+      <span>&copy; 2026 ORBAlpha.com</span>
+      <span class="auth">authorized access only</span>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        let strategies = [];
+        let selectedStrategy = null;
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SCORING WEIGHTS & THRESHOLDS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        const SCORING = {
+            sharpe: { weight: 0.25, excellent: 2.0, good: 1.0, marginal: 0.5 },
+            profitFactor: { weight: 0.20, excellent: 2.0, good: 1.5, marginal: 1.2 },
+            significance: { weight: 0.15, excellent: 0.01, good: 0.05, marginal: 0.10 },
+            stability: { weight: 0.15, excellent: 10, good: 20, marginal: 35 },
+            sampleSize: { weight: 0.10, excellent: 200, good: 100, marginal: 50 },
+            maxDD: { weight: 0.10, excellent: 10, good: 20, marginal: 30 },
+            sortino: { weight: 0.05, excellent: 2.5, good: 1.5, marginal: 1.0 }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // CSV PARSING
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function parseCSV(text, filename) {
+            const lines = text.trim().split('\n');
+            if (lines.length < 2) return null;
+
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const trades = [];
+
+            // Find relevant columns
+            const profitIdx = headers.findIndex(h =>
+                h.includes('profit') || h.includes('p&l') || h.includes('pnl') || h === 'profit'
+            );
+            const typeIdx = headers.findIndex(h =>
+                h.includes('type') || h.includes('side') || h.includes('direction')
+            );
+            const dateIdx = headers.findIndex(h =>
+                h.includes('date') || h.includes('time') || h.includes('entry')
+            );
+
+            if (profitIdx === -1) {
+                // Try to detect if it's TradingView format
+                // TradingView exports: Trade #, Type, Signal, Date/Time, Price, Contracts, Profit, ...
+                const altHeaders = lines[0].split(',');
+                for (let i = 0; i < altHeaders.length; i++) {
+                    if (altHeaders[i].toLowerCase().includes('profit')) {
+                        return parseCSVWithIndex(lines, i, filename);
+                    }
+                }
+                console.error('Could not find profit column');
+                return null;
+            }
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length > profitIdx) {
+                    // TradingView exports Entry AND Exit rows with same profit
+                    // Only count Exit rows to avoid double-counting
+                    const rowType = typeIdx !== -1 ? values[typeIdx].toLowerCase() : '';
+                    if (rowType.includes('entry')) {
+                        continue; // Skip entry rows, only count exits
+                    }
+
+                    const profit = parseFloat(values[profitIdx].replace(/[$,]/g, ''));
+                    if (!isNaN(profit)) {
+                        trades.push({
+                            profit: profit,
+                            type: typeIdx !== -1 ? values[typeIdx] : 'unknown',
+                            date: dateIdx !== -1 ? values[dateIdx] : null
+                        });
+                    }
+                }
+            }
+
+            return {
+                name: filename.replace('.csv', ''),
+                trades: trades
+            };
+        }
+
+        function parseCSVWithIndex(lines, profitIdx, filename) {
+            const trades = [];
+
+            // Also need to find Type column for filtering
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const typeIdx = headers.findIndex(h =>
+                h.includes('type') || h.includes('side') || h.includes('direction')
+            );
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length > profitIdx) {
+                    // Skip entry rows to avoid double-counting
+                    const rowType = typeIdx !== -1 ? values[typeIdx].toLowerCase() : '';
+                    if (rowType.includes('entry')) {
+                        continue;
+                    }
+
+                    const profit = parseFloat(values[profitIdx].replace(/[$,]/g, ''));
+                    if (!isNaN(profit)) {
+                        trades.push({
+                            profit: profit,
+                            type: typeIdx !== -1 ? values[typeIdx] : 'unknown',
+                            date: null
+                        });
+                    }
+                }
+            }
+
+            return {
+                name: filename.replace('.csv', ''),
+                trades: trades
+            };
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+
+            return result;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // STATISTICAL CALCULATIONS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function calculateBasicStats(trades) {
+            const profits = trades.map(t => t.profit);
+            const wins = profits.filter(p => p > 0);
+            const losses = profits.filter(p => p < 0);
+
+            const totalPnL = profits.reduce((a, b) => a + b, 0);
+            const winRate = wins.length / profits.length;
+            const avgWin = wins.length > 0 ? wins.reduce((a, b) => a + b, 0) / wins.length : 0;
+            const avgLoss = losses.length > 0 ? Math.abs(losses.reduce((a, b) => a + b, 0) / losses.length) : 0;
+            const grossProfit = wins.reduce((a, b) => a + b, 0);
+            const grossLoss = Math.abs(losses.reduce((a, b) => a + b, 0));
+            const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
+
+            // Calculate max drawdown
+            let peak = 0;
+            let maxDD = 0;
+            let equity = 0;
+            const equityCurve = [];
+
+            for (const p of profits) {
+                equity += p;
+                equityCurve.push(equity);
+                peak = Math.max(peak, equity);
+                const dd = peak - equity;
+                maxDD = Math.max(maxDD, dd);
+            }
+
+            // Calculate returns for Sharpe/Sortino
+            const mean = profits.reduce((a, b) => a + b, 0) / profits.length;
+            const variance = profits.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / profits.length;
+            const stdDev = Math.sqrt(variance);
+
+            // Downside deviation for Sortino
+            const downsideReturns = profits.filter(p => p < 0);
+            const downsideVariance = downsideReturns.length > 0
+                ? downsideReturns.reduce((sum, p) => sum + Math.pow(p, 2), 0) / downsideReturns.length
+                : 0;
+            const downsideDev = Math.sqrt(downsideVariance);
+
+            // Annualized (assuming ~250 trading days)
+            const tradesPerYear = 250; // Approximate
+            const sharpe = stdDev > 0 ? (mean / stdDev) * Math.sqrt(tradesPerYear) : 0;
+            const sortino = downsideDev > 0 ? (mean / downsideDev) * Math.sqrt(tradesPerYear) : 0;
+            const calmar = maxDD > 0 ? (totalPnL / maxDD) : 0;
+
+            return {
+                totalTrades: profits.length,
+                wins: wins.length,
+                losses: losses.length,
+                winRate,
+                totalPnL,
+                avgWin,
+                avgLoss,
+                profitFactor,
+                maxDD,
+                maxDDPercent: peak > 0 ? (maxDD / peak) * 100 : 0,
+                sharpe,
+                sortino,
+                calmar,
+                mean,
+                stdDev,
+                equityCurve,
+                profits
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // CONFIDENCE INTERVALS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function calculateWinRateCI(wins, total, confidence = 0.95) {
+            const p = wins / total;
+            const z = confidence === 0.95 ? 1.96 : 2.576; // 95% or 99%
+            const se = Math.sqrt((p * (1 - p)) / total);
+
+            return {
+                point: p,
+                lower: Math.max(0, p - z * se),
+                upper: Math.min(1, p + z * se),
+                standardError: se
+            };
+        }
+
+        function binomialTest(wins, total, nullP = 0.5) {
+            // Two-tailed binomial test
+            // Using normal approximation for simplicity
+            const p = wins / total;
+            const se = Math.sqrt((nullP * (1 - nullP)) / total);
+            const z = (p - nullP) / se;
+
+            // Two-tailed p-value using normal approximation
+            const pValue = 2 * (1 - normalCDF(Math.abs(z)));
+
+            return {
+                pValue,
+                zScore: z,
+                significant: pValue < 0.05
+            };
+        }
+
+        function normalCDF(x) {
+            const a1 = 0.254829592;
+            const a2 = -0.284496736;
+            const a3 = 1.421413741;
+            const a4 = -1.453152027;
+            const a5 = 1.061405429;
+            const p = 0.3275911;
+
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x) / Math.sqrt(2);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+            return 0.5 * (1.0 + sign * y);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // MONTE CARLO SIMULATION
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function runMonteCarloSimulation(profits, iterations = 1000) {
+            const results = {
+                equityCurves: [],
+                maxDrawdowns: [],
+                finalEquities: [],
+                maxLosingStreaks: []
+            };
+
+            for (let i = 0; i < iterations; i++) {
+                const shuffled = [...profits].sort(() => Math.random() - 0.5);
+
+                let equity = 0;
+                let peak = 0;
+                let maxDD = 0;
+                let losingStreak = 0;
+                let maxLosingStreak = 0;
+                const curve = [0];
+
+                for (const p of shuffled) {
+                    equity += p;
+                    curve.push(equity);
+                    peak = Math.max(peak, equity);
+                    maxDD = Math.max(maxDD, peak - equity);
+
+                    if (p < 0) {
+                        losingStreak++;
+                        maxLosingStreak = Math.max(maxLosingStreak, losingStreak);
+                    } else {
+                        losingStreak = 0;
+                    }
+                }
+
+                results.equityCurves.push(curve);
+                results.maxDrawdowns.push(maxDD);
+                results.finalEquities.push(equity);
+                results.maxLosingStreaks.push(maxLosingStreak);
+            }
+
+            // Calculate percentiles
+            results.maxDrawdowns.sort((a, b) => a - b);
+            results.maxLosingStreaks.sort((a, b) => a - b);
+
+            return {
+                equityCurves: results.equityCurves,
+                drawdownPercentiles: {
+                    p50: results.maxDrawdowns[Math.floor(iterations * 0.5)],
+                    p75: results.maxDrawdowns[Math.floor(iterations * 0.75)],
+                    p95: results.maxDrawdowns[Math.floor(iterations * 0.95)],
+                    p99: results.maxDrawdowns[Math.floor(iterations * 0.99)]
+                },
+                losingStreakPercentiles: {
+                    p50: results.maxLosingStreaks[Math.floor(iterations * 0.5)],
+                    p95: results.maxLosingStreaks[Math.floor(iterations * 0.95)],
+                    p99: results.maxLosingStreaks[Math.floor(iterations * 0.99)]
+                }
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // STABILITY ANALYSIS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function analyzeStability(trades) {
+            const midpoint = Math.floor(trades.length / 2);
+            const firstHalf = trades.slice(0, midpoint);
+            const secondHalf = trades.slice(midpoint);
+
+            const firstStats = calculateBasicStats(firstHalf);
+            const secondStats = calculateBasicStats(secondHalf);
+
+            // Calculate variance between halves
+            const winRateVariance = Math.abs(firstStats.winRate - secondStats.winRate) * 100;
+            const pfVariance = Math.abs(firstStats.profitFactor - secondStats.profitFactor) /
+                              Math.max(firstStats.profitFactor, secondStats.profitFactor) * 100;
+
+            return {
+                firstHalf: firstStats,
+                secondHalf: secondStats,
+                winRateVariance,
+                pfVariance,
+                avgVariance: (winRateVariance + pfVariance) / 2
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SCORING SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function calculateScore(stats, stability, significance) {
+            const scores = {};
+            let totalScore = 0;
+
+            // Sharpe Ratio Score
+            if (stats.sharpe >= SCORING.sharpe.excellent) {
+                scores.sharpe = { value: 100, rating: 'excellent' };
+            } else if (stats.sharpe >= SCORING.sharpe.good) {
+                scores.sharpe = { value: 75, rating: 'good' };
+            } else if (stats.sharpe >= SCORING.sharpe.marginal) {
+                scores.sharpe = { value: 50, rating: 'marginal' };
+            } else {
+                scores.sharpe = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.sharpe.value * SCORING.sharpe.weight;
+
+            // Profit Factor Score
+            if (stats.profitFactor >= SCORING.profitFactor.excellent) {
+                scores.profitFactor = { value: 100, rating: 'excellent' };
+            } else if (stats.profitFactor >= SCORING.profitFactor.good) {
+                scores.profitFactor = { value: 75, rating: 'good' };
+            } else if (stats.profitFactor >= SCORING.profitFactor.marginal) {
+                scores.profitFactor = { value: 50, rating: 'marginal' };
+            } else {
+                scores.profitFactor = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.profitFactor.value * SCORING.profitFactor.weight;
+
+            // Significance Score
+            if (significance.pValue <= SCORING.significance.excellent) {
+                scores.significance = { value: 100, rating: 'excellent' };
+            } else if (significance.pValue <= SCORING.significance.good) {
+                scores.significance = { value: 75, rating: 'good' };
+            } else if (significance.pValue <= SCORING.significance.marginal) {
+                scores.significance = { value: 50, rating: 'marginal' };
+            } else {
+                scores.significance = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.significance.value * SCORING.significance.weight;
+
+            // Stability Score
+            if (stability.avgVariance <= SCORING.stability.excellent) {
+                scores.stability = { value: 100, rating: 'excellent' };
+            } else if (stability.avgVariance <= SCORING.stability.good) {
+                scores.stability = { value: 75, rating: 'good' };
+            } else if (stability.avgVariance <= SCORING.stability.marginal) {
+                scores.stability = { value: 50, rating: 'marginal' };
+            } else {
+                scores.stability = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.stability.value * SCORING.stability.weight;
+
+            // Sample Size Score
+            if (stats.totalTrades >= SCORING.sampleSize.excellent) {
+                scores.sampleSize = { value: 100, rating: 'excellent' };
+            } else if (stats.totalTrades >= SCORING.sampleSize.good) {
+                scores.sampleSize = { value: 75, rating: 'good' };
+            } else if (stats.totalTrades >= SCORING.sampleSize.marginal) {
+                scores.sampleSize = { value: 50, rating: 'marginal' };
+            } else {
+                scores.sampleSize = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.sampleSize.value * SCORING.sampleSize.weight;
+
+            // Max Drawdown Score
+            if (stats.maxDDPercent <= SCORING.maxDD.excellent) {
+                scores.maxDD = { value: 100, rating: 'excellent' };
+            } else if (stats.maxDDPercent <= SCORING.maxDD.good) {
+                scores.maxDD = { value: 75, rating: 'good' };
+            } else if (stats.maxDDPercent <= SCORING.maxDD.marginal) {
+                scores.maxDD = { value: 50, rating: 'marginal' };
+            } else {
+                scores.maxDD = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.maxDD.value * SCORING.maxDD.weight;
+
+            // Sortino Score
+            if (stats.sortino >= SCORING.sortino.excellent) {
+                scores.sortino = { value: 100, rating: 'excellent' };
+            } else if (stats.sortino >= SCORING.sortino.good) {
+                scores.sortino = { value: 75, rating: 'good' };
+            } else if (stats.sortino >= SCORING.sortino.marginal) {
+                scores.sortino = { value: 50, rating: 'marginal' };
+            } else {
+                scores.sortino = { value: 25, rating: 'poor' };
+            }
+            totalScore += scores.sortino.value * SCORING.sortino.weight;
+
+            // Determine grade
+            let grade, verdict;
+            if (totalScore >= 85) {
+                grade = 'A';
+                verdict = 'Excellent - Institutional quality strategy';
+            } else if (totalScore >= 70) {
+                grade = 'B';
+                verdict = 'Good - Solid edge with room for improvement';
+            } else if (totalScore >= 55) {
+                grade = 'C';
+                verdict = 'Marginal - Use with caution, needs more data';
+            } else if (totalScore >= 40) {
+                grade = 'D';
+                verdict = 'Weak - Significant concerns, review needed';
+            } else {
+                grade = 'F';
+                verdict = 'Failing - Edge not statistically supported';
+            }
+
+            return {
+                totalScore: Math.round(totalScore),
+                grade,
+                verdict,
+                breakdown: scores
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UI RENDERING
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function renderStrategyCards() {
+            const container = document.getElementById('strategyCards');
+            container.innerHTML = '';
+
+            // Add Combined Portfolio card if there are 2+ strategies
+            if (strategies.length >= 2) {
+                const combinedCard = document.createElement('div');
+                combinedCard.className = `strategy-card ${selectedStrategy === 'combined' ? 'selected' : ''}`;
+                combinedCard.style.background = selectedStrategy === 'combined' ? '#ffffff' : '#ffffff';
+                combinedCard.style.borderColor = selectedStrategy === 'combined' ? '#1A73E8' : '#DADCE0';
+
+                // Calculate combined stats for the card
+                const allProfits = strategies.flatMap(s => s.trades.map(t => t.profit));
+                const totalTrades = allProfits.length;
+                const wins = allProfits.filter(p => p > 0).length;
+                const winRate = totalTrades > 0 ? (wins / totalTrades * 100).toFixed(1) : 0;
+                const totalPnL = allProfits.reduce((a, b) => a + b, 0);
+
+                combinedCard.innerHTML = `
+                    <div class="strategy-card-header">
+                        <span class="strategy-name">// Combined Portfolio</span>
+                        <span class="strategy-grade" style="color: #1A73E8;">ALL</span>
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Strategies</span>
+                            <span class="stat-value">${strategies.length}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Trades</span>
+                            <span class="stat-value">${totalTrades}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Win Rate</span>
+                            <span class="stat-value">${winRate}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total P&L</span>
+                            <span class="stat-value" style="color: ${totalPnL >= 0 ? '#4ade80' : '#ef4444'}">$${totalPnL.toFixed(0)}</span>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px; font-size: 0.8rem; color: #1A73E8;">
+                        Click to analyze as one system
+                    </div>
+                `;
+
+                combinedCard.addEventListener('click', () => selectCombinedPortfolio());
+                container.appendChild(combinedCard);
+            }
+
+            // Individual strategy cards
+            strategies.forEach((strategy, index) => {
+                const stats = calculateBasicStats(strategy.trades);
+                const stability = analyzeStability(strategy.trades);
+                const significance = binomialTest(stats.wins, stats.totalTrades);
+                const score = calculateScore(stats, stability, significance);
+
+                strategy.stats = stats;
+                strategy.stability = stability;
+                strategy.significance = significance;
+                strategy.score = score;
+
+                const card = document.createElement('div');
+                card.className = `strategy-card ${selectedStrategy === index ? 'selected' : ''}`;
+                card.innerHTML = `
+                    <div class="strategy-card-header">
+                        <span class="strategy-name">${strategy.name}</span>
+                        <span class="strategy-grade grade-${score.grade}">${score.grade}</span>
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Trades</span>
+                            <span class="stat-value">${stats.totalTrades}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Win Rate</span>
+                            <span class="stat-value">${(stats.winRate * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Profit Factor</span>
+                            <span class="stat-value">${stats.profitFactor.toFixed(2)}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Score</span>
+                            <span class="stat-value">${score.totalScore}/100</span>
+                        </div>
+                    </div>
+                    <button class="remove-btn" onclick="event.stopPropagation(); removeStrategy(${index})">Remove</button>
+                `;
+
+                card.addEventListener('click', () => selectStrategy(index));
+                container.appendChild(card);
+            });
+
+            if (strategies.length > 0 && selectedStrategy === null) {
+                selectStrategy(0);
+            }
+
+            // Show/hide Clear All button
+            const clearBtn = document.getElementById('clearAllBtn');
+            const debugBtn = document.getElementById('debugBtn');
+            if (clearBtn) {
+                clearBtn.style.display = strategies.length > 0 ? 'inline-block' : 'none';
+            }
+            if (debugBtn) {
+                debugBtn.style.display = strategies.length > 0 ? 'inline-block' : 'none';
+            }
+        }
+
+        function selectStrategy(index) {
+            selectedStrategy = index;
+            renderStrategyCards();
+            renderResults();
+        }
+
+        function removeStrategy(index) {
+            strategies.splice(index, 1);
+            if (selectedStrategy >= strategies.length) {
+                selectedStrategy = strategies.length - 1;
+            }
+            if (strategies.length === 0) {
+                selectedStrategy = null;
+            }
+            renderStrategyCards();
+            renderResults();
+            saveToLocalStorage();
+        }
+
+        function renderResults() {
+            const noData = document.getElementById('noDataState');
+            const loading = document.getElementById('loadingState');
+            const content = document.getElementById('resultsContent');
+            const exportBtn = document.getElementById('exportBtn');
+
+            if (selectedStrategy === null || strategies.length === 0) {
+                noData.classList.remove('hidden');
+                content.classList.add('hidden');
+                exportBtn.style.display = 'none';
+                return;
+            }
+
+            // Handle combined portfolio separately
+            if (selectedStrategy === 'combined') {
+                renderCombinedResults();
+                return;
+            }
+
+            noData.classList.add('hidden');
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            exportBtn.style.display = 'none';
+
+            // Run Monte Carlo async to not block UI
+            setTimeout(() => {
+                const strategy = strategies[selectedStrategy];
+                const mc = runMonteCarloSimulation(strategy.stats.profits);
+                strategy.monteCarlo = mc;
+
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                exportBtn.style.display = 'block';
+
+                renderOverview(strategy);
+                renderConfidence(strategy);
+                renderMonteCarlo(strategy);
+                renderStability(strategy);
+                renderMetrics(strategy);
+            }, 50);
+        }
+
+        function renderOverview(strategy) {
+            const { score } = strategy;
+
+            // Score circle
+            const circle = document.getElementById('scoreCircle');
+            circle.className = `score-circle grade-${score.grade}`;
+            document.getElementById('scoreLetter').textContent = score.grade;
+            document.getElementById('scoreLetter').className = `score-letter grade-${score.grade}`;
+            document.getElementById('scoreNumber').textContent = `${score.totalScore}/100`;
+            document.getElementById('scoreVerdict').textContent = score.verdict;
+
+            // Score breakdown
+            const breakdown = document.getElementById('scoreBreakdown');
+            const metrics = [
+                { key: 'sharpe', label: 'Sharpe Ratio', weight: '25%' },
+                { key: 'profitFactor', label: 'Profit Factor', weight: '20%' },
+                { key: 'significance', label: 'Statistical Significance', weight: '15%' },
+                { key: 'stability', label: 'Stability', weight: '15%' },
+                { key: 'sampleSize', label: 'Sample Size', weight: '10%' },
+                { key: 'maxDD', label: 'Max Drawdown', weight: '10%' },
+                { key: 'sortino', label: 'Sortino Ratio', weight: '5%' }
+            ];
+
+            breakdown.innerHTML = metrics.map(m => {
+                const s = score.breakdown[m.key];
+                return `
+                    <div class="score-item">
+                        <span class="score-metric">${m.label} (${m.weight})</span>
+                        <div class="score-value">
+                            <div class="score-bar">
+                                <div class="score-bar-fill ${s.rating}" style="width: ${s.value}%"></div>
+                            </div>
+                            <span style="color: #202124; font-size: 0.85rem; width: 30px;">${s.value}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderConfidence(strategy) {
+            const { stats, significance } = strategy;
+
+            // Win Rate CI
+            const wrCI = calculateWinRateCI(stats.wins, stats.totalTrades);
+            document.getElementById('winRateCI').innerHTML = `
+                <div class="ci-row">
+                    <span class="ci-label">Observed Win Rate</span>
+                    <span class="ci-value">${(wrCI.point * 100).toFixed(1)}%</span>
+                </div>
+                <div class="ci-row">
+                    <span class="ci-label">95% Confidence Interval</span>
+                    <span class="ci-range">${(wrCI.lower * 100).toFixed(1)}% - ${(wrCI.upper * 100).toFixed(1)}%</span>
+                </div>
+                <div class="ci-row">
+                    <span class="ci-label">Standard Error</span>
+                    <span class="ci-value">&plusmn;${(wrCI.standardError * 100).toFixed(2)}%</span>
+                </div>
+                <div class="ci-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #DADCE0;">
+                    <span class="ci-label">Interpretation</span>
+                    <span class="ci-value" style="font-size: 0.85rem;">True win rate likely between ${(wrCI.lower * 100).toFixed(0)}%-${(wrCI.upper * 100).toFixed(0)}%</span>
+                </div>
+            `;
+
+            // Profit Factor CI (using bootstrap approximation description)
+            document.getElementById('profitFactorCI').innerHTML = `
+                <div class="ci-row">
+                    <span class="ci-label">Observed Profit Factor</span>
+                    <span class="ci-value">${stats.profitFactor.toFixed(2)}</span>
+                </div>
+                <div class="ci-row">
+                    <span class="ci-label">Gross Profit</span>
+                    <span class="ci-value">$${stats.avgWin.toFixed(2)} &times; ${stats.wins} = $${(stats.avgWin * stats.wins).toFixed(2)}</span>
+                </div>
+                <div class="ci-row">
+                    <span class="ci-label">Gross Loss</span>
+                    <span class="ci-value">$${stats.avgLoss.toFixed(2)} &times; ${stats.losses} = $${(stats.avgLoss * stats.losses).toFixed(2)}</span>
+                </div>
+                <div class="ci-row">
+                    <span class="ci-label">Expectancy per Trade</span>
+                    <span class="ci-value">$${stats.mean.toFixed(2)}</span>
+                </div>
+            `;
+
+            // Significance
+            document.getElementById('significanceResult').innerHTML = `
+                <div class="ci-display">
+                    <div class="ci-row">
+                        <span class="ci-label">Null Hypothesis</span>
+                        <span class="ci-value">Win rate = 50% (random)</span>
+                    </div>
+                    <div class="ci-row">
+                        <span class="ci-label">Z-Score</span>
+                        <span class="ci-value">${significance.zScore.toFixed(2)}</span>
+                    </div>
+                    <div class="ci-row">
+                        <span class="ci-label">P-Value</span>
+                        <span class="ci-value ${significance.significant ? 'significant' : 'not-significant'}">${significance.pValue.toFixed(4)}</span>
+                    </div>
+                    <div class="ci-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #DADCE0;">
+                        <span class="ci-label">Result</span>
+                        <span class="ci-value ${significance.significant ? 'significant' : 'not-significant'}">
+                            ${significance.significant
+                                ? 'PASS -- Statistically Significant (p < 0.05)'
+                                : 'FAIL -- Not Statistically Significant (p >= 0.05)'}
+                        </span>
+                    </div>
+                    <div class="ci-row">
+                        <span class="ci-label">Interpretation</span>
+                        <span style="font-size: 0.85rem; color: #5F6368;">
+                            ${significance.significant
+                                ? `Only ${(significance.pValue * 100).toFixed(1)}% chance these results occurred by luck`
+                                : `${(significance.pValue * 100).toFixed(1)}% chance these results could occur randomly - need more trades`}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMonteCarlo(strategy) {
+            const { monteCarlo, stats } = strategy;
+
+            // Draw chart
+            const canvas = document.getElementById('mcChart');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = 300;
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+
+            // Clear
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            // Find min/max for scaling
+            let minEquity = 0;
+            let maxEquity = 0;
+            monteCarlo.equityCurves.forEach(curve => {
+                curve.forEach(v => {
+                    minEquity = Math.min(minEquity, v);
+                    maxEquity = Math.max(maxEquity, v);
+                });
+            });
+
+            const range = maxEquity - minEquity || 1;
+            const xScale = (width - padding * 2) / (stats.totalTrades);
+            const yScale = (height - padding * 2) / range;
+
+            // Draw sample of curves (100 for performance)
+            const sampleSize = Math.min(100, monteCarlo.equityCurves.length);
+            const step = Math.floor(monteCarlo.equityCurves.length / sampleSize);
+
+            ctx.globalAlpha = 0.1;
+            ctx.strokeStyle = '#1A73E8';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < monteCarlo.equityCurves.length; i += step) {
+                const curve = monteCarlo.equityCurves[i];
+                ctx.beginPath();
+                curve.forEach((v, j) => {
+                    const x = padding + j * xScale;
+                    const y = height - padding - (v - minEquity) * yScale;
+                    if (j === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            }
+
+            // Draw actual equity curve
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = '#4ade80';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            stats.equityCurve.forEach((v, j) => {
+                const x = padding + j * xScale;
+                const y = height - padding - (v - minEquity) * yScale;
+                if (j === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Draw zero line
+            ctx.strokeStyle = '#DADCE0';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            const zeroY = height - padding - (0 - minEquity) * yScale;
+            ctx.moveTo(padding, zeroY);
+            ctx.lineTo(width - padding, zeroY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Labels
+            ctx.fillStyle = '#5F6368';
+            ctx.font = '11px "Courier New", Courier, monospace';
+            ctx.fillText('$' + maxEquity.toFixed(0), 5, padding);
+            ctx.fillText('$' + minEquity.toFixed(0), 5, height - padding);
+            ctx.fillText('Trade #', width / 2, height - 5);
+
+            // Legend
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(width - 120, 10, 12, 12);
+            ctx.fillStyle = '#5F6368';
+            ctx.fillText('Actual', width - 100, 20);
+
+            ctx.fillStyle = 'rgba(26, 115, 232, 0.5)';
+            ctx.fillRect(width - 120, 28, 12, 12);
+            ctx.fillStyle = '#5F6368';
+            ctx.fillText('Simulated', width - 100, 38);
+
+            // Stats
+            document.getElementById('mcStats').innerHTML = `
+                <div class="mc-stat">
+                    <div class="mc-stat-label">50th %ile DD</div>
+                    <div class="mc-stat-value">$${monteCarlo.drawdownPercentiles.p50.toFixed(0)}</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">75th %ile DD</div>
+                    <div class="mc-stat-value">$${monteCarlo.drawdownPercentiles.p75.toFixed(0)}</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">95th %ile DD</div>
+                    <div class="mc-stat-value" style="color: #fbbf24;">$${monteCarlo.drawdownPercentiles.p95.toFixed(0)}</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">99th %ile DD</div>
+                    <div class="mc-stat-value" style="color: #ef4444;">$${monteCarlo.drawdownPercentiles.p99.toFixed(0)}</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">Actual Max DD</div>
+                    <div class="mc-stat-value">$${stats.maxDD.toFixed(0)}</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">Typical Lose Streak</div>
+                    <div class="mc-stat-value">${monteCarlo.losingStreakPercentiles.p50} trades</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">Bad Lose Streak (95%)</div>
+                    <div class="mc-stat-value" style="color: #fbbf24;">${monteCarlo.losingStreakPercentiles.p95} trades</div>
+                </div>
+                <div class="mc-stat">
+                    <div class="mc-stat-label">Worst Lose Streak (99%)</div>
+                    <div class="mc-stat-value" style="color: #ef4444;">${monteCarlo.losingStreakPercentiles.p99} trades</div>
+                </div>
+            `;
+        }
+
+        function renderStability(strategy) {
+            const { stability } = strategy;
+
+            document.getElementById('stabilityGrid').innerHTML = `
+                <div class="stability-half">
+                    <h4>First Half (${stability.firstHalf.totalTrades} trades)</h4>
+                    <div class="stability-metric">
+                        <span>Win Rate</span>
+                        <span>${(stability.firstHalf.winRate * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="stability-metric">
+                        <span>Profit Factor</span>
+                        <span>${stability.firstHalf.profitFactor.toFixed(2)}</span>
+                    </div>
+                    <div class="stability-metric">
+                        <span>Total P&L</span>
+                        <span>$${stability.firstHalf.totalPnL.toFixed(2)}</span>
+                    </div>
+                    <div class="stability-metric">
+                        <span>Max DD</span>
+                        <span>$${stability.firstHalf.maxDD.toFixed(2)}</span>
+                    </div>
+                </div>
+                <div class="stability-half">
+                    <h4>Second Half (${stability.secondHalf.totalTrades} trades)</h4>
+                    <div class="stability-metric">
+                        <span>Win Rate</span>
+                        <span>${(stability.secondHalf.winRate * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="stability-metric">
+                        <span>Profit Factor</span>
+                        <span>${stability.secondHalf.profitFactor.toFixed(2)}</span>
+                    </div>
+                    <div class="stability-metric">
+                        <span>Total P&L</span>
+                        <span>$${stability.secondHalf.totalPnL.toFixed(2)}</span>
+                    </div>
+                    <div class="stability-metric">
+                        <span>Max DD</span>
+                        <span>$${stability.secondHalf.maxDD.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+
+            let verdictClass, verdictText;
+            if (stability.avgVariance <= 10) {
+                verdictClass = 'stable';
+                verdictText = 'PASS -- Highly Stable - Metrics consistent across both halves';
+            } else if (stability.avgVariance <= 20) {
+                verdictClass = 'stable';
+                verdictText = 'PASS -- Stable - Minor variance between halves';
+            } else if (stability.avgVariance <= 35) {
+                verdictClass = 'caution';
+                verdictText = 'WARN -- Moderate Variance - Performance differs between halves';
+            } else {
+                verdictClass = 'unstable';
+                verdictText = 'FAIL -- Unstable - Significant performance decay or inconsistency';
+            }
+
+            document.getElementById('stabilityVerdict').className = `stability-verdict ${verdictClass}`;
+            document.getElementById('stabilityVerdict').innerHTML = `
+                ${verdictText}<br>
+                <span style="font-size: 0.85rem; font-weight: normal;">
+                    Win Rate Variance: ${stability.winRateVariance.toFixed(1)}% |
+                    PF Variance: ${stability.pfVariance.toFixed(1)}%
+                </span>
+            `;
+        }
+
+        function renderMetrics(strategy) {
+            const { stats } = strategy;
+
+            const metrics = [
+                {
+                    name: 'Sharpe Ratio',
+                    value: stats.sharpe.toFixed(2),
+                    benchmark: '> 1.0 good, > 2.0 excellent',
+                    rating: stats.sharpe >= 2.0 ? 'excellent' : stats.sharpe >= 1.0 ? 'good' : stats.sharpe >= 0.5 ? 'marginal' : 'poor'
+                },
+                {
+                    name: 'Sortino Ratio',
+                    value: stats.sortino.toFixed(2),
+                    benchmark: '> 1.5 good, > 2.5 excellent',
+                    rating: stats.sortino >= 2.5 ? 'excellent' : stats.sortino >= 1.5 ? 'good' : stats.sortino >= 1.0 ? 'marginal' : 'poor'
+                },
+                {
+                    name: 'Calmar Ratio',
+                    value: stats.calmar.toFixed(2),
+                    benchmark: '> 1.0 good, > 3.0 excellent',
+                    rating: stats.calmar >= 3.0 ? 'excellent' : stats.calmar >= 1.0 ? 'good' : stats.calmar >= 0.5 ? 'marginal' : 'poor'
+                },
+                {
+                    name: 'Profit Factor',
+                    value: stats.profitFactor.toFixed(2),
+                    benchmark: '> 1.5 good, > 2.0 excellent',
+                    rating: stats.profitFactor >= 2.0 ? 'excellent' : stats.profitFactor >= 1.5 ? 'good' : stats.profitFactor >= 1.2 ? 'marginal' : 'poor'
+                },
+                {
+                    name: 'Win Rate',
+                    value: (stats.winRate * 100).toFixed(1) + '%',
+                    benchmark: 'Depends on RR ratio',
+                    rating: stats.winRate >= 0.6 ? 'excellent' : stats.winRate >= 0.5 ? 'good' : stats.winRate >= 0.4 ? 'marginal' : 'poor'
+                },
+                {
+                    name: 'Max Drawdown',
+                    value: '$' + stats.maxDD.toFixed(2),
+                    benchmark: '< 20% of equity good',
+                    rating: stats.maxDDPercent <= 10 ? 'excellent' : stats.maxDDPercent <= 20 ? 'good' : stats.maxDDPercent <= 30 ? 'marginal' : 'poor'
+                },
+                {
+                    name: 'Avg Win / Avg Loss',
+                    value: stats.avgLoss > 0 ? (stats.avgWin / stats.avgLoss).toFixed(2) : 'N/A',
+                    benchmark: '> 1.0 for positive expectancy',
+                    rating: stats.avgLoss > 0 && stats.avgWin / stats.avgLoss >= 1.5 ? 'excellent' : stats.avgWin / stats.avgLoss >= 1.0 ? 'good' : 'marginal'
+                },
+                {
+                    name: 'Expectancy',
+                    value: '$' + stats.mean.toFixed(2) + '/trade',
+                    benchmark: '> $0 required for edge',
+                    rating: stats.mean >= 50 ? 'excellent' : stats.mean >= 20 ? 'good' : stats.mean > 0 ? 'marginal' : 'poor'
+                }
+            ];
+
+            document.getElementById('metricsBody').innerHTML = metrics.map(m => `
+                <tr>
+                    <td>${m.name}</td>
+                    <td style="font-weight: 600;">${m.value}</td>
+                    <td><span class="metric-rating rating-${m.rating}">${m.rating.toUpperCase()}</span></td>
+                    <td style="color: #5F6368; font-size: 0.85rem;">${m.benchmark}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // FILE HANDLING
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.name.endsWith('.csv')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const strategy = parseCSV(e.target.result, file.name);
+                        if (strategy && strategy.trades.length > 0) {
+                            // Check for duplicate strategy names
+                            const existingIndex = strategies.findIndex(s => s.name === strategy.name);
+                            if (existingIndex !== -1) {
+                                if (confirm(`"${strategy.name}" already exists. Replace it?`)) {
+                                    strategies[existingIndex] = strategy;
+                                } else {
+                                    return; // User chose not to replace
+                                }
+                            } else {
+                                strategies.push(strategy);
+                            }
+                            renderStrategyCards();
+                            saveToLocalStorage();
+                        } else {
+                            alert(`Could not parse ${file.name}. Make sure it has a "Profit" column.`);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function clearAllStrategies() {
+            if (confirm('Clear all strategies and reset? This cannot be undone.')) {
+                strategies = [];
+                selectedStrategy = null;
+                localStorage.removeItem('strategy_validator_data');
+                renderStrategyCards();
+                renderResults();
+            }
+        }
+
+        function debugData() {
+            console.log('=== DEBUG DATA ===');
+            console.log('Number of strategies:', strategies.length);
+            strategies.forEach((s, i) => {
+                const pnl = s.trades.reduce((sum, t) => sum + t.profit, 0);
+                console.log(`Strategy ${i}: ${s.name}`);
+                console.log(`  Trades: ${s.trades.length}`);
+                console.log(`  P&L: $${pnl.toFixed(2)}`);
+                console.log(`  First 3 trades:`, s.trades.slice(0, 3));
+            });
+
+            // Show alert with summary
+            let summary = 'DEBUG SUMMARY:\n\n';
+            strategies.forEach((s, i) => {
+                const pnl = s.trades.reduce((sum, t) => sum + t.profit, 0);
+                summary += `${s.name}:\n`;
+                summary += `  Trades: ${s.trades.length}\n`;
+                summary += `  P&L: $${pnl.toFixed(2)}\n\n`;
+            });
+            const totalPnL = strategies.flatMap(s => s.trades).reduce((sum, t) => sum + t.profit, 0);
+            summary += `COMBINED P&L: $${totalPnL.toFixed(2)}`;
+            alert(summary);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // LOCAL STORAGE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function saveToLocalStorage() {
+            const data = strategies.map(s => ({
+                name: s.name,
+                trades: s.trades
+            }));
+            localStorage.setItem('strategy_validator_data', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('strategy_validator_data');
+            if (saved) {
+                try {
+                    strategies = JSON.parse(saved);
+                    if (strategies.length > 0) {
+                        renderStrategyCards();
+                    }
+                } catch (e) {
+                    console.error('Error loading saved data:', e);
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // EXPORT FOR CLAUDE
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function exportForClaude() {
+            if (selectedStrategy === null) {
+                alert('No strategy selected');
+                return;
+            }
+
+            let report = '';
+
+            // Check if it's combined portfolio
+            if (selectedStrategy === 'combined') {
+                report = generateCombinedReport();
+            } else if (strategies[selectedStrategy]) {
+                report = generateSingleReport(strategies[selectedStrategy]);
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(report).then(() => {
+                const btn = document.getElementById('exportBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = 'Copied to Clipboard';
+                btn.style.background = '#4ade80';
+                btn.style.color = '#202124';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                // Fallback: prompt to copy
+                const textarea = document.createElement('textarea');
+                textarea.value = report;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Report copied to clipboard!');
+            });
+        }
+
+        function generateSingleReport(s) {
+            const { stats, stability, significance, score, monteCarlo } = s;
+            const wrCI = calculateWinRateCI(stats.wins, stats.totalTrades);
+
+            return `## Strategy Validation Report: ${s.name}
+
+### Overall Score: ${score.grade} (${score.totalScore}/100)
+${score.verdict}
+
+### Basic Statistics
+- Total Trades: ${stats.totalTrades}
+- Wins: ${stats.wins} | Losses: ${stats.losses}
+- Win Rate: ${(stats.winRate * 100).toFixed(1)}%
+- Total P&L: $${stats.totalPnL.toFixed(2)}
+- Profit Factor: ${stats.profitFactor.toFixed(2)}
+- Expectancy: $${stats.mean.toFixed(2)}/trade
+- Max Drawdown: $${stats.maxDD.toFixed(2)}
+
+### Confidence Analysis
+- Win Rate 95% CI: ${(wrCI.lower * 100).toFixed(1)}% - ${(wrCI.upper * 100).toFixed(1)}%
+- P-Value: ${significance.pValue.toFixed(4)}
+- Statistically Significant: ${significance.significant ? 'YES' : 'NO'}
+
+### Risk Metrics
+- Sharpe Ratio: ${stats.sharpe.toFixed(2)}
+- Sortino Ratio: ${stats.sortino.toFixed(2)}
+- Calmar Ratio: ${stats.calmar.toFixed(2)}
+
+### Stability (First Half vs Second Half)
+- First Half: ${stability.firstHalf.totalTrades} trades, ${(stability.firstHalf.winRate * 100).toFixed(1)}% WR, PF ${stability.firstHalf.profitFactor.toFixed(2)}, P&L $${stability.firstHalf.totalPnL.toFixed(2)}
+- Second Half: ${stability.secondHalf.totalTrades} trades, ${(stability.secondHalf.winRate * 100).toFixed(1)}% WR, PF ${stability.secondHalf.profitFactor.toFixed(2)}, P&L $${stability.secondHalf.totalPnL.toFixed(2)}
+- Win Rate Variance: ${stability.winRateVariance.toFixed(1)}%
+- PF Variance: ${stability.pfVariance.toFixed(1)}%
+
+### Monte Carlo Simulation (1,000 iterations)
+- 50th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p50.toFixed(0)}
+- 75th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p75.toFixed(0)}
+- 95th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p95.toFixed(0)}
+- 99th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p99.toFixed(0)}
+- Typical Losing Streak: ${monteCarlo.losingStreakPercentiles.p50} trades
+- 95th Percentile Losing Streak: ${monteCarlo.losingStreakPercentiles.p95} trades
+
+### Score Breakdown
+| Metric | Score | Rating | Weight |
+|--------|-------|--------|--------|
+| Sharpe Ratio | ${score.breakdown.sharpe.value}/100 | ${score.breakdown.sharpe.rating} | 25% |
+| Profit Factor | ${score.breakdown.profitFactor.value}/100 | ${score.breakdown.profitFactor.rating} | 20% |
+| Significance | ${score.breakdown.significance.value}/100 | ${score.breakdown.significance.rating} | 15% |
+| Stability | ${score.breakdown.stability.value}/100 | ${score.breakdown.stability.rating} | 15% |
+| Sample Size | ${score.breakdown.sampleSize.value}/100 | ${score.breakdown.sampleSize.rating} | 10% |
+| Max DD | ${score.breakdown.maxDD.value}/100 | ${score.breakdown.maxDD.rating} | 10% |
+| Sortino Ratio | ${score.breakdown.sortino.value}/100 | ${score.breakdown.sortino.rating} | 5% |`;
+        }
+
+        function generateCombinedReport() {
+            const combined = getCombinedPortfolio();
+            const { stats, stability, significance, score, monteCarlo } = combined;
+            const wrCI = calculateWinRateCI(stats.wins, stats.totalTrades);
+
+            // Individual strategy summaries
+            let individualSummaries = strategies.map(s => {
+                return `- ${s.name}: ${s.stats.totalTrades} trades, ${(s.stats.winRate * 100).toFixed(1)}% WR, PF ${s.stats.profitFactor.toFixed(2)}, $${s.stats.totalPnL.toFixed(0)} P&L, Grade ${s.score.grade}`;
+            }).join('\n');
+
+            return `## Combined Portfolio Validation Report
+
+### Strategies Included (${strategies.length})
+${individualSummaries}
+
+### Portfolio Overall Score: ${score.grade} (${score.totalScore}/100)
+${score.verdict}
+
+### Combined Statistics
+- Total Trades: ${stats.totalTrades}
+- Wins: ${stats.wins} | Losses: ${stats.losses}
+- Win Rate: ${(stats.winRate * 100).toFixed(1)}%
+- Total P&L: $${stats.totalPnL.toFixed(2)}
+- Profit Factor: ${stats.profitFactor.toFixed(2)}
+- Expectancy: $${stats.mean.toFixed(2)}/trade
+- Max Drawdown: $${stats.maxDD.toFixed(2)}
+
+### Confidence Analysis
+- Win Rate 95% CI: ${(wrCI.lower * 100).toFixed(1)}% - ${(wrCI.upper * 100).toFixed(1)}%
+- P-Value: ${significance.pValue.toFixed(4)}
+- Statistically Significant: ${significance.significant ? 'YES' : 'NO'}
+
+### Risk Metrics
+- Sharpe Ratio: ${stats.sharpe.toFixed(2)}
+- Sortino Ratio: ${stats.sortino.toFixed(2)}
+- Calmar Ratio: ${stats.calmar.toFixed(2)}
+
+### Stability (First Half vs Second Half)
+- First Half: ${stability.firstHalf.totalTrades} trades, ${(stability.firstHalf.winRate * 100).toFixed(1)}% WR, PF ${stability.firstHalf.profitFactor.toFixed(2)}, P&L $${stability.firstHalf.totalPnL.toFixed(2)}
+- Second Half: ${stability.secondHalf.totalTrades} trades, ${(stability.secondHalf.winRate * 100).toFixed(1)}% WR, PF ${stability.secondHalf.profitFactor.toFixed(2)}, P&L $${stability.secondHalf.totalPnL.toFixed(2)}
+- Win Rate Variance: ${stability.winRateVariance.toFixed(1)}%
+- PF Variance: ${stability.pfVariance.toFixed(1)}%
+
+### Monte Carlo Simulation (1,000 iterations)
+- 50th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p50.toFixed(0)}
+- 75th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p75.toFixed(0)}
+- 95th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p95.toFixed(0)}
+- 99th Percentile Max DD: $${monteCarlo.drawdownPercentiles.p99.toFixed(0)}
+- Typical Losing Streak: ${monteCarlo.losingStreakPercentiles.p50} trades
+- 95th Percentile Losing Streak: ${monteCarlo.losingStreakPercentiles.p95} trades
+
+### Score Breakdown
+| Metric | Score | Rating | Weight |
+|--------|-------|--------|--------|
+| Sharpe Ratio | ${score.breakdown.sharpe.value}/100 | ${score.breakdown.sharpe.rating} | 25% |
+| Profit Factor | ${score.breakdown.profitFactor.value}/100 | ${score.breakdown.profitFactor.rating} | 20% |
+| Significance | ${score.breakdown.significance.value}/100 | ${score.breakdown.significance.rating} | 15% |
+| Stability | ${score.breakdown.stability.value}/100 | ${score.breakdown.stability.rating} | 15% |
+| Sample Size | ${score.breakdown.sampleSize.value}/100 | ${score.breakdown.sampleSize.rating} | 10% |
+| Max DD | ${score.breakdown.maxDD.value}/100 | ${score.breakdown.maxDD.rating} | 10% |
+| Sortino Ratio | ${score.breakdown.sortino.value}/100 | ${score.breakdown.sortino.rating} | 5% |`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // COMBINED PORTFOLIO
+        // ═══════════════════════════════════════════════════════════════════════
+
+        function getCombinedPortfolio() {
+            // Merge all trades from all strategies
+            const allTrades = [];
+            strategies.forEach((s, idx) => {
+                s.trades.forEach(t => {
+                    allTrades.push({
+                        ...t,
+                        strategyIndex: idx,
+                        strategyName: s.name
+                    });
+                });
+            });
+
+            // Sort by date if dates exist, otherwise keep original order
+            if (allTrades.length > 0 && allTrades[0].date) {
+                allTrades.sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+
+            // Create a virtual "combined" strategy
+            const combinedTrades = allTrades.map(t => ({ profit: t.profit }));
+
+            const stats = calculateBasicStats(combinedTrades);
+            const stability = analyzeStability(combinedTrades);
+            const significance = binomialTest(stats.wins, stats.totalTrades);
+            const score = calculateScore(stats, stability, significance);
+            const monteCarlo = runMonteCarloSimulation(stats.profits);
+
+            return {
+                name: 'Combined Portfolio',
+                trades: combinedTrades,
+                stats,
+                stability,
+                significance,
+                score,
+                monteCarlo
+            };
+        }
+
+        function selectCombinedPortfolio() {
+            selectedStrategy = 'combined';
+            renderStrategyCards();
+            renderCombinedResults();
+        }
+
+        function renderCombinedResults() {
+            const noData = document.getElementById('noDataState');
+            const loading = document.getElementById('loadingState');
+            const content = document.getElementById('resultsContent');
+            const exportBtn = document.getElementById('exportBtn');
+
+            noData.classList.add('hidden');
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            exportBtn.style.display = 'none';
+
+            setTimeout(() => {
+                const combined = getCombinedPortfolio();
+
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                exportBtn.style.display = 'block';
+
+                renderOverview(combined);
+                renderConfidence(combined);
+                renderMonteCarlo(combined);
+                renderStability(combined);
+                renderMetrics(combined);
+            }, 50);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            // Prevent default drag behaviors on document
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+                document.body.addEventListener(e, ev => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                }, false);
+            });
+
+            // Drop zone events
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            ['dragenter', 'dragover'].forEach(e => {
+                dropZone.addEventListener(e, ev => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    dropZone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(e => {
+                dropZone.addEventListener(e, ev => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    dropZone.classList.remove('dragover');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) handleFiles(files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+                e.target.value = ''; // Reset so same file can be re-uploaded
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+                    // Re-render Monte Carlo chart when switching to that tab
+                    if (tab.dataset.tab === 'montecarlo' && selectedStrategy !== null) {
+                        setTimeout(() => renderMonteCarlo(strategies[selectedStrategy]), 50);
+                    }
+                });
+            });
+
+            // Window resize - re-render MC chart
+            window.addEventListener('resize', () => {
+                if (selectedStrategy !== null && !document.getElementById('tab-montecarlo').classList.contains('hidden')) {
+                    renderMonteCarlo(strategies[selectedStrategy]);
+                }
+            });
+
+            // Load saved data
+            loadFromLocalStorage();
+        });
+    </script>
+</body>
+</html>
