@@ -729,9 +729,9 @@
             </div>
             <div style="margin-top: 15px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
                 <div class="form-group" style="flex: 0 0 auto;">
-                    <label style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
+                    <label id="capitalLabel" style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
                         Starting Capital ($)
-                        <span class="help-icon" title="Capital allocated to this strategy. Used to compute drawdown as % of account. Default $50,000." style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#DADCE0;color:#5F6368;font-size:11px;text-align:center;line-height:16px;cursor:help;margin-left:4px;">?</span>
+                        <span id="capitalHelpIcon" class="help-icon" title="Capital allocated to this strategy. Used to compute drawdown as % of account. Default $50,000." style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#DADCE0;color:#5F6368;font-size:11px;text-align:center;line-height:16px;cursor:help;margin-left:4px;">?</span>
                     </label>
                     <input type="number" id="startingCapital" value="50000" min="1000" step="1000" style="font-family:'Courier New',Courier,monospace;padding:8px 12px;border:1px solid #DADCE0;background:#ffffff;font-size:0.9rem;width:160px;">
                 </div>
@@ -1521,16 +1521,25 @@ analysis instrument for backtested strategies.</div>
         // UI RENDERING
         // ═══════════════════════════════════════════════════════════════════════
 
+        function isPooledMode() {
+            const radio = document.querySelector('input[name="capitalMode"]:checked');
+            return radio && radio.value === 'pooled' && strategies.length >= 2;
+        }
+
         function renderStrategyCards() {
             const container = document.getElementById('strategyCards');
             container.innerHTML = '';
+            const pooled = isPooledMode();
 
             // Add Combined Portfolio card if there are 2+ strategies
             if (strategies.length >= 2) {
                 const combinedCard = document.createElement('div');
                 combinedCard.className = `strategy-card ${selectedStrategy === 'combined' ? 'selected' : ''}`;
-                combinedCard.style.background = selectedStrategy === 'combined' ? '#ffffff' : '#ffffff';
-                combinedCard.style.borderColor = selectedStrategy === 'combined' ? '#1A73E8' : '#DADCE0';
+                combinedCard.style.background = '#ffffff';
+                combinedCard.style.borderColor = (selectedStrategy === 'combined' || pooled) ? '#1A73E8' : '#DADCE0';
+                if (pooled) {
+                    combinedCard.style.borderWidth = '2px';
+                }
 
                 // Calculate combined stats for the card
                 const allProfits = strategies.flatMap(s => s.trades.map(t => t.profit));
@@ -1585,6 +1594,10 @@ analysis instrument for backtested strategies.</div>
 
                 const card = document.createElement('div');
                 card.className = `strategy-card ${selectedStrategy === index ? 'selected' : ''}`;
+                if (pooled) {
+                    card.style.opacity = '0.4';
+                    card.style.pointerEvents = 'none';
+                }
                 card.innerHTML = `
                     <div class="strategy-card-header">
                         <span class="strategy-name">${strategy.name}</span>
@@ -1611,7 +1624,9 @@ analysis instrument for backtested strategies.</div>
                     <button class="remove-btn" onclick="event.stopPropagation(); removeStrategy(${index})">Remove</button>
                 `;
 
-                card.addEventListener('click', () => selectStrategy(index));
+                if (!pooled) {
+                    card.addEventListener('click', () => selectStrategy(index));
+                }
                 container.appendChild(card);
             });
 
@@ -1633,6 +1648,46 @@ analysis instrument for backtested strategies.</div>
             if (capitalModeSelector) {
                 capitalModeSelector.style.display = strategies.length >= 2 ? 'block' : 'none';
             }
+
+            // Update capital label for pooled mode
+            updateCapitalLabel();
+
+            // In pooled mode, auto-select combined portfolio
+            if (pooled && selectedStrategy !== 'combined') {
+                selectedStrategy = 'combined';
+                // Re-render cards to apply selection state (guard against infinite loop)
+                container.querySelectorAll('.strategy-card').forEach((c, i) => {
+                    if (i === 0) {
+                        c.classList.add('selected');
+                        c.style.borderColor = '#1A73E8';
+                        c.style.borderWidth = '2px';
+                    }
+                });
+                renderCombinedResults();
+            }
+        }
+
+        function updateCapitalLabel() {
+            const label = document.getElementById('capitalLabel');
+            const helpIcon = document.getElementById('capitalHelpIcon');
+            const capitalInput = document.getElementById('startingCapital');
+            if (!label) return;
+
+            if (isPooledMode()) {
+                label.childNodes[0].textContent = 'Pooled Capital ($) ';
+                if (helpIcon) helpIcon.title = 'Total capital shared across all strategies in the portfolio. Default is sum of individual capitals or $100,000.';
+                // Set default pooled capital to sum of individual capitals or $100,000
+                const sumCapital = strategies.reduce((s, st) => s + (st.startingCapital || 50000), 0);
+                if (capitalInput && !capitalInput.dataset.userEdited) {
+                    capitalInput.value = sumCapital || 100000;
+                }
+            } else {
+                label.childNodes[0].textContent = 'Starting Capital ($) ';
+                if (helpIcon) helpIcon.title = 'Capital allocated to this strategy. Used to compute drawdown as % of account. Default $50,000.';
+                if (capitalInput && !capitalInput.dataset.userEdited) {
+                    capitalInput.value = 50000;
+                }
+            }
         }
 
         function selectStrategy(index) {
@@ -1643,7 +1698,17 @@ analysis instrument for backtested strategies.</div>
 
         function removeStrategy(index) {
             strategies.splice(index, 1);
-            if (selectedStrategy >= strategies.length) {
+            if (strategies.length < 2) {
+                // Reset to per-strategy mode when fewer than 2 strategies
+                const perStrategyRadio = document.querySelector('input[name="capitalMode"][value="perStrategy"]');
+                if (perStrategyRadio) perStrategyRadio.checked = true;
+                const capitalInput = document.getElementById('startingCapital');
+                if (capitalInput) capitalInput.dataset.userEdited = '';
+                if (selectedStrategy === 'combined') {
+                    selectedStrategy = strategies.length > 0 ? 0 : null;
+                }
+            }
+            if (typeof selectedStrategy === 'number' && selectedStrategy >= strategies.length) {
                 selectedStrategy = strategies.length - 1;
             }
             if (strategies.length === 0) {
@@ -2531,6 +2596,28 @@ ${stabilitySection}
                     renderMonteCarlo(strategies[selectedStrategy]);
                 }
             });
+
+            // Capital mode radio change
+            document.querySelectorAll('input[name="capitalMode"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const capitalInput = document.getElementById('startingCapital');
+                    if (capitalInput) capitalInput.dataset.userEdited = '';
+                    renderStrategyCards();
+                    if (isPooledMode()) {
+                        renderCombinedResults();
+                    } else {
+                        renderResults();
+                    }
+                });
+            });
+
+            // Track user edits on capital input
+            const capitalInput = document.getElementById('startingCapital');
+            if (capitalInput) {
+                capitalInput.addEventListener('input', () => {
+                    capitalInput.dataset.userEdited = 'true';
+                });
+            }
 
             // Load saved data
             loadFromLocalStorage();
