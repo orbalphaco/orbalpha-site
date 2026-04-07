@@ -728,12 +728,12 @@
                 <input type="file" id="fileInput" accept=".csv" multiple>
             </div>
             <div style="margin-top: 15px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-                <div class="form-group" style="flex: 0 0 auto;">
-                    <label id="capitalLabel" style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
-                        Starting Capital ($)
-                        <span id="capitalHelpIcon" class="help-icon" title="Capital allocated to this strategy. Used to compute drawdown as % of account. Default $50,000." style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#DADCE0;color:#5F6368;font-size:11px;text-align:center;line-height:16px;cursor:help;margin-left:4px;">?</span>
+                <div class="form-group" id="pooledCapitalGroup" style="flex: 0 0 auto; display: none;">
+                    <label style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
+                        Pooled Capital ($)
+                        <span class="help-icon" title="Total capital shared across all strategies in the portfolio. Default is sum of individual capitals." style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#DADCE0;color:#5F6368;font-size:11px;text-align:center;line-height:16px;cursor:help;margin-left:4px;">?</span>
                     </label>
-                    <input type="number" id="startingCapital" value="50000" min="1000" step="1000" style="font-family:'Courier New',Courier,monospace;padding:8px 12px;border:1px solid #DADCE0;background:#ffffff;font-size:0.9rem;width:160px;">
+                    <input type="number" id="pooledCapital" value="100000" min="1000" step="1000" style="font-family:'Courier New',Courier,monospace;padding:8px 12px;border:1px solid #DADCE0;background:#ffffff;font-size:0.9rem;width:160px;">
                 </div>
                 <div class="form-group" id="capitalModeSelector" style="flex: 0 0 auto; display: none;">
                     <label style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
@@ -1154,8 +1154,17 @@ analysis instrument for backtested strategies.</div>
             let sum = 1.000000000190015;
             let xx = x;
             for (let i = 0; i < 6; i++) sum += c[i] / ++xx;
-            return -((x + 0.5) * Math.log(x + 5.5)) + (x + 5.5) - Math.log(2.5066282746310005 * sum / x);
+            return ((x + 0.5) * Math.log(x + 5.5)) - (x + 5.5) + Math.log(2.5066282746310005 * sum / x);
         }
+        // Unit tests — fire on page load, visible in console if broken
+        console.assert(
+            Math.abs(logGamma(5) - 3.178054) < 1e-4,
+            'logGamma(5) should equal ~3.178054, got ' + logGamma(5)
+        );
+        console.assert(
+            Math.abs(logGamma(10) - 12.801827) < 1e-4,
+            'logGamma(10) should equal ~12.801827, got ' + logGamma(10)
+        );
 
         function continuedFractionBeta(x, a, b) {
             const maxIter = 200, eps = 3e-7;
@@ -1403,7 +1412,8 @@ analysis instrument for backtested strategies.</div>
             return Math.min(compositeScore, gradeMaxScores[finalGrade] || compositeScore);
         }
 
-        function calculateScore(stats, stability, significance) {
+        function calculateScore(stats, stability, significance, capital) {
+            capital = Math.max(1000, capital || 50000);
             const scores = {};
             let totalScore = 0;
 
@@ -1469,9 +1479,8 @@ analysis instrument for backtested strategies.</div>
             }
             totalScore += scores.sampleSize.value * SCORING.sampleSize.weight;
 
-            // Max Drawdown % Score (of starting capital — lower is better)
-            const startingCapital = parseFloat(document.getElementById('startingCapital').value) || 50000;
-            const maxDDPercent = (stats.maxDD / startingCapital) * 100;
+            // Max Drawdown % Score (of capital — lower is better)
+            const maxDDPercent = (stats.maxDD / capital) * 100;
             if (maxDDPercent <= SCORING.maxDD.excellent) {
                 scores.maxDD = { value: 100, rating: 'excellent' };
             } else if (maxDDPercent <= SCORING.maxDD.good) {
@@ -1582,15 +1591,19 @@ analysis instrument for backtested strategies.</div>
 
             // Individual strategy cards
             strategies.forEach((strategy, index) => {
+                if (!strategy.startingCapital) strategy.startingCapital = 50000;
+                const cap = Math.max(1000, strategy.startingCapital);
                 const stats = calculateBasicStats(strategy.trades);
                 const stability = analyzeStability(strategy.trades);
                 const significance = tTestExpectancy(stats.profits);
-                const score = calculateScore(stats, stability, significance);
+                const score = calculateScore(stats, stability, significance, cap);
 
                 strategy.stats = stats;
                 strategy.stability = stability;
                 strategy.significance = significance;
                 strategy.score = score;
+
+                const ddPct = (stats.maxDD / cap * 100).toFixed(2);
 
                 const card = document.createElement('div');
                 card.className = `strategy-card ${selectedStrategy === index ? 'selected' : ''}`;
@@ -1617,11 +1630,21 @@ analysis instrument for backtested strategies.</div>
                             <span class="stat-value">${stats.profitFactor === 99.99 ? '>10.0' : stats.profitFactor.toFixed(2)}</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">Score</span>
-                            <span class="stat-value">${score.displayScore}/100</span>
+                            <span class="stat-label">Max DD</span>
+                            <span class="stat-value">$${stats.maxDD.toFixed(0)}</span>
                         </div>
                     </div>
-                    <button class="remove-btn" onclick="event.stopPropagation(); removeStrategy(${index})">Remove</button>
+                    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;font-size:0.8rem;">
+                        <span style="color:#5F6368;">Capital:</span>
+                        <input type="number" class="strategy-capital-input" data-index="${index}" value="${cap}" min="1000" step="1000"
+                            style="font-family:'Courier New',Courier,monospace;padding:4px 6px;border:1px solid #DADCE0;background:#ffffff;font-size:0.8rem;width:100px;${pooled ? 'opacity:0.4;pointer-events:none;' : ''}"
+                            onclick="event.stopPropagation();">
+                        <span style="color:#5F6368;">DD%: ${ddPct}%</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                        <span style="font-size:0.8rem;color:#5F6368;">Score: ${score.displayScore}/100</span>
+                        <button class="remove-btn" onclick="event.stopPropagation(); removeStrategy(${index})" style="margin-top:0;">Remove</button>
+                    </div>
                 `;
 
                 if (!pooled) {
@@ -1649,13 +1672,36 @@ analysis instrument for backtested strategies.</div>
                 capitalModeSelector.style.display = strategies.length >= 2 ? 'block' : 'none';
             }
 
-            // Update capital label for pooled mode
-            updateCapitalLabel();
+            // Show/hide pooled capital input
+            const pooledCapitalGroup = document.getElementById('pooledCapitalGroup');
+            if (pooledCapitalGroup) {
+                pooledCapitalGroup.style.display = pooled ? 'block' : 'none';
+                if (pooled) {
+                    const pooledInput = document.getElementById('pooledCapital');
+                    if (pooledInput && !pooledInput.dataset.userEdited) {
+                        const sumCap = strategies.reduce((s, st) => s + (st.startingCapital || 50000), 0);
+                        pooledInput.value = sumCap || 100000;
+                    }
+                }
+            }
+
+            // Attach per-strategy capital input change handlers
+            container.querySelectorAll('.strategy-capital-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(input.dataset.index);
+                    const val = Math.max(1000, parseFloat(input.value) || 50000);
+                    input.value = val;
+                    strategies[idx].startingCapital = val;
+                    saveToLocalStorage();
+                    renderStrategyCards();
+                    if (selectedStrategy === idx) renderResults();
+                });
+            });
 
             // In pooled mode, auto-select combined portfolio
             if (pooled && selectedStrategy !== 'combined') {
                 selectedStrategy = 'combined';
-                // Re-render cards to apply selection state (guard against infinite loop)
                 container.querySelectorAll('.strategy-card').forEach((c, i) => {
                     if (i === 0) {
                         c.classList.add('selected');
@@ -1667,27 +1713,23 @@ analysis instrument for backtested strategies.</div>
             }
         }
 
-        function updateCapitalLabel() {
-            const label = document.getElementById('capitalLabel');
-            const helpIcon = document.getElementById('capitalHelpIcon');
-            const capitalInput = document.getElementById('startingCapital');
-            if (!label) return;
+        function getStrategyCapital(strategy) {
+            return Math.max(1000, strategy.startingCapital || 50000);
+        }
 
-            if (isPooledMode()) {
-                label.childNodes[0].textContent = 'Pooled Capital ($) ';
-                if (helpIcon) helpIcon.title = 'Total capital shared across all strategies in the portfolio. Default is sum of individual capitals or $100,000.';
-                // Set default pooled capital to sum of individual capitals or $100,000
-                const sumCapital = strategies.reduce((s, st) => s + (st.startingCapital || 50000), 0);
-                if (capitalInput && !capitalInput.dataset.userEdited) {
-                    capitalInput.value = sumCapital || 100000;
-                }
-            } else {
-                label.childNodes[0].textContent = 'Starting Capital ($) ';
-                if (helpIcon) helpIcon.title = 'Capital allocated to this strategy. Used to compute drawdown as % of account. Default $50,000.';
-                if (capitalInput && !capitalInput.dataset.userEdited) {
-                    capitalInput.value = 50000;
-                }
-            }
+        function getPooledCapital() {
+            const input = document.getElementById('pooledCapital');
+            return Math.max(1000, parseFloat(input && input.value) || 100000);
+        }
+
+        function calculatePortfolioDDPercent(strats) {
+            const totalCapital = strats.reduce((sum, s) => sum + getStrategyCapital(s), 0);
+            return strats.reduce((sum, s) => {
+                const cap = getStrategyCapital(s);
+                const ddPct = (s.stats.maxDD / cap) * 100;
+                const weight = cap / totalCapital;
+                return sum + (ddPct * weight);
+            }, 0);
         }
 
         function selectStrategy(index) {
@@ -1702,8 +1744,8 @@ analysis instrument for backtested strategies.</div>
                 // Reset to per-strategy mode when fewer than 2 strategies
                 const perStrategyRadio = document.querySelector('input[name="capitalMode"][value="perStrategy"]');
                 if (perStrategyRadio) perStrategyRadio.checked = true;
-                const capitalInput = document.getElementById('startingCapital');
-                if (capitalInput) capitalInput.dataset.userEdited = '';
+                const pooledInput = document.getElementById('pooledCapital');
+                if (pooledInput) pooledInput.dataset.userEdited = '';
                 if (selectedStrategy === 'combined') {
                     selectedStrategy = strategies.length > 0 ? 0 : null;
                 }
@@ -2095,6 +2137,9 @@ analysis instrument for backtested strategies.</div>
 
         function renderMetrics(strategy) {
             const { stats } = strategy;
+            // Determine capital: for individual strategies use their own, for combined use appropriate mode
+            const cap = strategy.startingCapital ? Math.max(1000, strategy.startingCapital) : (isPooledMode() ? getPooledCapital() : 50000);
+            const ddPct = stats.maxDD / cap * 100;
 
             const metrics = [
                 {
@@ -2129,16 +2174,9 @@ analysis instrument for backtested strategies.</div>
                 },
                 {
                     name: 'Max DD (% of Capital)',
-                    value: (() => {
-                        const cap = parseFloat(document.getElementById('startingCapital').value) || 50000;
-                        return (stats.maxDD / cap * 100).toFixed(2) + '% of $' + cap.toLocaleString();
-                    })(),
+                    value: ddPct.toFixed(2) + '% of $' + cap.toLocaleString(),
                     benchmark: '< 5% excellent, < 10% good',
-                    rating: (() => {
-                        const cap = parseFloat(document.getElementById('startingCapital').value) || 50000;
-                        const pct = stats.maxDD / cap * 100;
-                        return pct <= 5 ? 'excellent' : pct <= 10 ? 'good' : pct <= 15 ? 'marginal' : 'poor';
-                    })()
+                    rating: ddPct <= 5 ? 'excellent' : ddPct <= 10 ? 'good' : ddPct <= 15 ? 'marginal' : 'poor'
                 },
                 {
                     name: 'Max Drawdown ($)',
@@ -2186,10 +2224,13 @@ analysis instrument for backtested strategies.</div>
                                 alert(`Strategy must have at least 30 trades for statistical validation. Uploaded file contains ${strategy.trades.length} trades.`);
                                 return;
                             }
+                            // Set default starting capital
+                            strategy.startingCapital = 50000;
                             // Check for duplicate strategy names
                             const existingIndex = strategies.findIndex(s => s.name === strategy.name);
                             if (existingIndex !== -1) {
                                 if (confirm(`"${strategy.name}" already exists. Replace it?`)) {
+                                    strategy.startingCapital = strategies[existingIndex].startingCapital || 50000;
                                     strategies[existingIndex] = strategy;
                                 } else {
                                     return; // User chose not to replace
@@ -2249,7 +2290,8 @@ analysis instrument for backtested strategies.</div>
         function saveToLocalStorage() {
             const data = strategies.map(s => ({
                 name: s.name,
-                trades: s.trades
+                trades: s.trades,
+                startingCapital: s.startingCapital || 50000
             }));
             localStorage.setItem('strategy_validator_data', JSON.stringify(data));
         }
@@ -2317,7 +2359,7 @@ analysis instrument for backtested strategies.</div>
 
             const pfDisplay = stats.profitFactor === 99.99 ? '>10.0' : stats.profitFactor.toFixed(2);
             const sortinoDisplay = stats.sortino === 99.99 ? '>10.0' : stats.sortino.toFixed(2);
-            const capVal = parseFloat(document.getElementById('startingCapital').value) || 50000;
+            const capVal = getStrategyCapital(s);
             const maxDDPercentDisplay = (stats.maxDD / capVal * 100).toFixed(2) + '% of $' + capVal.toLocaleString();
             const demotionLine = score.demoted ? `\nNote: ${score.demotionNote}` : '';
             const stabilitySection = stability.insufficientData
@@ -2391,8 +2433,10 @@ ${stabilitySection}
 
             const pfDisplay = stats.profitFactor === 99.99 ? '>10.0' : stats.profitFactor.toFixed(2);
             const sortinoDisplay = stats.sortino === 99.99 ? '>10.0' : stats.sortino.toFixed(2);
-            const capVal = parseFloat(document.getElementById('startingCapital').value) || 50000;
-            const maxDDPercentDisplay = (stats.maxDD / capVal * 100).toFixed(2) + '% of $' + capVal.toLocaleString();
+            const capVal = combined.startingCapital || 100000;
+            const portfolioDDPct = combined.portfolioDDPercent || (stats.maxDD / capVal * 100);
+            const maxDDPercentDisplay = portfolioDDPct.toFixed(2) + '% of $' + capVal.toLocaleString();
+            const modeLabel = isPooledMode() ? 'Pooled' : 'Per-Strategy (capital-weighted)';
             const demotionLine = score.demoted ? `\nNote: ${score.demotionNote}` : '';
             const stabilitySection = stability.insufficientData
                 ? `### Stability\nInsufficient data — minimum 30 trades required`
@@ -2410,6 +2454,7 @@ ${individualSummaries}
 ### Portfolio Overall Score: ${score.grade}
 - Display Score: ${score.displayScore}/100
 - Composite Score: ${score.totalScore}/100
+- Capital Mode: ${modeLabel}
 ${score.verdict}${demotionLine}
 
 ### Combined Statistics
@@ -2483,18 +2528,39 @@ ${stabilitySection}
             const stats = calculateBasicStats(combinedTrades);
             const stability = analyzeStability(combinedTrades);
             const significance = tTestExpectancy(stats.profits);
-            const score = calculateScore(stats, stability, significance);
+
+            // Determine capital for scoring
+            let combinedCapital;
+            if (isPooledMode()) {
+                combinedCapital = getPooledCapital();
+            } else {
+                // Per-strategy: total capital is sum of individual capitals
+                combinedCapital = strategies.reduce((sum, s) => sum + getStrategyCapital(s), 0);
+            }
+
+            const score = calculateScore(stats, stability, significance, combinedCapital);
             const monteCarlo = runMonteCarloSimulation(stats.profits);
 
-            return {
+            // Store capital info for renderMetrics
+            const combinedResult = {
                 name: 'Combined Portfolio',
                 trades: combinedTrades,
                 stats,
                 stability,
                 significance,
                 score,
-                monteCarlo
+                monteCarlo,
+                startingCapital: combinedCapital
             };
+
+            // Compute the appropriate DD% for display
+            if (isPooledMode()) {
+                combinedResult.portfolioDDPercent = (stats.maxDD / combinedCapital) * 100;
+            } else {
+                combinedResult.portfolioDDPercent = calculatePortfolioDDPercent(strategies);
+            }
+
+            return combinedResult;
         }
 
         function selectCombinedPortfolio() {
@@ -2600,8 +2666,8 @@ ${stabilitySection}
             // Capital mode radio change
             document.querySelectorAll('input[name="capitalMode"]').forEach(radio => {
                 radio.addEventListener('change', () => {
-                    const capitalInput = document.getElementById('startingCapital');
-                    if (capitalInput) capitalInput.dataset.userEdited = '';
+                    const pooledInput = document.getElementById('pooledCapital');
+                    if (pooledInput) pooledInput.dataset.userEdited = '';
                     renderStrategyCards();
                     if (isPooledMode()) {
                         renderCombinedResults();
@@ -2611,11 +2677,18 @@ ${stabilitySection}
                 });
             });
 
-            // Track user edits on capital input
-            const capitalInput = document.getElementById('startingCapital');
-            if (capitalInput) {
-                capitalInput.addEventListener('input', () => {
-                    capitalInput.dataset.userEdited = 'true';
+            // Track user edits on pooled capital input
+            const pooledCapitalInput = document.getElementById('pooledCapital');
+            if (pooledCapitalInput) {
+                pooledCapitalInput.addEventListener('input', () => {
+                    pooledCapitalInput.dataset.userEdited = 'true';
+                });
+                pooledCapitalInput.addEventListener('change', () => {
+                    const val = Math.max(1000, parseFloat(pooledCapitalInput.value) || 100000);
+                    pooledCapitalInput.value = val;
+                    if (isPooledMode() && selectedStrategy === 'combined') {
+                        renderCombinedResults();
+                    }
                 });
             }
 
