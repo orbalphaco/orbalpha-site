@@ -727,6 +727,25 @@
                 <div class="drop-zone-hint">or click to browse files</div>
                 <input type="file" id="fileInput" accept=".csv" multiple>
             </div>
+            <div style="margin-top: 15px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 0 0 auto;">
+                    <label style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
+                        Starting Capital ($)
+                        <span class="help-icon" title="Capital allocated to this strategy. Used to compute drawdown as % of account. Default $50,000." style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#DADCE0;color:#5F6368;font-size:11px;text-align:center;line-height:16px;cursor:help;margin-left:4px;">?</span>
+                    </label>
+                    <input type="number" id="startingCapital" value="50000" min="1000" step="1000" style="font-family:'Courier New',Courier,monospace;padding:8px 12px;border:1px solid #DADCE0;background:#ffffff;font-size:0.9rem;width:160px;">
+                </div>
+                <div class="form-group" id="capitalModeSelector" style="flex: 0 0 auto; display: none;">
+                    <label style="display: block; font-size: 0.85rem; color: #5F6368; margin-bottom: 4px;">
+                        Capital Mode
+                        <span class="help-icon" title="Per-Strategy: Each strategy runs on its own dedicated account. Pooled: All strategies share one account." style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#DADCE0;color:#5F6368;font-size:11px;text-align:center;line-height:16px;cursor:help;margin-left:4px;">?</span>
+                    </label>
+                    <div style="display:flex;gap:12px;font-size:0.85rem;">
+                        <label style="cursor:pointer;"><input type="radio" name="capitalMode" value="perStrategy" checked style="margin-right:4px;">Per-Strategy</label>
+                        <label style="cursor:pointer;"><input type="radio" name="capitalMode" value="pooled" style="margin-right:4px;">Pooled</label>
+                    </div>
+                </div>
+            </div>
             <div class="strategy-cards" id="strategyCards"></div>
             <div style="text-align: center; margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
                 <button class="btn btn-secondary" onclick="debugData()" style="font-size: 0.85rem; padding: 8px 16px; display: none;" id="debugBtn">Debug Data</button>
@@ -848,8 +867,10 @@
             </summary>
             <div style="padding:15px;font-size:0.85rem;color:#5F6368;line-height:1.8;white-space:pre-wrap;font-family:'Courier New',Courier,monospace;">
 Risk metrics (Sharpe, Sortino, Calmar) are computed from per-trade P&L,
-not daily equity returns. Annualization uses √(trades_per_year), where
-trades_per_year is derived from the actual date range of the input data.
+not daily equity returns. This is a per-trade Sharpe variant appropriate
+for strategy-level backtests where daily equity curves are unavailable.
+Annualization uses √(trades_per_year), where trades_per_year is derived
+from the actual date range of the input data.
 
 Sortino downside deviation uses total sample size N as the denominator,
 matching the standard PyFolio/Empyrical implementation.
@@ -898,7 +919,7 @@ analysis instrument for backtested strategies.</div>
             significance: { weight: 0.15, excellent: 0.01, good: 0.05, marginal: 0.10 },
             stability: { weight: 0.15, excellent: 10, good: 20, marginal: 35 },
             sampleSize: { weight: 0.10, excellent: 200, good: 100, marginal: 50 },
-            maxDD: { weight: 0.10, excellent: 20, good: 40, marginal: 60 },
+            maxDD: { weight: 0.10, excellent: 5, good: 10, marginal: 15 },
             sortino: { weight: 0.05, excellent: 3.0, good: 2.0, marginal: 1.0 }
         };
 
@@ -1100,7 +1121,6 @@ analysis instrument for backtested strategies.</div>
                 profitFactor,
                 maxDD,
                 expectancy: mean,
-                ddTradesOfEdge: mean > 0 ? maxDD / mean : Infinity,
                 sharpe,
                 sortino,
                 calmar,
@@ -1128,6 +1148,53 @@ analysis instrument for backtested strategies.</div>
             };
         }
 
+        function logGamma(x) {
+            const c = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+                       -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+            let sum = 1.000000000190015;
+            let xx = x;
+            for (let i = 0; i < 6; i++) sum += c[i] / ++xx;
+            return -((x + 0.5) * Math.log(x + 5.5)) + (x + 5.5) - Math.log(2.5066282746310005 * sum / x);
+        }
+
+        function continuedFractionBeta(x, a, b) {
+            const maxIter = 200, eps = 3e-7;
+            const qab = a + b, qap = a + 1, qam = a - 1;
+            let c = 1, d = 1 - qab * x / qap;
+            if (Math.abs(d) < 1e-30) d = 1e-30;
+            d = 1 / d;
+            let h = d;
+            for (let m = 1; m <= maxIter; m++) {
+                const m2 = 2 * m;
+                let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+                d = 1 + aa * d; if (Math.abs(d) < 1e-30) d = 1e-30;
+                c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+                d = 1 / d; h *= d * c;
+                aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+                d = 1 + aa * d; if (Math.abs(d) < 1e-30) d = 1e-30;
+                c = 1 + aa / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+                d = 1 / d;
+                const del = d * c; h *= del;
+                if (Math.abs(del - 1) < eps) break;
+            }
+            return h;
+        }
+
+        function regularizedIncompleteBeta(x, a, b) {
+            if (x <= 0) return 0;
+            if (x >= 1) return 1;
+            const lbeta = logGamma(a) + logGamma(b) - logGamma(a + b);
+            const front = Math.exp(Math.log(x) * a + Math.log(1 - x) * b - lbeta) / a;
+            return front * continuedFractionBeta(x, a, b);
+        }
+
+        function studentTCDF(t, df) {
+            const x = df / (df + t * t);
+            const a = df / 2, b = 0.5;
+            const ibeta = regularizedIncompleteBeta(x, a, b);
+            return t >= 0 ? 1 - 0.5 * ibeta : 0.5 * ibeta;
+        }
+
         function tTestExpectancy(profits) {
             const n = profits.length;
             if (n < 2) return { tStatistic: 0, pValue: 1, significant: false };
@@ -1135,26 +1202,9 @@ analysis instrument for backtested strategies.</div>
             const variance = profits.reduce((s, p) => s + Math.pow(p - mean, 2), 0) / (n - 1);
             const stdErr = Math.sqrt(variance / n);
             const tStatistic = stdErr > 0 ? mean / stdErr : 0;
-            const z = Math.abs(tStatistic);
-            const pValue = 2 * (1 - normalCDF(z));
+            const df = n - 1;
+            const pValue = 2 * (1 - studentTCDF(Math.abs(tStatistic), df));
             return { tStatistic, pValue, significant: pValue < 0.05 };
-        }
-
-        function normalCDF(x) {
-            const a1 = 0.254829592;
-            const a2 = -0.284496736;
-            const a3 = 1.421413741;
-            const a4 = -1.453152027;
-            const a5 = 1.061405429;
-            const p = 0.3275911;
-
-            const sign = x < 0 ? -1 : 1;
-            x = Math.abs(x) / Math.sqrt(2);
-
-            const t = 1.0 / (1.0 + p * x);
-            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-
-            return 0.5 * (1.0 + sign * y);
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -1273,56 +1323,85 @@ analysis instrument for backtested strategies.</div>
         // ═══════════════════════════════════════════════════════════════════════
 
         function getGradeAndLabel(compositeScore, metrics) {
+            const LABELS = {
+                'A+': 'Elite — Exceptional risk-adjusted edge',
+                'A':  'Strong — Production-ready edge',
+                'B':  'Promising — Real edge, refinement recommended',
+                'C':  'Marginal — Edge present but unreliable',
+                'D':  'Weak — Significant concerns, do not deploy',
+                'F':  'Failing — No statistically supported edge'
+            };
+
             let provisional;
-            if (compositeScore >= 95) provisional = { grade: 'A+', label: 'Elite — Exceptional risk-adjusted edge' };
-            else if (compositeScore >= 85) provisional = { grade: 'A', label: 'Strong — Production-ready edge' };
-            else if (compositeScore >= 75) provisional = { grade: 'B', label: 'Promising — Real edge, refinement recommended' };
-            else if (compositeScore >= 65) provisional = { grade: 'C', label: 'Marginal — Edge present but unreliable' };
-            else if (compositeScore >= 55) provisional = { grade: 'D', label: 'Weak — Significant concerns, do not deploy' };
-            else provisional = { grade: 'F', label: 'Failing — No statistically supported edge' };
+            if (compositeScore >= 95) provisional = 'A+';
+            else if (compositeScore >= 85) provisional = 'A';
+            else if (compositeScore >= 75) provisional = 'B';
+            else if (compositeScore >= 65) provisional = 'C';
+            else if (compositeScore >= 55) provisional = 'D';
+            else provisional = 'F';
 
             const gates = {
                 'A+': { pass: metrics.sharpe >= 2.0 && metrics.sortino >= 3.0 && metrics.calmar >= 2.5 && metrics.stabilityScore >= 70 && metrics.totalTrades >= 100,
-                        requires: 'Sharpe >= 2.0, Sortino >= 3.0, Calmar >= 2.5, Stability >= 70, Trades >= 100' },
-                'A':  { pass: metrics.sharpe >= 1.5 && metrics.sortino >= 2.5 && metrics.calmar >= 2.0 && metrics.totalTrades >= 100,
-                        requires: 'Sharpe >= 1.5, Sortino >= 2.5, Calmar >= 2.0, Trades >= 100' },
+                        failureReason: buildGateFailure(metrics, { sharpe: 2.0, sortino: 3.0, calmar: 2.5, stability: 70, trades: 100 }) },
+                'A':  { pass: metrics.sharpe >= 1.5 && metrics.sortino >= 2.5 && metrics.calmar >= 2.0 && metrics.stabilityScore >= 50 && metrics.totalTrades >= 100,
+                        failureReason: buildGateFailure(metrics, { sharpe: 1.5, sortino: 2.5, calmar: 2.0, stability: 50, trades: 100 }) },
                 'B':  { pass: metrics.sharpe >= 1.0 && metrics.totalTrades >= 50,
-                        requires: 'Sharpe >= 1.0, Trades >= 50' },
+                        failureReason: buildGateFailure(metrics, { sharpe: 1.0, trades: 50 }) },
                 'C':  { pass: metrics.sharpe >= 0.5 && metrics.totalTrades >= 30,
-                        requires: 'Sharpe >= 0.5, Trades >= 30' }
+                        failureReason: buildGateFailure(metrics, { sharpe: 0.5, trades: 30 }) }
             };
 
             const order = ['A+', 'A', 'B', 'C', 'D', 'F'];
-            const labels = {
-                'A+': 'Elite — Exceptional risk-adjusted edge',
-                'A': 'Strong — Production-ready edge',
-                'B': 'Promising — Real edge, refinement recommended',
-                'C': 'Marginal — Edge present but unreliable',
-                'D': 'Weak — Significant concerns, do not deploy',
-                'F': 'Failing — No statistically supported edge'
-            };
+            let currentIdx = order.indexOf(provisional);
+            const demotionChain = [];
 
-            let currentIdx = order.indexOf(provisional.grade);
-            let demoted = false;
-            let demotionNote = null;
-
-            while (currentIdx < order.length - 2 && gates[order[currentIdx]] && !gates[order[currentIdx]].pass) {
-                demotionNote = `Composite score qualified for ${order[currentIdx]} but failed gate: ${gates[order[currentIdx]].requires}`;
+            while (gates[order[currentIdx]] && !gates[order[currentIdx]].pass) {
+                demotionChain.push({
+                    grade: order[currentIdx],
+                    reason: gates[order[currentIdx]].failureReason
+                });
                 currentIdx++;
-                demoted = true;
+            }
+
+            const finalGrade = order[currentIdx];
+            let demotionNote = null;
+            if (demotionChain.length > 0) {
+                demotionNote = 'Composite scored ' + provisional + ' but failed: ' +
+                    demotionChain.map(d => d.grade + ' (' + d.reason + ')').join(', ') +
+                    '. Final grade: ' + finalGrade + '.';
             }
 
             return {
-                grade: order[currentIdx],
-                label: labels[order[currentIdx]],
-                demoted,
+                grade: finalGrade,
+                label: LABELS[finalGrade],
+                demoted: demotionChain.length > 0,
                 demotionNote
             };
+        }
+
+        function buildGateFailure(metrics, thresholds) {
+            const failures = [];
+            if (thresholds.sharpe !== undefined && metrics.sharpe < thresholds.sharpe)
+                failures.push('Sharpe ' + metrics.sharpe.toFixed(2) + ' < ' + thresholds.sharpe + ' required');
+            if (thresholds.sortino !== undefined && metrics.sortino < thresholds.sortino)
+                failures.push('Sortino ' + metrics.sortino.toFixed(2) + ' < ' + thresholds.sortino + ' required');
+            if (thresholds.calmar !== undefined && metrics.calmar < thresholds.calmar)
+                failures.push('Calmar ' + metrics.calmar.toFixed(2) + ' < ' + thresholds.calmar + ' required');
+            if (thresholds.stability !== undefined && metrics.stabilityScore < thresholds.stability)
+                failures.push('Stability ' + metrics.stabilityScore + ' < ' + thresholds.stability + ' required');
+            if (thresholds.trades !== undefined && metrics.totalTrades < thresholds.trades)
+                failures.push('Trades ' + metrics.totalTrades + ' < ' + thresholds.trades + ' required');
+            return failures.join(', ');
         }
 
         // ═══════════════════════════════════════════════════════════════════════
         // SCORING SYSTEM
         // ═══════════════════════════════════════════════════════════════════════
+
+        function getDisplayScore(compositeScore, finalGrade) {
+            const gradeMaxScores = { 'A+': 100, 'A': 94, 'B': 84, 'C': 74, 'D': 64, 'F': 54 };
+            return Math.min(compositeScore, gradeMaxScores[finalGrade] || compositeScore);
+        }
 
         function calculateScore(stats, stability, significance) {
             const scores = {};
@@ -1390,14 +1469,16 @@ analysis instrument for backtested strategies.</div>
             }
             totalScore += scores.sampleSize.value * SCORING.sampleSize.weight;
 
-            // Max Drawdown Score (trades of edge — lower is better)
-            if (stats.ddTradesOfEdge <= SCORING.maxDD.excellent) {
+            // Max Drawdown % Score (of starting capital — lower is better)
+            const startingCapital = parseFloat(document.getElementById('startingCapital').value) || 50000;
+            const maxDDPercent = (stats.maxDD / startingCapital) * 100;
+            if (maxDDPercent <= SCORING.maxDD.excellent) {
                 scores.maxDD = { value: 100, rating: 'excellent' };
-            } else if (stats.ddTradesOfEdge <= SCORING.maxDD.good) {
+            } else if (maxDDPercent <= SCORING.maxDD.good) {
                 scores.maxDD = { value: 75, rating: 'good' };
-            } else if (stats.ddTradesOfEdge <= SCORING.maxDD.marginal) {
+            } else if (maxDDPercent <= SCORING.maxDD.marginal) {
                 scores.maxDD = { value: 50, rating: 'marginal' };
-            } else if (stats.ddTradesOfEdge <= 100) {
+            } else if (maxDDPercent <= 25) {
                 scores.maxDD = { value: 25, rating: 'poor' };
             } else {
                 scores.maxDD = { value: 0, rating: 'poor' };
@@ -1427,6 +1508,7 @@ analysis instrument for backtested strategies.</div>
 
             return {
                 totalScore: Math.round(totalScore),
+                displayScore: getDisplayScore(Math.round(totalScore), gradeResult.grade),
                 grade: gradeResult.grade,
                 verdict: gradeResult.label,
                 demoted: gradeResult.demoted || false,
@@ -1523,7 +1605,7 @@ analysis instrument for backtested strategies.</div>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Score</span>
-                            <span class="stat-value">${score.totalScore}/100</span>
+                            <span class="stat-value">${score.displayScore}/100</span>
                         </div>
                     </div>
                     <button class="remove-btn" onclick="event.stopPropagation(); removeStrategy(${index})">Remove</button>
@@ -1545,6 +1627,11 @@ analysis instrument for backtested strategies.</div>
             }
             if (debugBtn) {
                 debugBtn.style.display = strategies.length > 0 ? 'inline-block' : 'none';
+            }
+
+            const capitalModeSelector = document.getElementById('capitalModeSelector');
+            if (capitalModeSelector) {
+                capitalModeSelector.style.display = strategies.length >= 2 ? 'block' : 'none';
             }
         }
 
@@ -1620,8 +1707,10 @@ analysis instrument for backtested strategies.</div>
             circle.className = `score-circle grade-${gradeClass}`;
             document.getElementById('scoreLetter').textContent = score.grade;
             document.getElementById('scoreLetter').className = `score-letter grade-${gradeClass}`;
-            document.getElementById('scoreNumber').textContent = `${score.totalScore}/100`;
-            const demotionHtml = score.demoted ? `<div style="margin-top:8px;font-size:0.8rem;color:#C4900C;">${score.demotionNote}</div>` : '';
+            document.getElementById('scoreNumber').textContent = `${score.displayScore}/100`;
+            const demotionHtml = score.demoted
+                ? `<div style="margin-top:6px;font-size:0.8rem;color:#5F6368;">composite: ${score.totalScore} (capped to grade ${score.grade})</div><div style="margin-top:8px;font-size:0.8rem;color:#C4900C;">${score.demotionNote}</div>`
+                : '';
             document.getElementById('scoreVerdict').innerHTML = score.verdict + demotionHtml;
 
             // Score breakdown
@@ -1632,7 +1721,7 @@ analysis instrument for backtested strategies.</div>
                 { key: 'significance', label: 'Statistical Significance', weight: '15%' },
                 { key: 'stability', label: 'Stability', weight: '15%' },
                 { key: 'sampleSize', label: 'Sample Size', weight: '10%' },
-                { key: 'maxDD', label: 'Max DD (trades of edge)', weight: '10%' },
+                { key: 'maxDD', label: 'Max DD (% of capital)', weight: '10%' },
                 { key: 'sortino', label: 'Sortino Ratio', weight: '5%' }
             ];
 
@@ -1974,16 +2063,23 @@ analysis instrument for backtested strategies.</div>
                     rating: stats.winRate >= 0.6 ? 'excellent' : stats.winRate >= 0.5 ? 'good' : stats.winRate >= 0.4 ? 'marginal' : 'poor'
                 },
                 {
-                    name: 'Max DD (trades of edge)',
-                    value: stats.ddTradesOfEdge === Infinity ? 'N/A' : stats.ddTradesOfEdge.toFixed(1),
-                    benchmark: '< 20 excellent, < 40 good',
-                    rating: stats.ddTradesOfEdge <= 20 ? 'excellent' : stats.ddTradesOfEdge <= 40 ? 'good' : stats.ddTradesOfEdge <= 60 ? 'marginal' : 'poor'
+                    name: 'Max DD (% of Capital)',
+                    value: (() => {
+                        const cap = parseFloat(document.getElementById('startingCapital').value) || 50000;
+                        return (stats.maxDD / cap * 100).toFixed(2) + '% of $' + cap.toLocaleString();
+                    })(),
+                    benchmark: '< 5% excellent, < 10% good',
+                    rating: (() => {
+                        const cap = parseFloat(document.getElementById('startingCapital').value) || 50000;
+                        const pct = stats.maxDD / cap * 100;
+                        return pct <= 5 ? 'excellent' : pct <= 10 ? 'good' : pct <= 15 ? 'marginal' : 'poor';
+                    })()
                 },
                 {
                     name: 'Max Drawdown ($)',
                     value: '$' + stats.maxDD.toFixed(2),
                     benchmark: 'Absolute drawdown',
-                    rating: 'good'
+                    rating: '\u2014'
                 },
                 {
                     name: 'Avg Win / Avg Loss',
@@ -2003,7 +2099,7 @@ analysis instrument for backtested strategies.</div>
                 <tr>
                     <td>${m.name}</td>
                     <td style="font-weight: 600;">${m.value}</td>
-                    <td><span class="metric-rating rating-${m.rating}">${m.rating.toUpperCase()}</span></td>
+                    <td>${m.rating === '\u2014' ? '<span style="color:#5F6368;">\u2014</span>' : '<span class="metric-rating rating-' + m.rating + '">' + m.rating.toUpperCase() + '</span>'}</td>
                     <td style="color: #5F6368; font-size: 0.85rem;">${m.benchmark}</td>
                 </tr>
             `).join('');
@@ -2156,7 +2252,8 @@ analysis instrument for backtested strategies.</div>
 
             const pfDisplay = stats.profitFactor === 99.99 ? '>10.0' : stats.profitFactor.toFixed(2);
             const sortinoDisplay = stats.sortino === 99.99 ? '>10.0' : stats.sortino.toFixed(2);
-            const ddEdgeDisplay = stats.ddTradesOfEdge === Infinity ? 'N/A' : stats.ddTradesOfEdge.toFixed(1);
+            const capVal = parseFloat(document.getElementById('startingCapital').value) || 50000;
+            const maxDDPercentDisplay = (stats.maxDD / capVal * 100).toFixed(2) + '% of $' + capVal.toLocaleString();
             const demotionLine = score.demoted ? `\nNote: ${score.demotionNote}` : '';
             const stabilitySection = stability.insufficientData
                 ? `### Stability\nInsufficient data — minimum 30 trades required`
@@ -2168,7 +2265,9 @@ analysis instrument for backtested strategies.</div>
 
             return `## Strategy Validation Report: ${s.name}
 
-### Overall Score: ${score.grade} (${score.totalScore}/100)
+### Overall Score: ${score.grade}
+- Display Score: ${score.displayScore}/100
+- Composite Score: ${score.totalScore}/100
 ${score.verdict}${demotionLine}
 
 ### Basic Statistics
@@ -2179,7 +2278,7 @@ ${score.verdict}${demotionLine}
 - Profit Factor: ${pfDisplay}
 - Expectancy: $${stats.mean.toFixed(2)}/trade
 - Max Drawdown: $${stats.maxDD.toFixed(2)}
-- Max DD (trades of edge): ${ddEdgeDisplay}
+- Max DD (% of Capital): ${maxDDPercentDisplay}
 
 ### Confidence Analysis (t-test on expectancy)
 - Win Rate 95% CI: ${(wrCI.lower * 100).toFixed(1)}% - ${(wrCI.upper * 100).toFixed(1)}%
@@ -2210,7 +2309,7 @@ ${stabilitySection}
 | Significance | ${score.breakdown.significance.value}/100 | ${score.breakdown.significance.rating} | 15% |
 | Stability | ${score.breakdown.stability.value}/100 | ${score.breakdown.stability.rating} | 15% |
 | Sample Size | ${score.breakdown.sampleSize.value}/100 | ${score.breakdown.sampleSize.rating} | 10% |
-| Max DD (trades of edge) | ${score.breakdown.maxDD.value}/100 | ${score.breakdown.maxDD.rating} | 10% |
+| Max DD (% of capital) | ${score.breakdown.maxDD.value}/100 | ${score.breakdown.maxDD.rating} | 10% |
 | Sortino Ratio | ${score.breakdown.sortino.value}/100 | ${score.breakdown.sortino.rating} | 5% |`;
         }
 
@@ -2227,7 +2326,8 @@ ${stabilitySection}
 
             const pfDisplay = stats.profitFactor === 99.99 ? '>10.0' : stats.profitFactor.toFixed(2);
             const sortinoDisplay = stats.sortino === 99.99 ? '>10.0' : stats.sortino.toFixed(2);
-            const ddEdgeDisplay = stats.ddTradesOfEdge === Infinity ? 'N/A' : stats.ddTradesOfEdge.toFixed(1);
+            const capVal = parseFloat(document.getElementById('startingCapital').value) || 50000;
+            const maxDDPercentDisplay = (stats.maxDD / capVal * 100).toFixed(2) + '% of $' + capVal.toLocaleString();
             const demotionLine = score.demoted ? `\nNote: ${score.demotionNote}` : '';
             const stabilitySection = stability.insufficientData
                 ? `### Stability\nInsufficient data — minimum 30 trades required`
@@ -2242,7 +2342,9 @@ ${stabilitySection}
 ### Strategies Included (${strategies.length})
 ${individualSummaries}
 
-### Portfolio Overall Score: ${score.grade} (${score.totalScore}/100)
+### Portfolio Overall Score: ${score.grade}
+- Display Score: ${score.displayScore}/100
+- Composite Score: ${score.totalScore}/100
 ${score.verdict}${demotionLine}
 
 ### Combined Statistics
@@ -2253,7 +2355,7 @@ ${score.verdict}${demotionLine}
 - Profit Factor: ${pfDisplay}
 - Expectancy: $${stats.mean.toFixed(2)}/trade
 - Max Drawdown: $${stats.maxDD.toFixed(2)}
-- Max DD (trades of edge): ${ddEdgeDisplay}
+- Max DD (% of Capital): ${maxDDPercentDisplay}
 
 ### Confidence Analysis (t-test on expectancy)
 - Win Rate 95% CI: ${(wrCI.lower * 100).toFixed(1)}% - ${(wrCI.upper * 100).toFixed(1)}%
@@ -2284,7 +2386,7 @@ ${stabilitySection}
 | Significance | ${score.breakdown.significance.value}/100 | ${score.breakdown.significance.rating} | 15% |
 | Stability | ${score.breakdown.stability.value}/100 | ${score.breakdown.stability.rating} | 15% |
 | Sample Size | ${score.breakdown.sampleSize.value}/100 | ${score.breakdown.sampleSize.rating} | 10% |
-| Max DD (trades of edge) | ${score.breakdown.maxDD.value}/100 | ${score.breakdown.maxDD.rating} | 10% |
+| Max DD (% of capital) | ${score.breakdown.maxDD.value}/100 | ${score.breakdown.maxDD.rating} | 10% |
 | Sortino Ratio | ${score.breakdown.sortino.value}/100 | ${score.breakdown.sortino.rating} | 5% |`;
         }
 
