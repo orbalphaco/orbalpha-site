@@ -1165,6 +1165,14 @@ analysis instrument for backtested strategies.</div>
             Math.abs(logGamma(10) - 12.801827) < 1e-4,
             'logGamma(10) should equal ~12.801827, got ' + logGamma(10)
         );
+        console.assert(
+            Math.abs(studentTCDF(2.045, 29) - 0.9750) < 1e-3,
+            'studentTCDF(2.045, 29) should equal ~0.9750, got ' + studentTCDF(2.045, 29)
+        );
+        console.assert(
+            Math.abs(regularizedIncompleteBeta(0.5, 1, 1) - 0.5) < 1e-6,
+            'regularizedIncompleteBeta(0.5, 1, 1) should equal 0.5, got ' + regularizedIncompleteBeta(0.5, 1, 1)
+        );
 
         function continuedFractionBeta(x, a, b) {
             const maxIter = 200, eps = 3e-7;
@@ -2139,7 +2147,9 @@ analysis instrument for backtested strategies.</div>
             const { stats } = strategy;
             // Determine capital: for individual strategies use their own, for combined use appropriate mode
             const cap = strategy.startingCapital ? Math.max(1000, strategy.startingCapital) : (isPooledMode() ? getPooledCapital() : 50000);
-            const ddPct = stats.maxDD / cap * 100;
+            const ddPct = strategy.portfolioDDPercent !== undefined
+                ? strategy.portfolioDDPercent
+                : (stats.maxDD / cap * 100);
 
             const metrics = [
                 {
@@ -2538,7 +2548,10 @@ ${stabilitySection}
                 combinedCapital = strategies.reduce((sum, s) => sum + getStrategyCapital(s), 0);
             }
 
-            const score = calculateScore(stats, stability, significance, combinedCapital);
+            const scoringCapital = isPooledMode()
+                ? combinedCapital
+                : (stats.maxDD / (calculatePortfolioDDPercent(strategies) / 100));
+            const score = calculateScore(stats, stability, significance, scoringCapital);
             const monteCarlo = runMonteCarloSimulation(stats.profits);
 
             // Store capital info for renderMetrics
