@@ -866,7 +866,7 @@
             stability: { weight: 0.15, excellent: 10, good: 20, marginal: 35 },
             sampleSize: { weight: 0.10, excellent: 200, good: 100, marginal: 50 },
             maxDD: { weight: 0.10, excellent: 10, good: 20, marginal: 30 },
-            sortino: { weight: 0.05, excellent: 2.5, good: 1.5, marginal: 1.0 }
+            sortino: { weight: 0.05, excellent: 3.0, good: 2.0, marginal: 1.0 }
         };
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -934,10 +934,13 @@
         function parseCSVWithIndex(lines, profitIdx, filename) {
             const trades = [];
 
-            // Also need to find Type column for filtering
+            // Also need to find Type and Date columns
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
             const typeIdx = headers.findIndex(h =>
                 h.includes('type') || h.includes('side') || h.includes('direction')
+            );
+            const dateIdx = headers.findIndex(h =>
+                h.includes('date') || h.includes('time') || h.includes('entry')
             );
 
             for (let i = 1; i < lines.length; i++) {
@@ -954,7 +957,7 @@
                         trades.push({
                             profit: profit,
                             type: typeIdx !== -1 ? values[typeIdx] : 'unknown',
-                            date: null
+                            date: dateIdx !== -1 ? values[dateIdx] : null
                         });
                     }
                 }
@@ -1030,11 +1033,24 @@
                 : 0;
             const downsideDev = Math.sqrt(downsideVariance);
 
-            // Annualized (assuming ~250 trading days)
-            const tradesPerYear = 250; // Approximate
+            // Calculate actual trades per year from date range
+            let tradesPerYear = 252; // fallback if no dates
+            let years = 1;
+            const tradeDates = trades.map(t => t.date ? new Date(t.date) : null).filter(d => d && !isNaN(d));
+            if (tradeDates.length >= 2) {
+                tradeDates.sort((a, b) => a - b);
+                const firstDate = tradeDates[0];
+                const lastDate = tradeDates[tradeDates.length - 1];
+                const dateRangeDays = (lastDate - firstDate) / (1000 * 60 * 60 * 24);
+                years = Math.max(dateRangeDays / 365.25, 0.1); // floor at ~1 month
+                tradesPerYear = profits.length / years;
+            }
+
+            // Annualized using actual trade frequency
             const sharpe = stdDev > 0 ? (mean / stdDev) * Math.sqrt(tradesPerYear) : 0;
             const sortino = downsideDev > 0 ? (mean / downsideDev) * Math.sqrt(tradesPerYear) : 0;
-            const calmar = maxDD > 0 ? (totalPnL / maxDD) : 0;
+            const annualizedReturn = totalPnL / years;
+            const calmar = maxDD > 0 ? (annualizedReturn / maxDD) : 0;
 
             return {
                 totalTrades: profits.length,
@@ -1822,13 +1838,13 @@
                     name: 'Sortino Ratio',
                     value: stats.sortino.toFixed(2),
                     benchmark: '> 1.5 good, > 2.5 excellent',
-                    rating: stats.sortino >= 2.5 ? 'excellent' : stats.sortino >= 1.5 ? 'good' : stats.sortino >= 1.0 ? 'marginal' : 'poor'
+                    rating: stats.sortino >= 3.0 ? 'excellent' : stats.sortino >= 2.0 ? 'good' : stats.sortino >= 1.0 ? 'marginal' : 'poor'
                 },
                 {
                     name: 'Calmar Ratio',
                     value: stats.calmar.toFixed(2),
                     benchmark: '> 1.0 good, > 3.0 excellent',
-                    rating: stats.calmar >= 3.0 ? 'excellent' : stats.calmar >= 1.0 ? 'good' : stats.calmar >= 0.5 ? 'marginal' : 'poor'
+                    rating: stats.calmar >= 5.0 ? 'excellent' : stats.calmar >= 3.0 ? 'good' : stats.calmar >= 1.0 ? 'marginal' : 'poor'
                 },
                 {
                     name: 'Profit Factor',
