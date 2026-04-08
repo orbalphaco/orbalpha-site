@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBAlpha — Day-of-Week Screener</title>
+    <meta name="description" content="Day-of-week equity curve screener for ORB/ORF strategies. Identifies which days to enable for ORB and ORF from TradingView backtest CSV.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #ECEEF1;
+            min-height: 100vh;
+            padding: 0;
+            color: #202124;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* System Bar */
+        .system-bar {
+            background: #D3E3FD;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 32px;
+        }
+
+        .system-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+        }
+
+        .system-id {
+            font-weight: bold;
+            font-size: 15px;
+            color: #202124;
+        }
+
+        .system-sub {
+            font-size: 12px;
+            color: #5F6368;
+        }
+
+        .back-link {
+            font-size: 12px;
+            color: #1A73E8;
+            text-decoration: none;
+        }
+
+        /* Mobile notice */
+        .mobile-notice {
+            display: none;
+            font-size: 12px;
+            color: #5F6368;
+            text-align: center;
+            padding: 8px;
+            background: #ECEEF1;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-notice { display: block; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .section {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #DADCE0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #202124;
+        }
+
+        .section-title::before {
+            content: '// ';
+            color: #5F6368;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed #DADCE0;
+            border-radius: 0;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            background: #ffffff;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #1A73E8;
+            background: #ffffff;
+        }
+
+        .drop-zone-icon {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #5F6368;
+        }
+
+        .drop-zone-text {
+            font-size: 1.1rem;
+            color: #5F6368;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone-hint {
+            font-size: 0.85rem;
+            color: #5F6368;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Curves Section */
+        .curves-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .curve-panel {
+            background: #ffffff;
+            border: 1px solid #DADCE0;
+            padding: 15px;
+        }
+
+        .curve-panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        .curve-panel-title::before {
+            content: '// ';
+            color: #5F6368;
+        }
+
+        .day-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ECEEF1;
+        }
+
+        .day-row:last-child {
+            border-bottom: none;
+        }
+
+        .day-toggle {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #DADCE0;
+            background: #ffffff;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .day-toggle:checked {
+            background: #1A73E8;
+            border-color: #1A73E8;
+        }
+
+        .day-toggle:checked::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 5px;
+            height: 9px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .day-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #202124;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .day-stats {
+            font-size: 0.8rem;
+            color: #5F6368;
+            flex-shrink: 0;
+            width: 160px;
+            text-align: right;
+        }
+
+        .day-chart {
+            flex: 1;
+            height: 40px;
+            min-width: 80px;
+        }
+
+        .day-pnl {
+            font-size: 0.85rem;
+            font-weight: 600;
+            width: 80px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .pnl-positive { color: #2e7d32; }
+        .pnl-negative { color: #c62828; }
+        .pnl-na { color: #5F6368; }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .summary-stat {
+            background: #ECEEF1;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #DADCE0;
+        }
+
+        .summary-stat-label {
+            font-size: 0.75rem;
+            color: #5F6368;
+            margin-bottom: 4px;
+        }
+
+        .summary-stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #202124;
+        }
+
+        /* Card Section */
+        .card-output {
+            background: #ffffff;
+            border: 2px solid #1A73E8;
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: #5F6368;
+            margin-bottom: 16px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card-column-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #DADCE0;
+        }
+
+        .card-day {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.85rem;
+        }
+
+        .card-check {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #DADCE0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .card-check.enabled {
+            background: #1A73E8;
+            border-color: #1A73E8;
+            color: #ffffff;
+        }
+
+        .card-check.disabled {
+            background: #ffffff;
+            border-color: #DADCE0;
+            color: transparent;
+        }
+
+        .card-day-label {
+            color: #202124;
+        }
+
+        .card-day-label.disabled {
+            color: #5F6368;
+            text-decoration: line-through;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .btn-primary {
+            background: #202124;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #3c4043;
+        }
+
+        .btn-secondary {
+            background: #ECEEF1;
+            color: #202124;
+            border: 1px solid #DADCE0;
+        }
+
+        .btn-secondary:hover {
+            background: #D3E3FD;
+        }
+
+        .btn-danger {
+            background: #202124;
+            color: #ffffff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        /* Footer */
+        footer {
+            background: #D3E3FD;
+            color: #202124;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 32px;
+            font-size: 12px;
+        }
+
+        footer .auth {
+            color: #5F6368;
+        }
+
+        /* No Data State */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #5F6368;
+        }
+
+        .no-data-icon {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #5F6368;
+        }
+
+        /* Test Failure Banner */
+        .test-failure {
+            background: #c62828;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .test-failure pre {
+            margin-top: 10px;
+            text-align: left;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .curves-container {
+                grid-template-columns: 1fr;
+            }
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .system-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 12px 16px;
+            }
+            .container { padding: 16px; }
+            footer { padding: 12px 16px; }
+            .day-stats { display: none; }
+            .day-chart { display: none; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="testFailureBanner" class="test-failure hidden"></div>
+
+    <div class="system-bar">
+      <div class="system-bar-left">
+        <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/>
+          <text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text>
+        </svg>
+        <div>
+          <div class="system-id">ORBAlpha SYSTEM v2.1</div>
+          <div class="system-sub">// day-of-week screener</div>
+        </div>
+      </div>
+      <a href="/" class="back-link">&larr; back to orbalpha.com</a>
+    </div>
+
+    <div class="mobile-notice">// best viewed on desktop</div>
+
+    <div class="container" id="mainContent">
+        <!-- Section 1: Upload -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">IMPORT BACKTEST</span>
+            </div>
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">// CSV</div>
+                <div class="drop-zone-text">Drop TradingView strategy CSV export here</div>
+                <div class="drop-zone-hint">or click to browse — one CSV, one asset, one configuration</div>
+                <input type="file" id="fileInput" accept=".csv">
+            </div>
+            <div id="fileInfo" class="hidden" style="margin-top:12px; font-size:0.85rem; color:#5F6368;"></div>
+        </div>
+
+        <!-- Section 2: Equity Curves -->
+        <div class="section hidden" id="curvesSection">
+            <div class="section-header">
+                <span class="section-title">DAY-OF-WEEK EQUITY CURVES</span>
+                <button class="btn btn-secondary" onclick="clearAll()" style="font-size:0.8rem; padding:6px 14px;">clear</button>
+            </div>
+            <div class="curves-container">
+                <div class="curve-panel">
+                    <div class="curve-panel-title">ORB — Section 4D</div>
+                    <div id="orbCurves"></div>
+                    <div class="summary-stats" id="orbSummary"></div>
+                </div>
+                <div class="curve-panel">
+                    <div class="curve-panel-title">ORF — Section 5D</div>
+                    <div id="orfCurves"></div>
+                    <div class="summary-stats" id="orfSummary"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Output Card -->
+        <div class="section hidden" id="cardSection">
+            <div class="section-header">
+                <span class="section-title">DAY FILTER CARD</span>
+            </div>
+            <div class="card-output" id="cardOutput"></div>
+            <div style="margin-top:8px; font-size:0.8rem; color:#5F6368;">
+                This is the day-filter portion only. Full settings come from the Settings Optimizer (forthcoming).
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="copyCard()">copy to clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <span>&copy; 2026 ORBAlpha.com</span>
+        <span class="auth">authorized access only</span>
+    </footer>
+
+<script>
+// ============================================================
+// ORBAlpha Day-of-Week Screener v1.0
+// ============================================================
+
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const DAY_LABELS = { monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday', thursday: 'Thursday', friday: 'Friday' };
+
+// Current state
+let currentData = null;  // { orb: [...trades], orf: [...trades] }
+let dayFilters = {
+    orb: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true },
+    orf: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }
+};
+
+// ============================================================
+// CORE FUNCTIONS (tested below)
+// ============================================================
+
+/**
+ * Parse a CSV line handling quoted fields
+ */
+function parseCSVLine(line) {
+    const fields = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+            if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (ch === ',' && !inQuotes) {
+            fields.push(current.trim());
+            current = '';
+        } else {
+            current += ch;
+        }
+    }
+    fields.push(current.trim());
+    return fields;
+}
+
+/**
+ * Split trades by strategy (ORB vs ORF) based on signal column.
+ * Signal names from indicator: "ORB Long", "ORB Short", "ORB Long (R)", "ORB Short (R)",
+ *                               "ORF Long", "ORF Short", "ORF Long (R)", "ORF Short (R)"
+ *
+ * TradingView CSV "Type" column contains the trade comment (signal name).
+ * Returns { orb: [...], orf: [...] } where each trade is { date, profit, signal, direction }
+ */
+function splitTradesByStrategy(trades) {
+    const orb = [];
+    const orf = [];
+    for (const trade of trades) {
+        const sig = (trade.signal || '').toLowerCase();
+        if (sig.startsWith('orf')) {
+            orf.push(trade);
+        } else if (sig.startsWith('orb')) {
+            orb.push(trade);
+        }
+        // Trades that match neither are dropped silently
+    }
+    return { orb, orf };
+}
+
+/**
+ * Determine the effective trading day for a given Date object.
+ * Mirrors the Pine Script indicator's effectiveTradingDay logic:
+ *   - If NY hour >= 17 (evening session), bump to next weekday
+ *   - Sunday evening -> Monday
+ *   - Saturday evening -> Sunday (edge case, rarely happens)
+ *
+ * Returns lowercase day name: 'monday', 'tuesday', etc.
+ */
+function effectiveTradingDay(dateObj) {
+    // dateObj is already in NY time (we parse it as such)
+    const hour = dateObj.getHours();
+    let dayOfWeek = dateObj.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+
+    if (hour >= 17) {
+        // Evening session: trade belongs to NEXT day
+        if (dayOfWeek === 0) {
+            // Sunday evening -> Monday
+            dayOfWeek = 1;
+        } else if (dayOfWeek === 6) {
+            // Saturday evening -> Sunday (edge case)
+            dayOfWeek = 0;
+        } else {
+            dayOfWeek = dayOfWeek + 1;
+        }
+    }
+
+    const dayMap = { 0: 'sunday', 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday' };
+    return dayMap[dayOfWeek];
+}
+
+/**
+ * Bucket trades by effective trading day.
+ * Returns { monday: [...trades], tuesday: [...trades], ... }
+ */
+function bucketByDay(trades) {
+    const buckets = {};
+    for (const d of DAYS) buckets[d] = [];
+    for (const trade of trades) {
+        const day = effectiveTradingDay(trade.date);
+        if (buckets[day]) {
+            buckets[day].push(trade);
+        }
+    }
+    return buckets;
+}
+
+/**
+ * Compute cumulative equity curve for trades on a given day.
+ * Returns array of running totals after each trade.
+ */
+function dayOfWeekEquity(trades, day) {
+    const dayTrades = trades.filter(t => effectiveTradingDay(t.date) === day);
+    const curve = [];
+    let running = 0;
+    for (const t of dayTrades) {
+        running += t.profit;
+        curve.push(running);
+    }
+    return curve;
+}
+
+/**
+ * Generate day filter card state from current selections.
+ * Returns { orb: { monday: bool, ... }, orf: { monday: bool, ... } }
+ */
+function generateDayFilterCard(orbDays, orfDays) {
+    const card = { orb: {}, orf: {} };
+    for (const d of DAYS) {
+        card.orb[d] = !!orbDays[d];
+        card.orf[d] = !!orfDays[d];
+    }
+    return card;
+}
+
+/**
+ * Save card state to localStorage
+ */
+function saveCard(state) {
+    localStorage.setItem('orbalpha_screener_card', JSON.stringify(state));
+}
+
+/**
+ * Load card state from localStorage
+ */
+function loadCard() {
+    const raw = localStorage.getItem('orbalpha_screener_card');
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Parse TradingView strategy CSV.
+ * Expected columns: Trade #, Type, Signal, Date/Time, Price, Contracts, Profit, ...
+ * The "Type" column can be "Entry Long", "Entry Short", "Exit Long", "Exit Short"
+ * The "Signal" column contains the trade comment (e.g., "ORB Long", "ORF Short (R)")
+ *
+ * We only care about exit rows (they have the realized P&L).
+ */
+function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) throw new Error('CSV has no data rows');
+
+    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9/]/g, ''));
+
+    // Find key columns - TradingView CSVs vary slightly
+    const typeIdx = headers.findIndex(h => h === 'type');
+    const signalIdx = headers.findIndex(h => h === 'signal');
+    const dateIdx = headers.findIndex(h => h.includes('date') || h.includes('time'));
+    const profitIdx = headers.findIndex(h => h.includes('profit') || h.includes('pnl') || h.includes('netprofit'));
+
+    // Alternative: "Trade #" format where profit is "Profit" or "Net Profit"
+    // Also handle "Profit %" vs "Profit" columns
+    let profitColIdx = profitIdx;
+    if (profitColIdx === -1) {
+        // Scan raw headers for exact match
+        const rawHeaders = parseCSVLine(lines[0]);
+        for (let i = 0; i < rawHeaders.length; i++) {
+            const h = rawHeaders[i].trim();
+            if (h === 'Profit' || h === 'Net Profit' || h === 'Profit/Loss') {
+                profitColIdx = i;
+                break;
+            }
+        }
+    }
+
+    if (dateIdx === -1) throw new Error('Cannot find Date/Time column in CSV');
+    if (profitColIdx === -1) throw new Error('Cannot find Profit column in CSV');
+
+    const trades = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const fields = parseCSVLine(lines[i]);
+        if (fields.length <= Math.max(dateIdx, profitColIdx)) continue;
+
+        const type = typeIdx >= 0 ? fields[typeIdx] : '';
+        const signal = signalIdx >= 0 ? fields[signalIdx] : '';
+
+        // Only process exit rows (they have realized P&L)
+        // TradingView uses "Exit Long", "Exit Short" for exit rows
+        const typeLower = type.toLowerCase();
+        const isExit = typeLower.includes('exit') || typeLower.includes('close');
+
+        // If there's no type column, treat every row as a completed trade
+        if (typeIdx >= 0 && !isExit) continue;
+
+        const profitStr = fields[profitColIdx].replace(/[$,\s]/g, '');
+        const profit = parseFloat(profitStr);
+        if (isNaN(profit)) continue;
+
+        // Parse date
+        const dateStr = fields[dateIdx];
+        const date = parseTradingViewDate(dateStr);
+        if (!date) continue;
+
+        // For exit rows, signal might be empty — need to find the matching entry's signal
+        // TradingView lists entry and exit on separate rows. The signal is on the ENTRY row.
+        // We'll handle this by looking back at the previous entry row's signal.
+        // For now, store what we have; we'll fix up signals in a second pass.
+        trades.push({
+            date,
+            profit,
+            signal: signal || '',
+            direction: typeLower.includes('long') ? 'long' : 'short'
+        });
+    }
+
+    // Second pass: if exit rows lack signals, pair them with entry rows
+    // Re-parse to get entry signals
+    if (trades.length > 0 && trades.every(t => !t.signal)) {
+        const entrySignals = [];
+        for (let i = 1; i < lines.length; i++) {
+            const fields = parseCSVLine(lines[i]);
+            if (fields.length <= typeIdx) continue;
+            const type = typeIdx >= 0 ? fields[typeIdx].toLowerCase() : '';
+            const signal = signalIdx >= 0 ? fields[signalIdx] : '';
+            if (type.includes('entry') || type.includes('open')) {
+                entrySignals.push(signal);
+            }
+        }
+        // Match entry signals to exit trades 1:1
+        for (let i = 0; i < trades.length && i < entrySignals.length; i++) {
+            trades[i].signal = entrySignals[i];
+        }
+    }
+
+    return trades;
+}
+
+/**
+ * Parse TradingView date string into a Date object.
+ * Common formats: "2024-01-15 18:30" or "2024.01.15 18:30" or "01/15/2024 18:30"
+ */
+function parseTradingViewDate(dateStr) {
+    if (!dateStr) return null;
+    const s = dateStr.trim();
+
+    // Try ISO-ish: "2024-01-15 18:30" or "2024-01-15T18:30"
+    let m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})\s+(\d{1,2}):(\d{2})/);
+    if (m) {
+        return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+    }
+
+    // Try US format: "01/15/2024 18:30"
+    m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+    if (m) {
+        return new Date(+m[3], +m[1] - 1, +m[2], +m[4], +m[5]);
+    }
+
+    // Date only: "2024-01-15"
+    m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+    if (m) {
+        return new Date(+m[1], +m[2] - 1, +m[3], 10, 0); // default to 10am
+    }
+
+    return null;
+}
+
+/**
+ * Compute summary stats for a set of trades.
+ * Returns { trades, wins, losses, totalPnL, winRate, pf }
+ */
+function computeStats(trades) {
+    if (!trades || trades.length === 0) {
+        return { trades: 0, wins: 0, losses: 0, totalPnL: 0, winRate: 0, pf: 0 };
+    }
+    let wins = 0, losses = 0, grossWin = 0, grossLoss = 0, totalPnL = 0;
+    for (const t of trades) {
+        totalPnL += t.profit;
+        if (t.profit > 0) { wins++; grossWin += t.profit; }
+        else if (t.profit < 0) { losses++; grossLoss += Math.abs(t.profit); }
+    }
+    return {
+        trades: trades.length,
+        wins,
+        losses,
+        totalPnL,
+        winRate: trades.length > 0 ? (wins / trades.length * 100) : 0,
+        pf: grossLoss > 0 ? (grossWin / grossLoss) : (grossWin > 0 ? Infinity : 0)
+    };
+}
+
+/**
+ * Compute refined stats for only the enabled days.
+ */
+function computeRefinedStats(trades, enabledDays) {
+    const filtered = trades.filter(t => {
+        const day = effectiveTradingDay(t.date);
+        return enabledDays[day];
+    });
+    return computeStats(filtered);
+}
+
+
+// ============================================================
+// TESTS — run on page load, block render on failure
+// ============================================================
+
+function runTests() {
+    const failures = [];
+    function assert(condition, msg) {
+        if (!condition) failures.push(msg);
+    }
+
+    // Test 1: splitTradesByStrategy correctly splits ORB and ORF
+    {
+        const testTrades = [
+            { signal: 'ORB Long', profit: 100, date: new Date() },
+            { signal: 'ORB Short (R)', profit: -50, date: new Date() },
+            { signal: 'ORF Long', profit: 200, date: new Date() },
+            { signal: 'ORF Short', profit: -30, date: new Date() },
+            { signal: 'ORB Long', profit: 75, date: new Date() },
+        ];
+        const result = splitTradesByStrategy(testTrades);
+        assert(result.orb.length === 3, 'Test 1a: Expected 3 ORB trades, got ' + result.orb.length);
+        assert(result.orf.length === 2, 'Test 1b: Expected 2 ORF trades, got ' + result.orf.length);
+    }
+
+    // Test 2: effectiveTradingDay matches indicator logic
+    {
+        // Sunday 18:00 -> Monday
+        const sundayEvening = new Date(2024, 0, 7, 18, 0); // Jan 7 2024 is a Sunday
+        assert(effectiveTradingDay(sundayEvening) === 'monday',
+            'Test 2a: Sunday 18:00 should be monday, got ' + effectiveTradingDay(sundayEvening));
+
+        // Monday 10:00 -> Monday (daytime, no shift)
+        const mondayMorning = new Date(2024, 0, 8, 10, 0); // Jan 8 2024 is a Monday
+        assert(effectiveTradingDay(mondayMorning) === 'monday',
+            'Test 2b: Monday 10:00 should be monday, got ' + effectiveTradingDay(mondayMorning));
+
+        // Monday 18:00 -> Tuesday (evening session)
+        const mondayEvening = new Date(2024, 0, 8, 18, 0);
+        assert(effectiveTradingDay(mondayEvening) === 'tuesday',
+            'Test 2c: Monday 18:00 should be tuesday, got ' + effectiveTradingDay(mondayEvening));
+
+        // Thursday 20:00 -> Friday
+        const thursdayEvening = new Date(2024, 0, 11, 20, 0); // Jan 11 2024 is Thursday
+        assert(effectiveTradingDay(thursdayEvening) === 'friday',
+            'Test 2d: Thursday 20:00 should be friday, got ' + effectiveTradingDay(thursdayEvening));
+
+        // Wednesday 16:59 -> Wednesday (just before cutoff)
+        const wedAfternoon = new Date(2024, 0, 10, 16, 59);
+        assert(effectiveTradingDay(wedAfternoon) === 'wednesday',
+            'Test 2e: Wednesday 16:59 should be wednesday, got ' + effectiveTradingDay(wedAfternoon));
+    }
+
+    // Test 3: dayOfWeekEquity computes running totals correctly
+    {
+        const trades = [
+            { date: new Date(2024, 0, 8, 10, 0), profit: 100 },   // Monday
+            { date: new Date(2024, 0, 9, 10, 0), profit: -50 },   // Tuesday
+            { date: new Date(2024, 0, 15, 10, 0), profit: 200 },  // Monday
+            { date: new Date(2024, 0, 22, 10, 0), profit: -25 },  // Monday
+        ];
+        const curve = dayOfWeekEquity(trades, 'monday');
+        assert(curve.length === 3, 'Test 3a: Expected 3 Monday trades, got ' + curve.length);
+        assert(curve[0] === 100, 'Test 3b: First point should be 100, got ' + curve[0]);
+        assert(curve[1] === 300, 'Test 3c: Second point should be 300, got ' + curve[1]);
+        assert(curve[2] === 275, 'Test 3d: Third point should be 275, got ' + curve[2]);
+    }
+
+    // Test 4: generateDayFilterCard matches selected state
+    {
+        const card = generateDayFilterCard(
+            { monday: true, tuesday: false, wednesday: false, thursday: true, friday: false },
+            { monday: false, tuesday: true, wednesday: false, thursday: false, friday: true }
+        );
+        assert(card.orb.monday === true, 'Test 4a: ORB Monday should be true');
+        assert(card.orb.tuesday === false, 'Test 4b: ORB Tuesday should be false');
+        assert(card.orb.thursday === true, 'Test 4c: ORB Thursday should be true');
+        assert(card.orf.tuesday === true, 'Test 4d: ORF Tuesday should be true');
+        assert(card.orf.friday === true, 'Test 4e: ORF Friday should be true');
+        assert(card.orf.monday === false, 'Test 4f: ORF Monday should be false');
+    }
+
+    // Test 5: localStorage round-trip
+    {
+        const testState = {
+            orb: { monday: true, tuesday: false, wednesday: true, thursday: false, friday: true },
+            orf: { monday: false, tuesday: true, wednesday: false, thursday: true, friday: false }
+        };
+        saveCard(testState);
+        const loaded = loadCard();
+        assert(loaded !== null, 'Test 5a: loadCard should return non-null');
+        assert(loaded.orb.monday === true, 'Test 5b: ORB Monday round-trip');
+        assert(loaded.orb.tuesday === false, 'Test 5c: ORB Tuesday round-trip');
+        assert(loaded.orf.thursday === true, 'Test 5d: ORF Thursday round-trip');
+        assert(loaded.orf.friday === false, 'Test 5e: ORF Friday round-trip');
+        // Clean up test data
+        localStorage.removeItem('orbalpha_screener_card');
+    }
+
+    // Test 6: computeStats handles empty array
+    {
+        const stats = computeStats([]);
+        assert(stats.trades === 0, 'Test 6a: Empty trades should have 0 count');
+        assert(stats.winRate === 0, 'Test 6b: Empty trades should have 0 win rate');
+        assert(stats.pf === 0, 'Test 6c: Empty trades should have 0 PF');
+    }
+
+    // Test 7: computeRefinedStats only counts enabled days
+    {
+        const trades = [
+            { date: new Date(2024, 0, 8, 10, 0), profit: 100 },   // Monday
+            { date: new Date(2024, 0, 9, 10, 0), profit: -50 },   // Tuesday
+            { date: new Date(2024, 0, 10, 10, 0), profit: 200 },  // Wednesday
+        ];
+        const enabledDays = { monday: true, tuesday: false, wednesday: true, thursday: false, friday: false };
+        const stats = computeRefinedStats(trades, enabledDays);
+        assert(stats.trades === 2, 'Test 7a: Should have 2 trades (Mon+Wed), got ' + stats.trades);
+        assert(stats.totalPnL === 300, 'Test 7b: PnL should be 300, got ' + stats.totalPnL);
+    }
+
+    // Test 8: parseCSVLine handles quoted fields
+    {
+        const line = '"Trade 1","Exit Long","ORB Long","2024-01-08 10:00",100.5,1,"$250.00"';
+        const fields = parseCSVLine(line);
+        assert(fields[0] === 'Trade 1', 'Test 8a: First field should be "Trade 1", got "' + fields[0] + '"');
+        assert(fields[2] === 'ORB Long', 'Test 8b: Signal should be "ORB Long", got "' + fields[2] + '"');
+        assert(fields.length === 7, 'Test 8c: Should have 7 fields, got ' + fields.length);
+    }
+
+    return failures;
+}
+
+
+// ============================================================
+// UI RENDERING
+// ============================================================
+
+/**
+ * Draw a mini sparkline equity curve on a canvas element.
+ */
+function drawSparkline(canvas, data, color) {
+    if (!data || data.length === 0) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width = canvas.offsetWidth * 2;
+    const h = canvas.height = canvas.offsetHeight * 2;
+    ctx.clearRect(0, 0, w, h);
+
+    const allVals = [0, ...data];
+    const min = Math.min(...allVals);
+    const max = Math.max(...allVals);
+    const range = max - min || 1;
+    const padY = h * 0.1;
+
+    const scaleX = (i) => (i / (allVals.length - 1)) * w;
+    const scaleY = (v) => h - padY - ((v - min) / range) * (h - 2 * padY);
+
+    // Zero line
+    ctx.strokeStyle = '#DADCE0';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    const zeroY = scaleY(0);
+    ctx.moveTo(0, zeroY);
+    ctx.lineTo(w, zeroY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Equity curve
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < allVals.length; i++) {
+        const x = scaleX(i);
+        const y = scaleY(allVals[i]);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+}
+
+/**
+ * Render the day rows for a strategy type (ORB or ORF).
+ */
+function renderDayRows(containerId, stratType, trades) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    const buckets = bucketByDay(trades);
+
+    for (const day of DAYS) {
+        const dayTrades = buckets[day];
+        const curve = [];
+        let running = 0;
+        for (const t of dayTrades) {
+            running += t.profit;
+            curve.push(running);
+        }
+        const totalPnL = running;
+        const count = dayTrades.length;
+        const wins = dayTrades.filter(t => t.profit > 0).length;
+        const wr = count > 0 ? (wins / count * 100).toFixed(0) : 'N/A';
+
+        const row = document.createElement('div');
+        row.className = 'day-row';
+
+        const isEnabled = dayFilters[stratType][day];
+
+        row.innerHTML = `
+            <input type="checkbox" class="day-toggle" data-strat="${stratType}" data-day="${day}"
+                   ${isEnabled ? 'checked' : ''} onchange="toggleDay('${stratType}', '${day}', this.checked)">
+            <span class="day-label">${DAY_LABELS[day]}</span>
+            <span class="day-stats">${count > 0 ? count + ' trades / ' + wr + '% WR' : 'no trades'}</span>
+            <canvas class="day-chart" id="chart-${stratType}-${day}"></canvas>
+            <span class="day-pnl ${totalPnL > 0 ? 'pnl-positive' : totalPnL < 0 ? 'pnl-negative' : 'pnl-na'}">
+                ${count > 0 ? (totalPnL >= 0 ? '+' : '') + '$' + totalPnL.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 'N/A'}
+            </span>
+        `;
+
+        container.appendChild(row);
+
+        // Draw sparkline after DOM insert
+        requestAnimationFrame(() => {
+            const canvas = document.getElementById(`chart-${stratType}-${day}`);
+            if (canvas) {
+                const color = totalPnL >= 0 ? '#2e7d32' : '#c62828';
+                drawSparkline(canvas, curve, count > 0 ? color : '#DADCE0');
+            }
+        });
+    }
+}
+
+/**
+ * Render summary stats for a strategy type.
+ */
+function renderSummary(containerId, stratType, trades) {
+    const container = document.getElementById(containerId);
+    const allStats = computeStats(trades);
+    const refinedStats = computeRefinedStats(trades, dayFilters[stratType]);
+
+    container.innerHTML = `
+        <div class="summary-stat">
+            <div class="summary-stat-label">all trades</div>
+            <div class="summary-stat-value">${allStats.trades}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">all P&L</div>
+            <div class="summary-stat-value" style="color:${allStats.totalPnL >= 0 ? '#2e7d32' : '#c62828'}">
+                ${allStats.totalPnL >= 0 ? '+' : ''}$${allStats.totalPnL.toLocaleString(undefined, {maximumFractionDigits: 0})}
+            </div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">refined trades</div>
+            <div class="summary-stat-value">${refinedStats.trades}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">refined P&L</div>
+            <div class="summary-stat-value" style="color:${refinedStats.totalPnL >= 0 ? '#2e7d32' : '#c62828'}">
+                ${refinedStats.totalPnL >= 0 ? '+' : ''}$${refinedStats.totalPnL.toLocaleString(undefined, {maximumFractionDigits: 0})}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Render the output card.
+ */
+function renderCard() {
+    const card = generateDayFilterCard(dayFilters.orb, dayFilters.orf);
+    const container = document.getElementById('cardOutput');
+
+    let orbHtml = '';
+    let orfHtml = '';
+    for (const day of DAYS) {
+        const orbOn = card.orb[day];
+        const orfOn = card.orf[day];
+        orbHtml += `<div class="card-day">
+            <span class="card-check ${orbOn ? 'enabled' : 'disabled'}">${orbOn ? 'x' : ''}</span>
+            <span class="card-day-label ${orbOn ? '' : 'disabled'}">ORB ${DAY_LABELS[day]}</span>
+        </div>`;
+        orfHtml += `<div class="card-day">
+            <span class="card-check ${orfOn ? 'enabled' : 'disabled'}">${orfOn ? 'x' : ''}</span>
+            <span class="card-day-label ${orfOn ? '' : 'disabled'}">ORF ${DAY_LABELS[day]}</span>
+        </div>`;
+    }
+
+    container.innerHTML = `
+        <div class="card-title">Day Filters — copy into ORB/ORF indicator Sections 4D and 5D</div>
+        <div class="card-subtitle">Asset: ${currentFilename || 'unknown'}</div>
+        <div class="card-grid">
+            <div>
+                <div class="card-column-title">Section 4D — ORB Days</div>
+                ${orbHtml}
+            </div>
+            <div>
+                <div class="card-column-title">Section 5D — ORF Days</div>
+                ${orfHtml}
+            </div>
+        </div>
+    `;
+
+    // Persist to localStorage
+    saveCard({ filters: dayFilters, filename: currentFilename });
+}
+
+/**
+ * Render everything after data is loaded.
+ */
+function renderAll() {
+    if (!currentData) return;
+
+    renderDayRows('orbCurves', 'orb', currentData.orb);
+    renderDayRows('orfCurves', 'orf', currentData.orf);
+    renderSummary('orbSummary', 'orb', currentData.orb);
+    renderSummary('orfSummary', 'orf', currentData.orf);
+    renderCard();
+
+    document.getElementById('curvesSection').classList.remove('hidden');
+    document.getElementById('cardSection').classList.remove('hidden');
+}
+
+
+// ============================================================
+// EVENT HANDLERS
+// ============================================================
+
+let currentFilename = '';
+
+function toggleDay(strat, day, checked) {
+    dayFilters[strat][day] = checked;
+    renderAll();
+}
+
+function clearAll() {
+    currentData = null;
+    currentFilename = '';
+    dayFilters = {
+        orb: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true },
+        orf: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }
+    };
+    document.getElementById('curvesSection').classList.add('hidden');
+    document.getElementById('cardSection').classList.add('hidden');
+    document.getElementById('fileInfo').classList.add('hidden');
+    localStorage.removeItem('orbalpha_screener_card');
+}
+
+function copyCard() {
+    const lines = ['Day Filters — ORB/ORF indicator Sections 4D and 5D', ''];
+    lines.push('Section 4D — ORB Days:');
+    for (const d of DAYS) {
+        lines.push(`  ${dayFilters.orb[d] ? '[x]' : '[ ]'} ORB ${DAY_LABELS[d]}`);
+    }
+    lines.push('');
+    lines.push('Section 5D — ORF Days:');
+    for (const d of DAYS) {
+        lines.push(`  ${dayFilters.orf[d] ? '[x]' : '[ ]'} ORF ${DAY_LABELS[d]}`);
+    }
+    lines.push('');
+    lines.push('Asset: ' + (currentFilename || 'unknown'));
+
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.querySelector('.action-buttons .btn-primary');
+        const orig = btn.textContent;
+        btn.textContent = 'copied';
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+}
+
+function handleFile(file) {
+    if (!file) return;
+    currentFilename = file.name.replace(/\.csv$/i, '');
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const trades = parseCSV(e.target.result);
+            if (trades.length === 0) {
+                alert('No trades found in CSV. Check that the file is a TradingView strategy export.');
+                return;
+            }
+
+            currentData = splitTradesByStrategy(trades);
+
+            // Check if we have any ORB or ORF trades
+            if (currentData.orb.length === 0 && currentData.orf.length === 0) {
+                alert('No ORB or ORF signals found in CSV. The signal column should contain "ORB Long", "ORF Short", etc.');
+                return;
+            }
+
+            // Restore saved filters if same file
+            const saved = loadCard();
+            if (saved && saved.filename === currentFilename && saved.filters) {
+                dayFilters = saved.filters;
+            } else {
+                // Reset to all enabled
+                dayFilters = {
+                    orb: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true },
+                    orf: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }
+                };
+            }
+
+            // Show file info
+            const info = document.getElementById('fileInfo');
+            info.textContent = `// loaded: ${file.name} — ${trades.length} trades (${currentData.orb.length} ORB, ${currentData.orf.length} ORF)`;
+            info.classList.remove('hidden');
+
+            renderAll();
+        } catch (err) {
+            alert('Error parsing CSV: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+
+(function init() {
+    // Run tests first
+    const failures = runTests();
+    if (failures.length > 0) {
+        const banner = document.getElementById('testFailureBanner');
+        banner.classList.remove('hidden');
+        banner.innerHTML = `// TEST FAILURE — ${failures.length} test(s) failed. Build blocked.<pre>${failures.join('\n')}</pre>`;
+        document.getElementById('mainContent').classList.add('hidden');
+        return;
+    }
+
+    // Also log assertions to console for dev verification
+    console.log('ORBAlpha Screener: All ' + 8 + ' test groups passed.');
+
+    // Wire up drop zone
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+})();
+</script>
+</body>
+</html>
