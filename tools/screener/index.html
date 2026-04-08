@@ -1122,7 +1122,7 @@ function renderDayRows(containerId, stratType, trades) {
         const totalPnL = running;
         const count = dayTrades.length;
         const wins = dayTrades.filter(t => t.profit > 0).length;
-        const wr = count > 0 ? (wins / count * 100).toFixed(0) : 'N/A';
+        const wr = count > 0 ? fmtWR(wins / count * 100) : 'N/A';
 
         const row = document.createElement('div');
         row.className = 'day-row';
@@ -1132,7 +1132,7 @@ function renderDayRows(containerId, stratType, trades) {
             <input type="checkbox" class="day-toggle" data-strat="${stratType}" data-day="${day}"
                    ${isEnabled ? 'checked' : ''} onchange="toggleDay('${stratType}', '${day}', this.checked)">
             <span class="day-label">${DAY_LABELS[day]}</span>
-            <span class="day-stats">${count > 0 ? count + ' trades / ' + wr + '% WR' : 'no trades'}</span>
+            <span class="day-stats">${count > 0 ? count + ' trades / ' + wr + ' WR' : 'no trades'}</span>
             <canvas class="day-chart" id="chart-${stratType}-${day}"></canvas>
             <span class="day-pnl ${totalPnL > 0 ? 'pnl-positive' : totalPnL < 0 ? 'pnl-negative' : 'pnl-na'}">
                 ${count > 0 ? fmtPnL(totalPnL) : 'N/A'}
