@@ -148,6 +148,15 @@
             display: none;
         }
 
+        .tz-notice {
+            font-size: 0.8rem;
+            color: #5F6368;
+            margin-top: 12px;
+            padding: 10px;
+            border: 1px solid #DADCE0;
+            background: #ECEEF1;
+        }
+
         /* Curves Section */
         .curves-container {
             display: grid;
@@ -253,7 +262,7 @@
         /* Summary Stats */
         .summary-stats {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 10px;
             margin-top: 15px;
         }
@@ -266,13 +275,13 @@
         }
 
         .summary-stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #5F6368;
             margin-bottom: 4px;
         }
 
         .summary-stat-value {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #202124;
         }
@@ -382,11 +391,6 @@
             background: #D3E3FD;
         }
 
-        .btn-danger {
-            background: #202124;
-            color: #ffffff;
-        }
-
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -406,19 +410,6 @@
         }
 
         footer .auth {
-            color: #5F6368;
-        }
-
-        /* No Data State */
-        .no-data {
-            text-align: center;
-            padding: 60px 20px;
-            color: #5F6368;
-        }
-
-        .no-data-icon {
-            font-size: 2rem;
-            margin-bottom: 20px;
             color: #5F6368;
         }
 
@@ -443,15 +434,9 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .curves-container {
-                grid-template-columns: 1fr;
-            }
-            .summary-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
+            .curves-container { grid-template-columns: 1fr; }
+            .summary-stats { grid-template-columns: repeat(2, 1fr); }
+            .card-grid { grid-template-columns: 1fr; }
             .system-bar {
                 flex-direction: column;
                 align-items: flex-start;
@@ -492,7 +477,8 @@
             <div class="section-header">
                 <span class="section-title">IMPORT BACKTEST</span>
             </div>
-            <div class="drop-zone" id="dropZone">
+            <div class="tz-notice">CSV timezone: America/New_York (assumed). Export from a chart set to New York time. If your chart is set to a different timezone, the day-of-week buckets will be wrong.</div>
+            <div class="drop-zone" id="dropZone" style="margin-top:12px;">
                 <div class="drop-zone-icon">// CSV</div>
                 <div class="drop-zone-text">Drop TradingView strategy CSV export here</div>
                 <div class="drop-zone-hint">or click to browse — one CSV, one asset, one configuration</div>
@@ -543,25 +529,26 @@
 
 <script>
 // ============================================================
-// ORBAlpha Day-of-Week Screener v1.0
+// ORBAlpha Day-of-Week Screener v1.1
+// Round 2 — all C1-C8 critical bugs + M1-M8 minor bugs fixed
 // ============================================================
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 const DAY_LABELS = { monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday', thursday: 'Thursday', friday: 'Friday' };
 
-// Current state
-let currentData = null;  // { orb: [...trades], orf: [...trades] }
+let currentData = null;
+let currentFilename = '';
 let dayFilters = {
     orb: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true },
     orf: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }
 };
 
 // ============================================================
-// CORE FUNCTIONS (tested below)
+// CORE FUNCTIONS
 // ============================================================
 
 /**
- * Parse a CSV line handling quoted fields
+ * Parse a CSV line handling quoted fields with embedded commas. (M2 fix)
  */
 function parseCSVLine(line) {
     const fields = [];
@@ -588,81 +575,185 @@ function parseCSVLine(line) {
 }
 
 /**
- * Split trades by strategy (ORB vs ORF) based on signal column.
- * Signal names from indicator: "ORB Long", "ORB Short", "ORB Long (R)", "ORB Short (R)",
- *                               "ORF Long", "ORF Short", "ORF Long (R)", "ORF Short (R)"
+ * Parse TradingView date string into a Date object.
+ * Handles: "2024-01-15 18:30", "2024.01.15 18:30", "01/15/2024 18:30"
+ */
+function parseTVDate(dateStr) {
+    if (!dateStr) return null;
+    const s = dateStr.trim();
+    let m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})\s+(\d{1,2}):(\d{2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+    m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+    if (m) return new Date(+m[3], +m[1] - 1, +m[2], +m[4], +m[5]);
+    m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3], 10, 0);
+    return null;
+}
+
+/**
+ * Parse TradingView strategy CSV. Pairs entry and exit rows by Trade # column.
+ * Stores ENTRY timestamp, ENTRY signal, and EXIT P&L per trade. (C1/C2/C3/C4/C5 fix)
  *
- * TradingView CSV "Type" column contains the trade comment (signal name).
- * Returns { orb: [...], orf: [...] } where each trade is { date, profit, signal, direction }
+ * Returns array of { tradeNum, entryDate, signal, profit, direction }
+ */
+function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) throw new Error('CSV has no data rows');
+
+    const rawHeaders = parseCSVLine(lines[0]);
+    const normHeaders = rawHeaders.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+    // Column detection — anchored on exact names first (C3 fix)
+    const tradeNumIdx = normHeaders.findIndex(h => h === 'trade' || h === 'tradeno' || h === 'tradenumber');
+    // Trade # might be at index 0 with header "Trade #" which normalizes to "trade"
+    const tradeIdx = tradeNumIdx >= 0 ? tradeNumIdx : 0; // Fallback: column 0
+
+    const typeIdx = normHeaders.findIndex(h => h === 'type');
+    if (typeIdx === -1) throw new Error('Cannot find "Type" column in CSV');
+
+    // Date column: anchor on 'dateandtime' first, fallback to loose match (C3 fix)
+    let dateIdx = normHeaders.findIndex(h => h === 'dateandtime');
+    if (dateIdx === -1) dateIdx = normHeaders.findIndex(h => h.includes('date') && h.includes('time'));
+    if (dateIdx === -1) dateIdx = normHeaders.findIndex(h => h.includes('date') || h.includes('time'));
+    if (dateIdx === -1) throw new Error('Cannot find Date/Time column in CSV');
+
+    const signalIdx = normHeaders.findIndex(h => h === 'signal');
+
+    // P&L column: match 'netplusd' or 'netpl' first, fallback broader (C4 fix)
+    let pnlIdx = normHeaders.findIndex(h => h === 'netplusd');
+    if (pnlIdx === -1) pnlIdx = normHeaders.findIndex(h => h.startsWith('netpl'));
+    if (pnlIdx === -1) pnlIdx = normHeaders.findIndex(h => h.includes('profit') || h.includes('pnl'));
+    if (pnlIdx === -1) {
+        // Scan raw headers for exact matches
+        for (let i = 0; i < rawHeaders.length; i++) {
+            const h = rawHeaders[i].trim();
+            if (h === 'Profit' || h === 'Net Profit' || h === 'Profit/Loss' || h === 'Net P&L USD') {
+                pnlIdx = i;
+                break;
+            }
+        }
+    }
+    if (pnlIdx === -1) throw new Error('Cannot find P&L column in CSV');
+
+    // First pass: collect all rows grouped by trade number
+    const tradeMap = new Map(); // tradeNum -> { entry: row, exit: row }
+
+    for (let i = 1; i < lines.length; i++) {
+        const fields = parseCSVLine(lines[i]);
+        if (fields.length <= Math.max(typeIdx, dateIdx, pnlIdx)) continue;
+
+        const tradeNum = parseInt(fields[tradeIdx], 10);
+        if (isNaN(tradeNum)) continue;
+
+        const typeLower = fields[typeIdx].toLowerCase();
+        const isEntry = typeLower.includes('entry') || typeLower.includes('open');
+        const isExit = typeLower.includes('exit') || typeLower.includes('close');
+        if (!isEntry && !isExit) continue;
+
+        if (!tradeMap.has(tradeNum)) {
+            tradeMap.set(tradeNum, { entry: null, exit: null });
+        }
+
+        const row = {
+            date: parseTVDate(fields[dateIdx]),
+            signal: signalIdx >= 0 ? fields[signalIdx] : '',
+            pnl: fields[pnlIdx],
+            type: typeLower,
+            direction: typeLower.includes('long') ? 'long' : 'short'
+        };
+
+        if (isEntry) tradeMap.get(tradeNum).entry = row;
+        if (isExit) tradeMap.get(tradeNum).exit = row;
+    }
+
+    // Second pass: build paired trades
+    const trades = [];
+    for (const [tradeNum, pair] of tradeMap) {
+        if (!pair.entry || !pair.exit) continue; // Skip orphaned rows
+        if (!pair.entry.date) continue;
+
+        const profitStr = pair.exit.pnl.replace(/[$,\s]/g, '');
+        const profit = parseFloat(profitStr);
+        if (isNaN(profit)) continue;
+
+        trades.push({
+            tradeNum,
+            entryDate: pair.entry.date,    // ENTRY timestamp for bucketing (C5 fix)
+            signal: pair.entry.signal,      // ENTRY signal for ORB/ORF split (C1/C2 fix)
+            profit,
+            direction: pair.entry.direction
+        });
+    }
+
+    // Sort by trade number ascending (CSV may be reverse-chronological)
+    trades.sort((a, b) => a.tradeNum - b.tradeNum);
+
+    return trades;
+}
+
+/**
+ * Split trades by strategy (ORB vs ORF) based on entry signal.
  */
 function splitTradesByStrategy(trades) {
     const orb = [];
     const orf = [];
     for (const trade of trades) {
         const sig = (trade.signal || '').toLowerCase();
-        if (sig.startsWith('orf')) {
-            orf.push(trade);
-        } else if (sig.startsWith('orb')) {
-            orb.push(trade);
-        }
-        // Trades that match neither are dropped silently
+        if (sig.startsWith('orf')) orf.push(trade);
+        else if (sig.startsWith('orb')) orb.push(trade);
     }
     return { orb, orf };
 }
 
 /**
  * Determine the effective trading day for a given Date object.
- * Mirrors the Pine Script indicator's effectiveTradingDay logic:
- *   - If NY hour >= 17 (evening session), bump to next weekday
+ * Mirrors Pine Script indicator's effectiveTradingDay:
+ *   - If NY hour >= 17 (evening session), bump to next day
  *   - Sunday evening -> Monday
- *   - Saturday evening -> Sunday (edge case, rarely happens)
+ *   - Saturday evening -> Sunday (edge case)
+ *   - Friday evening -> Saturday (C7: reject — indicator would never enter here)
  *
- * Returns lowercase day name: 'monday', 'tuesday', etc.
+ * Returns lowercase day name: 'monday'-'friday', or 'saturday' for the C7 edge case.
  */
 function effectiveTradingDay(dateObj) {
-    // dateObj is already in NY time (we parse it as such)
     const hour = dateObj.getHours();
-    let dayOfWeek = dateObj.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    let dow = dateObj.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
 
     if (hour >= 17) {
-        // Evening session: trade belongs to NEXT day
-        if (dayOfWeek === 0) {
-            // Sunday evening -> Monday
-            dayOfWeek = 1;
-        } else if (dayOfWeek === 6) {
-            // Saturday evening -> Sunday (edge case)
-            dayOfWeek = 0;
-        } else {
-            dayOfWeek = dayOfWeek + 1;
-        }
+        if (dow === 0) dow = 1;      // Sunday evening -> Monday
+        else if (dow === 6) dow = 0;  // Saturday evening -> Sunday
+        else dow = dow + 1;           // Weekday evening -> next day
     }
 
     const dayMap = { 0: 'sunday', 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday' };
-    return dayMap[dayOfWeek];
+    return dayMap[dow];
 }
 
 /**
- * Bucket trades by effective trading day.
- * Returns { monday: [...trades], tuesday: [...trades], ... }
+ * Bucket trades by effective entry day. (C7 fix: Saturday bucket handled)
+ * Returns { monday: [...], ..., friday: [...] }
+ * Throws if any trade maps to a weekend day (Saturday/Sunday), which would mean
+ * the indicator wouldn't have taken it.
  */
 function bucketByDay(trades) {
     const buckets = {};
     for (const d of DAYS) buckets[d] = [];
     for (const trade of trades) {
-        const day = effectiveTradingDay(trade.date);
-        if (buckets[day]) {
-            buckets[day].push(trade);
+        const day = effectiveTradingDay(trade.entryDate);
+        if (day === 'saturday' || day === 'sunday') {
+            throw new Error('Trade #' + trade.tradeNum + ' on ' + trade.entryDate.toISOString() +
+                ' maps to ' + day + ' — indicator would not have entered. Check CSV timezone.');
         }
+        buckets[day].push(trade);
     }
     return buckets;
 }
 
 /**
  * Compute cumulative equity curve for trades on a given day.
- * Returns array of running totals after each trade.
  */
 function dayOfWeekEquity(trades, day) {
-    const dayTrades = trades.filter(t => effectiveTradingDay(t.date) === day);
+    const dayTrades = trades.filter(t => effectiveTradingDay(t.entryDate) === day);
     const curve = [];
     let running = 0;
     for (const t of dayTrades) {
@@ -673,8 +764,7 @@ function dayOfWeekEquity(trades, day) {
 }
 
 /**
- * Generate day filter card state from current selections.
- * Returns { orb: { monday: bool, ... }, orf: { monday: bool, ... } }
+ * Generate day filter card state.
  */
 function generateDayFilterCard(orbDays, orfDays) {
     const card = { orb: {}, orf: {} };
@@ -682,186 +772,64 @@ function generateDayFilterCard(orbDays, orfDays) {
         card.orb[d] = !!orbDays[d];
         card.orf[d] = !!orfDays[d];
     }
+    // M5 fix: reject non-weekday keys silently (only copy valid days)
     return card;
 }
 
 /**
- * Save card state to localStorage
+ * Save card state to localStorage.
  */
 function saveCard(state) {
     localStorage.setItem('orbalpha_screener_card', JSON.stringify(state));
 }
 
 /**
- * Load card state from localStorage
+ * Load card state from localStorage.
  */
 function loadCard() {
     const raw = localStorage.getItem('orbalpha_screener_card');
     if (!raw) return null;
-    try {
-        return JSON.parse(raw);
-    } catch {
-        return null;
-    }
+    try { return JSON.parse(raw); }
+    catch { return null; }
 }
 
 /**
- * Parse TradingView strategy CSV.
- * Expected columns: Trade #, Type, Signal, Date/Time, Price, Contracts, Profit, ...
- * The "Type" column can be "Entry Long", "Entry Short", "Exit Long", "Exit Short"
- * The "Signal" column contains the trade comment (e.g., "ORB Long", "ORF Short (R)")
- *
- * We only care about exit rows (they have the realized P&L).
- */
-function parseCSV(text) {
-    const lines = text.split(/\r?\n/).filter(l => l.trim());
-    if (lines.length < 2) throw new Error('CSV has no data rows');
-
-    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9/]/g, ''));
-
-    // Find key columns - TradingView CSVs vary slightly
-    const typeIdx = headers.findIndex(h => h === 'type');
-    const signalIdx = headers.findIndex(h => h === 'signal');
-    const dateIdx = headers.findIndex(h => h.includes('date') || h.includes('time'));
-    const profitIdx = headers.findIndex(h => h.includes('profit') || h.includes('pnl') || h.includes('netprofit'));
-
-    // Alternative: "Trade #" format where profit is "Profit" or "Net Profit"
-    // Also handle "Profit %" vs "Profit" columns
-    let profitColIdx = profitIdx;
-    if (profitColIdx === -1) {
-        // Scan raw headers for exact match
-        const rawHeaders = parseCSVLine(lines[0]);
-        for (let i = 0; i < rawHeaders.length; i++) {
-            const h = rawHeaders[i].trim();
-            if (h === 'Profit' || h === 'Net Profit' || h === 'Profit/Loss') {
-                profitColIdx = i;
-                break;
-            }
-        }
-    }
-
-    if (dateIdx === -1) throw new Error('Cannot find Date/Time column in CSV');
-    if (profitColIdx === -1) throw new Error('Cannot find Profit column in CSV');
-
-    const trades = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const fields = parseCSVLine(lines[i]);
-        if (fields.length <= Math.max(dateIdx, profitColIdx)) continue;
-
-        const type = typeIdx >= 0 ? fields[typeIdx] : '';
-        const signal = signalIdx >= 0 ? fields[signalIdx] : '';
-
-        // Only process exit rows (they have realized P&L)
-        // TradingView uses "Exit Long", "Exit Short" for exit rows
-        const typeLower = type.toLowerCase();
-        const isExit = typeLower.includes('exit') || typeLower.includes('close');
-
-        // If there's no type column, treat every row as a completed trade
-        if (typeIdx >= 0 && !isExit) continue;
-
-        const profitStr = fields[profitColIdx].replace(/[$,\s]/g, '');
-        const profit = parseFloat(profitStr);
-        if (isNaN(profit)) continue;
-
-        // Parse date
-        const dateStr = fields[dateIdx];
-        const date = parseTradingViewDate(dateStr);
-        if (!date) continue;
-
-        // For exit rows, signal might be empty — need to find the matching entry's signal
-        // TradingView lists entry and exit on separate rows. The signal is on the ENTRY row.
-        // We'll handle this by looking back at the previous entry row's signal.
-        // For now, store what we have; we'll fix up signals in a second pass.
-        trades.push({
-            date,
-            profit,
-            signal: signal || '',
-            direction: typeLower.includes('long') ? 'long' : 'short'
-        });
-    }
-
-    // Second pass: if exit rows lack signals, pair them with entry rows
-    // Re-parse to get entry signals
-    if (trades.length > 0 && trades.every(t => !t.signal)) {
-        const entrySignals = [];
-        for (let i = 1; i < lines.length; i++) {
-            const fields = parseCSVLine(lines[i]);
-            if (fields.length <= typeIdx) continue;
-            const type = typeIdx >= 0 ? fields[typeIdx].toLowerCase() : '';
-            const signal = signalIdx >= 0 ? fields[signalIdx] : '';
-            if (type.includes('entry') || type.includes('open')) {
-                entrySignals.push(signal);
-            }
-        }
-        // Match entry signals to exit trades 1:1
-        for (let i = 0; i < trades.length && i < entrySignals.length; i++) {
-            trades[i].signal = entrySignals[i];
-        }
-    }
-
-    return trades;
-}
-
-/**
- * Parse TradingView date string into a Date object.
- * Common formats: "2024-01-15 18:30" or "2024.01.15 18:30" or "01/15/2024 18:30"
- */
-function parseTradingViewDate(dateStr) {
-    if (!dateStr) return null;
-    const s = dateStr.trim();
-
-    // Try ISO-ish: "2024-01-15 18:30" or "2024-01-15T18:30"
-    let m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})\s+(\d{1,2}):(\d{2})/);
-    if (m) {
-        return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
-    }
-
-    // Try US format: "01/15/2024 18:30"
-    m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
-    if (m) {
-        return new Date(+m[3], +m[1] - 1, +m[2], +m[4], +m[5]);
-    }
-
-    // Date only: "2024-01-15"
-    m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
-    if (m) {
-        return new Date(+m[1], +m[2] - 1, +m[3], 10, 0); // default to 10am
-    }
-
-    return null;
-}
-
-/**
- * Compute summary stats for a set of trades.
- * Returns { trades, wins, losses, totalPnL, winRate, pf }
+ * Compute stats for a set of trades. (C8 fix: winRate is null when empty)
+ * Returns { trades, wins, losses, totalPnL, winRate, pf, maxDD }
  */
 function computeStats(trades) {
     if (!trades || trades.length === 0) {
-        return { trades: 0, wins: 0, losses: 0, totalPnL: 0, winRate: 0, pf: 0 };
+        return { trades: 0, wins: 0, losses: 0, totalPnL: 0, winRate: null, pf: null, maxDD: 0 };
     }
     let wins = 0, losses = 0, grossWin = 0, grossLoss = 0, totalPnL = 0;
+    let peak = 0, maxDD = 0, running = 0;
     for (const t of trades) {
+        running += t.profit;
         totalPnL += t.profit;
         if (t.profit > 0) { wins++; grossWin += t.profit; }
         else if (t.profit < 0) { losses++; grossLoss += Math.abs(t.profit); }
+        if (running > peak) peak = running;
+        const dd = peak - running;
+        if (dd > maxDD) maxDD = dd;
     }
     return {
         trades: trades.length,
         wins,
         losses,
         totalPnL,
-        winRate: trades.length > 0 ? (wins / trades.length * 100) : 0,
-        pf: grossLoss > 0 ? (grossWin / grossLoss) : (grossWin > 0 ? Infinity : 0)
+        winRate: (wins / trades.length * 100),
+        pf: grossLoss > 0 ? (grossWin / grossLoss) : (grossWin > 0 ? Infinity : 0),
+        maxDD
     };
 }
 
 /**
  * Compute refined stats for only the enabled days.
+ * Recomputes from scratch on the filtered set (not subtraction). (M8 fix)
  */
 function computeRefinedStats(trades, enabledDays) {
     const filtered = trades.filter(t => {
-        const day = effectiveTradingDay(t.date);
+        const day = effectiveTradingDay(t.entryDate);
         return enabledDays[day];
     });
     return computeStats(filtered);
@@ -869,7 +837,7 @@ function computeRefinedStats(trades, enabledDays) {
 
 
 // ============================================================
-// TESTS — run on page load, block render on failure
+// TESTS — CSV-byte fixtures from real MGC export
 // ============================================================
 
 function runTests() {
@@ -878,122 +846,192 @@ function runTests() {
         if (!condition) failures.push(msg);
     }
 
-    // Test 1: splitTradesByStrategy correctly splits ORB and ORF
+    // ── Test 1: parseCSV + splitTradesByStrategy on real MGC CSV slice ──
+    // Sliced from the actual MGC export: trades 1-6 (includes ORB and ORF)
+    // CSV is reverse-chronological with exit row before entry row within each trade
     {
-        const testTrades = [
-            { signal: 'ORB Long', profit: 100, date: new Date() },
-            { signal: 'ORB Short (R)', profit: -50, date: new Date() },
-            { signal: 'ORF Long', profit: 200, date: new Date() },
-            { signal: 'ORF Short', profit: -30, date: new Date() },
-            { signal: 'ORB Long', profit: 75, date: new Date() },
-        ];
-        const result = splitTradesByStrategy(testTrades);
-        assert(result.orb.length === 3, 'Test 1a: Expected 3 ORB trades, got ' + result.orb.length);
-        assert(result.orf.length === 2, 'Test 1b: Expected 2 ORF trades, got ' + result.orf.length);
+        const SAMPLE_CSV =
+            'Trade #,Type,Date and time,Signal,Price USD,Position size (qty),Position size (value),Net P&L USD,Net P&L %,Favorable excursion USD,Favorable excursion %,Adverse excursion USD,Adverse excursion %,Cumulative P&L USD,Cumulative P&L %\n' +
+            '1,Exit short,2019-01-22 02:15,SL Hit,1279.5,4,51076,-108,-0.21,0,0.00,-106,-0.21,-108,-0.22\n' +
+            '1,Entry short,2019-01-21 23:55,ORB Short,1276.9,4,51076,-108,-0.21,0,0.00,-106,-0.21,-108,-0.22\n' +
+            '2,Exit short,2019-01-24 09:40,SL Hit,1282.8,4,51212,-104,-0.20,198,0.39,-102,-0.20,-212,-0.42\n' +
+            '2,Entry short,2019-01-24 00:05,ORB Short,1280.3,4,51212,-104,-0.20,198,0.39,-102,-0.20,-212,-0.42\n' +
+            '3,Exit long,2019-01-30 08:00,SL Hit,1316.6,4,52780,-120,-0.23,50,0.09,-118,-0.22,-332,-0.66\n' +
+            '3,Entry long,2019-01-30 00:50,ORB Long,1319.5,4,52780,-120,-0.23,50,0.09,-118,-0.22,-332,-0.66\n' +
+            '4,Exit short,2019-02-01 05:35,SL Hit,1325.6,4,52920,-108,-0.20,66,0.12,-106,-0.20,-440,-0.88\n' +
+            '4,Entry short,2019-01-31 20:55,ORB Short,1323,4,52920,-108,-0.20,66,0.12,-106,-0.20,-440,-0.88\n' +
+            '5,Exit short,2019-02-07 05:30,SL Hit,1311,4,52308,-136,-0.26,50,0.10,-134,-0.26,-576,-1.15\n' +
+            '5,Entry short,2019-02-06 20:55,ORB Short,1307.7,4,52308,-136,-0.26,50,0.10,-134,-0.26,-576,-1.15\n' +
+            '6,Exit long,2019-02-10 22:45,SL Hit,1315.4,4,52620,-8,-0.02,6,0.01,-6,-0.01,-584,-1.17\n' +
+            '6,Entry long,2019-02-10 22:35,ORF Long,1315.5,4,52620,-8,-0.02,6,0.01,-6,-0.01,-584,-1.17';
+
+        const trades = parseCSV(SAMPLE_CSV);
+        assert(trades.length === 6, 'T1a: Expected 6 trades, got ' + trades.length);
+        // Signal must come from entry row, not exit
+        assert(trades[0].signal === 'ORB Short', 'T1b: First trade signal should be "ORB Short", got "' + trades[0].signal + '"');
+        assert(trades[5].signal === 'ORF Long', 'T1c: Trade 6 signal should be "ORF Long", got "' + trades[5].signal + '"');
+        // No exit signals should appear
+        const hasExitSignal = trades.some(t => t.signal === 'SL Hit' || t.signal === 'Time Exit');
+        assert(!hasExitSignal, 'T1d: No trade should have exit signal as its signal');
+
+        const split = splitTradesByStrategy(trades);
+        assert(split.orb.length === 5, 'T1e: Expected 5 ORB, got ' + split.orb.length);
+        assert(split.orf.length === 1, 'T1f: Expected 1 ORF, got ' + split.orf.length);
+        assert(split.orb.length + split.orf.length === 6, 'T1g: All trades bucketed');
     }
 
-    // Test 2: effectiveTradingDay matches indicator logic
+    // ── Test 2: effectiveTradingDay ──
     {
         // Sunday 18:00 -> Monday
-        const sundayEvening = new Date(2024, 0, 7, 18, 0); // Jan 7 2024 is a Sunday
-        assert(effectiveTradingDay(sundayEvening) === 'monday',
-            'Test 2a: Sunday 18:00 should be monday, got ' + effectiveTradingDay(sundayEvening));
-
-        // Monday 10:00 -> Monday (daytime, no shift)
-        const mondayMorning = new Date(2024, 0, 8, 10, 0); // Jan 8 2024 is a Monday
-        assert(effectiveTradingDay(mondayMorning) === 'monday',
-            'Test 2b: Monday 10:00 should be monday, got ' + effectiveTradingDay(mondayMorning));
-
-        // Monday 18:00 -> Tuesday (evening session)
-        const mondayEvening = new Date(2024, 0, 8, 18, 0);
-        assert(effectiveTradingDay(mondayEvening) === 'tuesday',
-            'Test 2c: Monday 18:00 should be tuesday, got ' + effectiveTradingDay(mondayEvening));
-
-        // Thursday 20:00 -> Friday
-        const thursdayEvening = new Date(2024, 0, 11, 20, 0); // Jan 11 2024 is Thursday
-        assert(effectiveTradingDay(thursdayEvening) === 'friday',
-            'Test 2d: Thursday 20:00 should be friday, got ' + effectiveTradingDay(thursdayEvening));
-
-        // Wednesday 16:59 -> Wednesday (just before cutoff)
-        const wedAfternoon = new Date(2024, 0, 10, 16, 59);
-        assert(effectiveTradingDay(wedAfternoon) === 'wednesday',
-            'Test 2e: Wednesday 16:59 should be wednesday, got ' + effectiveTradingDay(wedAfternoon));
+        assert(effectiveTradingDay(new Date(2024, 0, 7, 18, 0)) === 'monday',
+            'T2a: Sunday 18:00 -> monday, got ' + effectiveTradingDay(new Date(2024, 0, 7, 18, 0)));
+        // Monday 16:59 -> Monday
+        assert(effectiveTradingDay(new Date(2024, 0, 8, 16, 59)) === 'monday',
+            'T2b: Monday 16:59 -> monday');
+        // Monday 17:00 -> Tuesday
+        assert(effectiveTradingDay(new Date(2024, 0, 8, 17, 0)) === 'tuesday',
+            'T2c: Monday 17:00 -> tuesday');
+        // Thursday 18:00 -> Friday
+        assert(effectiveTradingDay(new Date(2024, 0, 11, 18, 0)) === 'friday',
+            'T2d: Thursday 18:00 -> friday');
+        // Friday 16:59 -> Friday
+        assert(effectiveTradingDay(new Date(2024, 0, 12, 16, 59)) === 'friday',
+            'T2e: Friday 16:59 -> friday');
+        // Friday 18:00 -> Saturday (C7 edge case — M3 fix)
+        assert(effectiveTradingDay(new Date(2024, 0, 12, 18, 0)) === 'saturday',
+            'T2f: Friday 18:00 -> saturday, got ' + effectiveTradingDay(new Date(2024, 0, 12, 18, 0)));
     }
 
-    // Test 3: dayOfWeekEquity computes running totals correctly
+    // ── Test 3: bucketByDay — Friday evening throws (C7 fix) ──
     {
-        const trades = [
-            { date: new Date(2024, 0, 8, 10, 0), profit: 100 },   // Monday
-            { date: new Date(2024, 0, 9, 10, 0), profit: -50 },   // Tuesday
-            { date: new Date(2024, 0, 15, 10, 0), profit: 200 },  // Monday
-            { date: new Date(2024, 0, 22, 10, 0), profit: -25 },  // Monday
+        const fridayEveningTrade = {
+            tradeNum: 999,
+            entryDate: new Date(2024, 0, 12, 18, 0), // Friday 18:00
+            signal: 'ORB Long',
+            profit: 100
+        };
+        let threw = false;
+        try { bucketByDay([fridayEveningTrade]); }
+        catch (e) { threw = true; }
+        assert(threw, 'T3a: bucketByDay must throw on Friday-evening trade');
+    }
+
+    // ── Test 4: Entry-vs-exit timestamp bucketing (C5 regression test) ──
+    // Trade entered Monday 03:00, exited Tuesday 10:00 — must bucket to Monday
+    {
+        const CSV_CROSS_DAY =
+            'Trade #,Type,Date and time,Signal,Price USD,Position size (qty),Position size (value),Net P&L USD,Net P&L %,Favorable excursion USD,Favorable excursion %,Adverse excursion USD,Adverse excursion %,Cumulative P&L USD,Cumulative P&L %\n' +
+            '1,Exit long,2024-01-09 10:00,Time Exit,2050,1,2050,100,0.5,100,0.5,0,0,100,0.5\n' +
+            '1,Entry long,2024-01-08 03:00,ORB Long,2000,1,2000,100,0.5,100,0.5,0,0,100,0.5';
+        const trades = parseCSV(CSV_CROSS_DAY);
+        assert(trades.length === 1, 'T4a: Should parse 1 trade');
+        const day = effectiveTradingDay(trades[0].entryDate);
+        assert(day === 'monday', 'T4b: Entry Mon 03:00 should bucket to monday, got ' + day);
+    }
+
+    // ── Test 5: Reverse-chronological + interleaved order ──
+    {
+        // Trade 2 rows appear before Trade 1 rows, exit before entry within each
+        const CSV_REVERSED =
+            'Trade #,Type,Date and time,Signal,Price USD,Position size (qty),Position size (value),Net P&L USD,Net P&L %,Favorable excursion USD,Favorable excursion %,Adverse excursion USD,Adverse excursion %,Cumulative P&L USD,Cumulative P&L %\n' +
+            '2,Exit short,2024-01-10 10:00,SL Hit,2060,1,2060,-50,0,0,0,0,0,50,0\n' +
+            '2,Entry short,2024-01-09 14:00,ORF Short,2050,1,2050,-50,0,0,0,0,0,50,0\n' +
+            '1,Exit long,2024-01-08 11:00,Time Exit,2055,1,2055,100,0,0,0,0,0,100,0\n' +
+            '1,Entry long,2024-01-08 03:00,ORB Long,2000,1,2000,100,0,0,0,0,0,100,0';
+        const trades = parseCSV(CSV_REVERSED);
+        assert(trades.length === 2, 'T5a: Should parse 2 trades');
+        assert(trades[0].tradeNum === 1, 'T5b: First trade should be #1 (sorted)');
+        assert(trades[0].signal === 'ORB Long', 'T5c: Trade 1 signal from entry row');
+        assert(trades[1].signal === 'ORF Short', 'T5d: Trade 2 signal from entry row');
+        assert(trades[0].profit === 100, 'T5e: Trade 1 P&L from exit row');
+        assert(trades[1].profit === -50, 'T5f: Trade 2 P&L from exit row');
+    }
+
+    // ── Test 6: computeStats empty array — winRate must be null, not 0 (C8 fix) ──
+    {
+        const stats = computeStats([]);
+        assert(stats.trades === 0, 'T6a: Empty trades count = 0');
+        assert(stats.winRate === null, 'T6b: Empty winRate must be null, got ' + stats.winRate);
+        assert(stats.pf === null, 'T6c: Empty PF must be null, got ' + stats.pf);
+        assert(stats.maxDD === 0, 'T6d: Empty maxDD = 0');
+    }
+
+    // ── Test 7: computeRefinedStats honesty — maxDD from scratch, not subtraction (M8 fix) ──
+    {
+        // Three trades: +100, -300, +50 -> full maxDD = 200 (peak 100, trough -100-50... let me compute)
+        // Running: 100, -200, -150. Peak: 100. DD at trade 2: 100-(-200)=300. DD at trade 3: 100-(-150)=250.
+        // Full maxDD = 300.
+        // If we filter to just trades 1 and 3 (skip trade 2):
+        // Running: 100, 150. Peak: 100, 150. maxDD = 0.
+        // A linear subtraction would still show ~300 or some fraction. From-scratch = 0.
+        const allTrades = [
+            { entryDate: new Date(2024, 0, 8, 3, 0), profit: 100 },   // Monday
+            { entryDate: new Date(2024, 0, 9, 3, 0), profit: -300 },  // Tuesday
+            { entryDate: new Date(2024, 0, 10, 3, 0), profit: 50 },   // Wednesday
         ];
-        const curve = dayOfWeekEquity(trades, 'monday');
-        assert(curve.length === 3, 'Test 3a: Expected 3 Monday trades, got ' + curve.length);
-        assert(curve[0] === 100, 'Test 3b: First point should be 100, got ' + curve[0]);
-        assert(curve[1] === 300, 'Test 3c: Second point should be 300, got ' + curve[1]);
-        assert(curve[2] === 275, 'Test 3d: Third point should be 275, got ' + curve[2]);
+        const fullStats = computeStats(allTrades);
+        assert(fullStats.maxDD === 300, 'T7a: Full maxDD should be 300, got ' + fullStats.maxDD);
+
+        const enabledDays = { monday: true, tuesday: false, wednesday: true, thursday: false, friday: false };
+        const refinedStats = computeRefinedStats(allTrades, enabledDays);
+        assert(refinedStats.maxDD === 0, 'T7b: Refined maxDD (Mon+Wed only) should be 0, got ' + refinedStats.maxDD);
+        assert(refinedStats.trades === 2, 'T7c: Refined should have 2 trades');
+        assert(refinedStats.totalPnL === 150, 'T7d: Refined PnL = 150');
     }
 
-    // Test 4: generateDayFilterCard matches selected state
+    // ── Test 8: parseCSVLine with embedded commas (M2 fix) ──
     {
-        const card = generateDayFilterCard(
-            { monday: true, tuesday: false, wednesday: false, thursday: true, friday: false },
-            { monday: false, tuesday: true, wednesday: false, thursday: false, friday: true }
-        );
-        assert(card.orb.monday === true, 'Test 4a: ORB Monday should be true');
-        assert(card.orb.tuesday === false, 'Test 4b: ORB Tuesday should be false');
-        assert(card.orb.thursday === true, 'Test 4c: ORB Thursday should be true');
-        assert(card.orf.tuesday === true, 'Test 4d: ORF Tuesday should be true');
-        assert(card.orf.friday === true, 'Test 4e: ORF Friday should be true');
-        assert(card.orf.monday === false, 'Test 4f: ORF Monday should be false');
+        const fields = parseCSVLine('a,"b,c","d,e,f"');
+        assert(fields.length === 3, 'T8a: Should have 3 fields, got ' + fields.length);
+        assert(fields[0] === 'a', 'T8b: First field = "a"');
+        assert(fields[1] === 'b,c', 'T8c: Second field = "b,c", got "' + fields[1] + '"');
+        assert(fields[2] === 'd,e,f', 'T8d: Third field = "d,e,f"');
     }
 
-    // Test 5: localStorage round-trip
+    // ── Test 9: saveCard / loadCard round-trip ──
     {
         const testState = {
             orb: { monday: true, tuesday: false, wednesday: true, thursday: false, friday: true },
             orf: { monday: false, tuesday: true, wednesday: false, thursday: true, friday: false }
         };
-        saveCard(testState);
+        saveCard({ filters: testState, filename: 'test' });
         const loaded = loadCard();
-        assert(loaded !== null, 'Test 5a: loadCard should return non-null');
-        assert(loaded.orb.monday === true, 'Test 5b: ORB Monday round-trip');
-        assert(loaded.orb.tuesday === false, 'Test 5c: ORB Tuesday round-trip');
-        assert(loaded.orf.thursday === true, 'Test 5d: ORF Thursday round-trip');
-        assert(loaded.orf.friday === false, 'Test 5e: ORF Friday round-trip');
-        // Clean up test data
+        assert(loaded !== null, 'T9a: loadCard non-null');
+        assert(loaded.filters.orb.monday === true, 'T9b: ORB Monday round-trip');
+        assert(loaded.filters.orb.tuesday === false, 'T9c: ORB Tuesday round-trip');
+        assert(loaded.filters.orf.thursday === true, 'T9d: ORF Thursday round-trip');
         localStorage.removeItem('orbalpha_screener_card');
     }
 
-    // Test 6: computeStats handles empty array
+    // ── Test 10: generateDayFilterCard — state match + truthy coercion (M5 fix) ──
     {
-        const stats = computeStats([]);
-        assert(stats.trades === 0, 'Test 6a: Empty trades should have 0 count');
-        assert(stats.winRate === 0, 'Test 6b: Empty trades should have 0 win rate');
-        assert(stats.pf === 0, 'Test 6c: Empty trades should have 0 PF');
+        const card = generateDayFilterCard(
+            { monday: 1, tuesday: 0, wednesday: 'yes', thursday: null, friday: true },
+            { monday: false, tuesday: true, wednesday: undefined, thursday: true, friday: false }
+        );
+        assert(card.orb.monday === true, 'T10a: truthy 1 -> true');
+        assert(card.orb.tuesday === false, 'T10b: falsy 0 -> false');
+        assert(card.orb.wednesday === true, 'T10c: truthy "yes" -> true');
+        assert(card.orb.thursday === false, 'T10d: null -> false');
+        assert(card.orf.wednesday === false, 'T10e: undefined -> false');
+        // Only weekday keys should exist
+        assert(!('saturday' in card.orb), 'T10f: No saturday key');
+        assert(!('sunday' in card.orf), 'T10g: No sunday key');
     }
 
-    // Test 7: computeRefinedStats only counts enabled days
+    // ── Test 11: dayOfWeekEquity running totals ──
     {
         const trades = [
-            { date: new Date(2024, 0, 8, 10, 0), profit: 100 },   // Monday
-            { date: new Date(2024, 0, 9, 10, 0), profit: -50 },   // Tuesday
-            { date: new Date(2024, 0, 10, 10, 0), profit: 200 },  // Wednesday
+            { entryDate: new Date(2024, 0, 8, 3, 0), profit: 100 },   // Monday
+            { entryDate: new Date(2024, 0, 9, 3, 0), profit: -50 },   // Tuesday
+            { entryDate: new Date(2024, 0, 15, 3, 0), profit: 200 },  // Monday
+            { entryDate: new Date(2024, 0, 22, 3, 0), profit: -25 },  // Monday
         ];
-        const enabledDays = { monday: true, tuesday: false, wednesday: true, thursday: false, friday: false };
-        const stats = computeRefinedStats(trades, enabledDays);
-        assert(stats.trades === 2, 'Test 7a: Should have 2 trades (Mon+Wed), got ' + stats.trades);
-        assert(stats.totalPnL === 300, 'Test 7b: PnL should be 300, got ' + stats.totalPnL);
-    }
-
-    // Test 8: parseCSVLine handles quoted fields
-    {
-        const line = '"Trade 1","Exit Long","ORB Long","2024-01-08 10:00",100.5,1,"$250.00"';
-        const fields = parseCSVLine(line);
-        assert(fields[0] === 'Trade 1', 'Test 8a: First field should be "Trade 1", got "' + fields[0] + '"');
-        assert(fields[2] === 'ORB Long', 'Test 8b: Signal should be "ORB Long", got "' + fields[2] + '"');
-        assert(fields.length === 7, 'Test 8c: Should have 7 fields, got ' + fields.length);
+        const curve = dayOfWeekEquity(trades, 'monday');
+        assert(curve.length === 3, 'T11a: 3 Monday trades');
+        assert(curve[0] === 100, 'T11b: First = 100');
+        assert(curve[1] === 300, 'T11c: Second = 300');
+        assert(curve[2] === 275, 'T11d: Third = 275');
     }
 
     return failures;
@@ -1004,9 +1042,6 @@ function runTests() {
 // UI RENDERING
 // ============================================================
 
-/**
- * Draw a mini sparkline equity curve on a canvas element.
- */
 function drawSparkline(canvas, data, color) {
     if (!data || data.length === 0) {
         const ctx = canvas.getContext('2d');
@@ -1027,18 +1062,15 @@ function drawSparkline(canvas, data, color) {
     const scaleX = (i) => (i / (allVals.length - 1)) * w;
     const scaleY = (v) => h - padY - ((v - min) / range) * (h - 2 * padY);
 
-    // Zero line
     ctx.strokeStyle = '#DADCE0';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    const zeroY = scaleY(0);
-    ctx.moveTo(0, zeroY);
-    ctx.lineTo(w, zeroY);
+    ctx.moveTo(0, scaleY(0));
+    ctx.lineTo(w, scaleY(0));
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Equity curve
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -1051,9 +1083,28 @@ function drawSparkline(canvas, data, color) {
     ctx.stroke();
 }
 
-/**
- * Render the day rows for a strategy type (ORB or ORF).
- */
+function fmtPnL(val) {
+    if (val === null || val === undefined) return 'N/A';
+    const sign = val >= 0 ? '+' : '';
+    return sign + '$' + val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtWR(val) {
+    if (val === null) return 'N/A';
+    return val.toFixed(1) + '%';
+}
+
+function fmtPF(val) {
+    if (val === null) return 'N/A';
+    if (val === Infinity) return 'Inf';
+    return val.toFixed(3);
+}
+
+function fmtDD(val) {
+    if (val === null || val === undefined) return 'N/A';
+    return '$' + val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
 function renderDayRows(containerId, stratType, trades) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
@@ -1075,7 +1126,6 @@ function renderDayRows(containerId, stratType, trades) {
 
         const row = document.createElement('div');
         row.className = 'day-row';
-
         const isEnabled = dayFilters[stratType][day];
 
         row.innerHTML = `
@@ -1085,13 +1135,12 @@ function renderDayRows(containerId, stratType, trades) {
             <span class="day-stats">${count > 0 ? count + ' trades / ' + wr + '% WR' : 'no trades'}</span>
             <canvas class="day-chart" id="chart-${stratType}-${day}"></canvas>
             <span class="day-pnl ${totalPnL > 0 ? 'pnl-positive' : totalPnL < 0 ? 'pnl-negative' : 'pnl-na'}">
-                ${count > 0 ? (totalPnL >= 0 ? '+' : '') + '$' + totalPnL.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 'N/A'}
+                ${count > 0 ? fmtPnL(totalPnL) : 'N/A'}
             </span>
         `;
 
         container.appendChild(row);
 
-        // Draw sparkline after DOM insert
         requestAnimationFrame(() => {
             const canvas = document.getElementById(`chart-${stratType}-${day}`);
             if (canvas) {
@@ -1102,9 +1151,6 @@ function renderDayRows(containerId, stratType, trades) {
     }
 }
 
-/**
- * Render summary stats for a strategy type.
- */
 function renderSummary(containerId, stratType, trades) {
     const container = document.getElementById(containerId);
     const allStats = computeStats(trades);
@@ -1117,9 +1163,19 @@ function renderSummary(containerId, stratType, trades) {
         </div>
         <div class="summary-stat">
             <div class="summary-stat-label">all P&L</div>
-            <div class="summary-stat-value" style="color:${allStats.totalPnL >= 0 ? '#2e7d32' : '#c62828'}">
-                ${allStats.totalPnL >= 0 ? '+' : ''}$${allStats.totalPnL.toLocaleString(undefined, {maximumFractionDigits: 0})}
-            </div>
+            <div class="summary-stat-value" style="color:${allStats.totalPnL >= 0 ? '#2e7d32' : '#c62828'}">${fmtPnL(allStats.totalPnL)}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">all WR</div>
+            <div class="summary-stat-value">${fmtWR(allStats.winRate)}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">all PF</div>
+            <div class="summary-stat-value">${fmtPF(allStats.pf)}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">all max DD</div>
+            <div class="summary-stat-value" style="color:#c62828">${fmtDD(allStats.maxDD)}</div>
         </div>
         <div class="summary-stat">
             <div class="summary-stat-label">refined trades</div>
@@ -1127,16 +1183,23 @@ function renderSummary(containerId, stratType, trades) {
         </div>
         <div class="summary-stat">
             <div class="summary-stat-label">refined P&L</div>
-            <div class="summary-stat-value" style="color:${refinedStats.totalPnL >= 0 ? '#2e7d32' : '#c62828'}">
-                ${refinedStats.totalPnL >= 0 ? '+' : ''}$${refinedStats.totalPnL.toLocaleString(undefined, {maximumFractionDigits: 0})}
-            </div>
+            <div class="summary-stat-value" style="color:${refinedStats.totalPnL >= 0 ? '#2e7d32' : '#c62828'}">${fmtPnL(refinedStats.totalPnL)}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">refined WR</div>
+            <div class="summary-stat-value">${fmtWR(refinedStats.winRate)}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">refined PF</div>
+            <div class="summary-stat-value">${fmtPF(refinedStats.pf)}</div>
+        </div>
+        <div class="summary-stat">
+            <div class="summary-stat-label">refined max DD</div>
+            <div class="summary-stat-value" style="color:#c62828">${fmtDD(refinedStats.maxDD)}</div>
         </div>
     `;
 }
 
-/**
- * Render the output card.
- */
 function renderCard() {
     const card = generateDayFilterCard(dayFilters.orb, dayFilters.orf);
     const container = document.getElementById('cardOutput');
@@ -1157,7 +1220,7 @@ function renderCard() {
     }
 
     container.innerHTML = `
-        <div class="card-title">Day Filters — copy into ORB/ORF indicator Sections 4D and 5D</div>
+        <div class="card-title">Day Filters — copy into ORB/ORF indicator Sections 4D and 5D.</div>
         <div class="card-subtitle">Asset: ${currentFilename || 'unknown'}</div>
         <div class="card-grid">
             <div>
@@ -1170,14 +1233,8 @@ function renderCard() {
             </div>
         </div>
     `;
-
-    // Persist to localStorage
-    saveCard({ filters: dayFilters, filename: currentFilename });
 }
 
-/**
- * Render everything after data is loaded.
- */
 function renderAll() {
     if (!currentData) return;
 
@@ -1196,11 +1253,11 @@ function renderAll() {
 // EVENT HANDLERS
 // ============================================================
 
-let currentFilename = '';
-
 function toggleDay(strat, day, checked) {
     dayFilters[strat][day] = checked;
     renderAll();
+    // M6 fix: only save on explicit user toggle, not every render
+    saveCard({ filters: dayFilters, filename: currentFilename });
 }
 
 function clearAll() {
@@ -1247,15 +1304,14 @@ function handleFile(file) {
         try {
             const trades = parseCSV(e.target.result);
             if (trades.length === 0) {
-                alert('No trades found in CSV. Check that the file is a TradingView strategy export.');
+                alert('No trades found in CSV. Check that the file is a TradingView strategy export with entry and exit rows.');
                 return;
             }
 
             currentData = splitTradesByStrategy(trades);
 
-            // Check if we have any ORB or ORF trades
             if (currentData.orb.length === 0 && currentData.orf.length === 0) {
-                alert('No ORB or ORF signals found in CSV. The signal column should contain "ORB Long", "ORF Short", etc.');
+                alert('No ORB or ORF signals found in CSV. The Signal column on entry rows should contain "ORB Long", "ORF Short", etc.');
                 return;
             }
 
@@ -1264,14 +1320,13 @@ function handleFile(file) {
             if (saved && saved.filename === currentFilename && saved.filters) {
                 dayFilters = saved.filters;
             } else {
-                // Reset to all enabled
                 dayFilters = {
                     orb: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true },
                     orf: { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true }
                 };
             }
 
-            // Show file info
+            // M1 fix: show accurate counts after parser fix
             const info = document.getElementById('fileInfo');
             info.textContent = `// loaded: ${file.name} — ${trades.length} trades (${currentData.orb.length} ORB, ${currentData.orf.length} ORF)`;
             info.classList.remove('hidden');
@@ -1290,7 +1345,6 @@ function handleFile(file) {
 // ============================================================
 
 (function init() {
-    // Run tests first
     const failures = runTests();
     if (failures.length > 0) {
         const banner = document.getElementById('testFailureBanner');
@@ -1300,10 +1354,8 @@ function handleFile(file) {
         return;
     }
 
-    // Also log assertions to console for dev verification
-    console.log('ORBAlpha Screener: All ' + 8 + ' test groups passed.');
+    console.log('ORBAlpha Screener v1.1: All 11 test groups passed.');
 
-    // Wire up drop zone
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
 
