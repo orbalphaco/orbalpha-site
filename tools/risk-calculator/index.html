@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — Risk Calculator</title>
+<meta name="description" content="Kelly Criterion position sizing for prop trading accounts. uses maximum drawdown as capital input, not account balance.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background: #ECEEF1; color: #202124;
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.system-bar {
+  background: #D3E3FD; display: flex; justify-content: space-between;
+  align-items: center; padding: 14px 32px;
+}
+.system-bar-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark { width: 36px; height: 36px; flex-shrink: 0; }
+.system-id { font-weight: bold; font-size: 15px; color: #202124; }
+.system-sub { font-size: 12px; color: #5F6368; }
+.back-link { font-size: 12px; color: #1A73E8; text-decoration: none; }
+
+main {
+  flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 32px;
+}
+h1 { font-size: 22px; font-weight: bold; color: #202124; margin-bottom: 16px; }
+h2 { font-size: 16px; font-weight: bold; color: #202124; margin-top: 32px; margin-bottom: 12px; }
+.body-text {
+  font-size: 14px; color: #202124; line-height: 1.7; margin-bottom: 16px;
+}
+.body-text strong { color: #202124; }
+.warn-list {
+  font-size: 14px; color: #202124; line-height: 1.8;
+  padding-left: 20px; margin-bottom: 16px;
+}
+.warn-list li { margin-bottom: 8px; }
+
+/* calculator form */
+.calc-form {
+  background: #fff; border: 1px solid #DADCE0; padding: 24px;
+  margin-bottom: 24px;
+}
+.form-row {
+  margin-bottom: 16px;
+}
+.form-row label {
+  display: block; font-size: 13px; color: #5F6368; margin-bottom: 6px;
+}
+.form-row .help-text {
+  font-size: 11px; color: #5F6368; margin-top: 4px; font-style: italic;
+}
+.form-row input {
+  width: 100%; font-family: 'Courier New', Courier, monospace;
+  font-size: 14px; color: #202124; background: #ECEEF1;
+  border: 1px solid #DADCE0; padding: 10px 12px; outline: none;
+}
+.form-row input:focus { border-color: #1A73E8; }
+.form-row input.input-error { border-color: #ef4444; }
+.calc-btn {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px; color: #fff; background: #1A73E8;
+  border: none; padding: 10px 24px; cursor: pointer;
+  width: 100%;
+}
+.calc-btn:hover { background: #1557b0; }
+
+/* output area */
+.calc-output { margin-top: 0; }
+.output-hidden { display: none; }
+
+/* negative kelly message */
+.negative-kelly {
+  background: #fff; border: 1px solid #DADCE0; padding: 20px;
+  margin-bottom: 16px;
+}
+.negative-kelly .neg-title {
+  font-size: 16px; font-weight: bold; color: #ef4444; margin-bottom: 12px;
+}
+.negative-kelly p {
+  font-size: 14px; color: #202124; line-height: 1.7;
+}
+
+/* kelly output rows */
+.kelly-row {
+  background: #fff; border: 1px solid #DADCE0; padding: 16px 20px;
+  margin-bottom: 8px;
+}
+.kelly-row-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.kelly-label { font-size: 14px; font-weight: bold; color: #202124; }
+.kelly-warning {
+  font-size: 11px; font-weight: bold; padding: 2px 8px;
+}
+.warning-danger { color: #ef4444; border: 1px solid #ef4444; }
+.warning-aggressive { color: #C4900C; border: 1px solid #C4900C; }
+.warning-recommended { color: #1A73E8; border: 1px solid #1A73E8; }
+.warning-conservative { color: #5F6368; border: 1px solid #5F6368; }
+.kelly-stats {
+  display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; color: #5F6368;
+}
+.kelly-stats span { white-space: nowrap; }
+.kelly-stats .stat-value { color: #202124; font-weight: bold; }
+.headroom-warn { color: #C4900C; font-weight: bold; }
+.headroom-danger { color: #ef4444; font-weight: bold; }
+
+/* error display */
+.form-error {
+  color: #ef4444; font-size: 12px; margin-top: 4px; display: none;
+}
+.form-error.visible { display: block; }
+
+/* disclaimer */
+.disclaimer-box {
+  margin-top: 36px; padding: 20px; border-left: 3px solid #DADCE0;
+  background: #f8f9fa;
+}
+.disclaimer-box h2 { margin-top: 0; }
+.disclaimer-box p { font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 10px; }
+.disclaimer-box a { color: #1A73E8; text-decoration: none; font-size: 13px; }
+
+footer {
+  background: #D3E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
+}
+.footer-row { display: flex; justify-content: space-between; align-items: center; }
+.footer-links { margin-top: 8px; }
+.footer-links a { font-size: 13px; color: #1A73E8; text-decoration: none; }
+footer .auth { color: #5F6368; }
+
+@media (max-width: 600px) {
+  .system-bar { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 16px; }
+  main { padding: 32px 16px; }
+  .calc-form { padding: 16px; }
+  .kelly-stats { flex-direction: column; gap: 4px; }
+  footer { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="system-bar">
+  <div class="system-bar-left">
+    <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg"><g stroke="#5F6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><path d="M12,50 L12,12 L50,12"/><path d="M270,12 L308,12 L308,50"/><path d="M12,270 L12,308 L50,308"/><path d="M270,308 L308,308 L308,270"/></g><g stroke="#5F6368" stroke-width="1.5" stroke-linecap="round" opacity="0.25"><line x1="160" y1="67" x2="160" y2="253"/><line x1="72" y1="160" x2="248" y2="160"/></g><line x1="160" y1="44" x2="160" y2="28" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="160" y1="276" x2="160" y2="292" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="160" x2="28" y2="160" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><circle cx="160" cy="26" r="3" fill="#1A73E8"/><circle cx="160" cy="294" r="3" fill="#1A73E8"/><circle cx="26" cy="160" r="3" fill="#1A73E8"/><circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/><text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text></svg>
+    <div>
+      <div class="system-id">ORBAlpha SYSTEM</div>
+      <div class="system-sub">tools / risk-calculator</div>
+    </div>
+  </div>
+  <a href="/" class="back-link">&larr; back</a>
+</div>
+
+<main>
+
+  <h1>// RISK CALCULATOR</h1>
+
+  <p class="body-text">position sizing for traders who actually want to survive.</p>
+
+  <h2>// WHAT IT DOES</h2>
+
+  <p class="body-text">the risk calculator uses the Kelly Criterion to compute your optimal
+position size given your edge and your capital. for prop trading
+accounts, it uses a non-standard capital input &mdash; your maximum allowed
+drawdown, not your account balance. this is the difference between a
+Kelly calculation that helps you and one that blows up your account.</p>
+
+  <h2>// WHY THIS IS DIFFERENT</h2>
+
+  <p class="body-text">every generic Kelly calculator online asks for your account balance
+and tells you to risk a percentage of it per trade. for a $50,000
+prop account with a $2,500 static drawdown, standard Kelly might
+recommend risking $12,500 per trade. the first losing trade ends the
+account.</p>
+
+  <p class="body-text">the problem is not Kelly. the problem is the input. Kelly's math
+assumes the capital you give it is capital you can actually lose
+without the game ending. for a prop trader, the game ends at the
+drawdown limit &mdash; not at zero. the capital Kelly should size against
+is the drawdown, not the account balance.</p>
+
+  <p class="body-text">this tool asks for your maximum drawdown as the capital input. the
+Kelly math runs against that number. the output is position sizing
+that respects the real constraint: the drawdown limit is the account,
+everything above it is an accounting fiction.</p>
+
+  <h2>// THE CALCULATOR</h2>
+
+  <div class="calc-form">
+    <div class="form-row">
+      <label for="winRate">win rate (%)</label>
+      <input type="number" id="winRate" min="0" max="100" step="0.01" placeholder="55">
+      <div class="help-text">from 100+ trades of validated data</div>
+      <div class="form-error" id="winRateError"></div>
+    </div>
+    <div class="form-row">
+      <label for="avgWin">average win ($)</label>
+      <input type="number" id="avgWin" min="0" step="0.01" placeholder="150">
+      <div class="help-text">per-trade average, positive number</div>
+      <div class="form-error" id="avgWinError"></div>
+    </div>
+    <div class="form-row">
+      <label for="avgLoss">average loss ($)</label>
+      <input type="number" id="avgLoss" min="0" step="0.01" placeholder="100">
+      <div class="help-text">per-trade average, positive number</div>
+      <div class="form-error" id="avgLossError"></div>
+    </div>
+    <div class="form-row">
+      <label for="capital">maximum drawdown ($)</label>
+      <input type="number" id="capital" min="0" step="0.01" placeholder="2500">
+      <div class="help-text">NOT your account balance &mdash; the hard $ limit before account closure</div>
+      <div class="form-error" id="capitalError"></div>
+    </div>
+    <button class="calc-btn" id="calcBtn">CALCULATE</button>
+  </div>
+
+  <div class="calc-output output-hidden" id="calcOutput"></div>
+
+  <h2>// HOW TO READ THE OUTPUT</h2>
+
+  <p class="body-text">the calculator outputs four numbers. each is a fraction of Kelly's
+mathematical optimum.</p>
+
+  <p class="body-text"><strong>FULL KELLY</strong> &mdash; the mathematical optimum. do not use this number. full
+Kelly assumes your edge estimate is exactly right, that you can
+tolerate 50%+ drawdowns, and that you have infinite time to let the
+math play out. none of these are true in real trading. full Kelly is
+shown here as a reference point, not as a recommendation.</p>
+
+  <p class="body-text"><strong>HALF KELLY</strong> &mdash; Ed Thorp's recommendation for traders who can tolerate
+significant drawdowns. captures roughly 75% of Kelly's growth rate
+with roughly half the drawdown. aggressive. suitable for traders with
+large samples of live data confirming their edge and high tolerance
+for variance.</p>
+
+  <p class="body-text"><strong>QUARTER KELLY</strong> &mdash; the recommended starting point. captures roughly 56%
+of Kelly's growth rate with about a quarter the drawdown. this is
+where most disciplined traders land. use this unless you have a
+specific reason to go higher or lower.</p>
+
+  <p class="body-text"><strong>EIGHTH KELLY</strong> &mdash; conservative. captures roughly 23% of the growth rate
+with drawdowns roughly 1/8th of full Kelly. use this when your edge
+estimate is based on a small sample, when market conditions are
+uncertain, or when you are in the early phase of a prop evaluation
+and cannot afford any drawdown volatility.</p>
+
+  <p class="body-text">each output also shows the number of consecutive losing trades your
+capital can absorb at that size. if this number is less than 10, the
+sizing is likely too aggressive for the amount of variance normal
+trading produces.</p>
+
+  <h2>// WHEN NOT TO USE THIS</h2>
+
+  <p class="body-text">Kelly only works when your edge estimate is real. this tool will
+happily compute a position size based on garbage inputs. do not use
+the output if:</p>
+
+  <ul class="warn-list">
+    <li>your win rate and average win/loss are based on fewer than 100
+trades. edge estimates below this sample size have error bars wide
+enough to make Kelly dangerous.</li>
+    <li>your edge was measured on in-sample backtest data only. Kelly
+assumes the edge will repeat. over-fit backtests do not repeat.</li>
+    <li>you cannot explain why your strategy has edge. if you cannot
+articulate the reason, you probably do not have edge &mdash; you have
+a lucky sample.</li>
+    <li>your capital input is your full account balance. this tool assumes
+you are entering your maximum drawdown, not your balance. if you
+enter the wrong number, Kelly's output will be wrong by a factor
+of ten or more.</li>
+    <li>you are in the first 30 days of a prop evaluation and have not yet
+established a profit cushion. during early evaluation, drawdown
+tolerance is effectively zero. use Eighth Kelly or smaller.</li>
+  </ul>
+
+  <p class="body-text">if you cannot satisfy all five of these conditions, this tool is not
+the right sizing method for your situation. use a flat 0.5% of
+drawdown per trade as a safer default and focus on building the
+sample and edge validation this tool requires.</p>
+
+  <div class="disclaimer-box">
+    <h2>// DISCLAIMER</h2>
+    <p>for educational and research purposes only. not financial, investment,
+or trading advice. trading futures involves substantial risk of loss
+and is not suitable for all investors. past performance of any
+backtest, indicator, or signal is not indicative of future results.</p>
+    <p>the Kelly Criterion is a mathematical model that assumes conditions
+that are rarely true in real trading. no claim is made that following
+this tool's output will produce profits. you are solely responsible
+for your position sizing and trading decisions.</p>
+    <a href="/legal/">&rarr; full disclosure</a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-row">
+    <span>&copy; 2026 ORBAlpha.com</span>
+    <span class="auth">authorized access only</span>
+  </div>
+  <div class="footer-links"><a href="/legal/">/legal</a></div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('calcBtn');
+  var output = document.getElementById('calcOutput');
+
+  btn.addEventListener('click', function () {
+    // clear previous errors
+    var errors = document.querySelectorAll('.form-error');
+    errors.forEach(function (e) { e.classList.remove('visible'); e.textContent = ''; });
+    var inputs = document.querySelectorAll('.calc-form input');
+    inputs.forEach(function (i) { i.classList.remove('input-error'); });
+
+    // read and validate
+    var winRateRaw = document.getElementById('winRate').value;
+    var avgWinRaw = document.getElementById('avgWin').value;
+    var avgLossRaw = document.getElementById('avgLoss').value;
+    var capitalRaw = document.getElementById('capital').value;
+
+    var valid = true;
+
+    if (winRateRaw === '' || isNaN(+winRateRaw) || +winRateRaw < 0 || +winRateRaw > 100) {
+      showError('winRate', 'enter a win rate between 0 and 100');
+      valid = false;
+    }
+    if (avgWinRaw === '' || isNaN(+avgWinRaw) || +avgWinRaw <= 0) {
+      showError('avgWin', 'enter a positive dollar amount');
+      valid = false;
+    }
+    if (avgLossRaw === '' || isNaN(+avgLossRaw) || +avgLossRaw <= 0) {
+      showError('avgLoss', 'enter a positive dollar amount');
+      valid = false;
+    }
+    if (capitalRaw === '' || isNaN(+capitalRaw) || +capitalRaw <= 0) {
+      showError('capital', 'enter a positive dollar amount');
+      valid = false;
+    }
+
+    if (!valid) {
+      output.classList.add('output-hidden');
+      return;
+    }
+
+    var W = +winRateRaw / 100;
+    var L = 1 - W;
+    var avgWin = +avgWinRaw;
+    var avgLoss = +avgLossRaw;
+    var C = +capitalRaw;
+    var R = avgWin / avgLoss;
+
+    // Kelly formula
+    var kellyFraction = (R * W - L) / R;
+
+    output.classList.remove('output-hidden');
+
+    if (kellyFraction <= 0) {
+      output.innerHTML =
+        '<div class="negative-kelly">' +
+        '<div class="neg-title">NEGATIVE KELLY</div>' +
+        '<p>your inputs produce a negative Kelly value. this means the math says ' +
+        'you have no edge on this setup &mdash; the losses outweigh the wins, even ' +
+        'weighted by frequency. do not trade this. either your strategy has ' +
+        'no edge, or your sample is too small to measure the edge accurately. ' +
+        'verify your inputs and re-check with a larger sample.</p>' +
+        '</div>';
+      return;
+    }
+
+    var fractions = [
+      { label: 'FULL KELLY', mult: 1 },
+      { label: 'HALF KELLY', mult: 0.5 },
+      { label: 'QUARTER KELLY', mult: 0.25 },
+      { label: 'EIGHTH KELLY', mult: 0.125 }
+    ];
+
+    var html = '';
+    for (var i = 0; i < fractions.length; i++) {
+      var f = fractions[i];
+      var pct = kellyFraction * f.mult * 100;
+      var dollars = Math.round(C * kellyFraction * f.mult * 100) / 100;
+      var headroom = Math.floor(C / dollars + 1e-9);
+
+      // determine warning
+      var warningHtml = '';
+      var headroomClass = '';
+
+      if (f.label === 'FULL KELLY') {
+        warningHtml = '<span class="kelly-warning warning-danger">DO NOT USE &mdash; mathematical reference only</span>';
+      } else if (f.label === 'HALF KELLY') {
+        warningHtml = '<span class="kelly-warning warning-aggressive">aggressive &mdash; requires large validated sample</span>';
+      } else if (f.label === 'QUARTER KELLY') {
+        warningHtml = '<span class="kelly-warning warning-recommended">recommended starting point for disciplined traders</span>';
+      } else if (f.label === 'EIGHTH KELLY') {
+        warningHtml = '<span class="kelly-warning warning-conservative">conservative &mdash; best for early evaluation or uncertain edge</span>';
+      }
+
+      // headroom-based warnings (override label-based for half/quarter/eighth if needed)
+      if (f.label !== 'FULL KELLY') {
+        if (headroom < 5) {
+          warningHtml = '<span class="kelly-warning warning-danger">dangerous &mdash; fewer than 5 trades of headroom, account closure likely</span>';
+        } else if (headroom < 10) {
+          warningHtml = '<span class="kelly-warning warning-aggressive">aggressive &mdash; less than 10 trades of headroom</span>';
+        }
+      }
+
+      if (headroom < 5) {
+        headroomClass = 'headroom-danger';
+      } else if (headroom < 10) {
+        headroomClass = 'headroom-warn';
+      }
+
+      html +=
+        '<div class="kelly-row">' +
+          '<div class="kelly-row-header">' +
+            '<span class="kelly-label">' + f.label + '</span>' +
+            warningHtml +
+          '</div>' +
+          '<div class="kelly-stats">' +
+            '<span>risk: <span class="stat-value">' + pct.toFixed(2) + '%</span></span>' +
+            '<span>per trade: <span class="stat-value">$' + dollars.toFixed(2) + '</span></span>' +
+            '<span>headroom: <span class="stat-value ' + headroomClass + '">' + headroom + ' consecutive losses</span></span>' +
+          '</div>' +
+        '</div>';
+    }
+
+    output.innerHTML = html;
+  });
+
+  function showError(fieldId, msg) {
+    document.getElementById(fieldId).classList.add('input-error');
+    var errEl = document.getElementById(fieldId + 'Error');
+    errEl.textContent = msg;
+    errEl.classList.add('visible');
+  }
+})();
+</script>
+
+</body>
+</html>
