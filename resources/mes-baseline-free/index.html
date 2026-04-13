@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — MES Baseline Free Edition Reproduction Guide</title>
+<meta name="description" content="step-by-step guide to reproduce the ORB v2.2 Free baseline on MES in TradingView.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background: #ECEEF1; color: #202124;
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.system-bar {
+  background: #D3E3FD; display: flex; justify-content: space-between;
+  align-items: center; padding: 14px 32px;
+}
+.system-bar-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark { width: 36px; height: 36px; flex-shrink: 0; }
+.system-id { font-weight: bold; font-size: 15px; color: #202124; }
+.system-sub { font-size: 12px; color: #5F6368; }
+.back-link { font-size: 12px; color: #1A73E8; text-decoration: none; }
+main {
+  flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 32px;
+}
+.section-heading {
+  font-size: 22px; font-weight: bold; color: #202124; margin-bottom: 16px;
+}
+.section-heading.small { font-size: 16px; margin-top: 32px; }
+.body-text {
+  font-size: 14px; color: #202124; line-height: 1.7; margin-bottom: 16px;
+}
+.body-text a { color: #1A73E8; text-decoration: none; }
+.body-text a:hover { text-decoration: underline; }
+.setting-value {
+  display: inline-block; background: #fff; border: 1px solid #DADCE0;
+  padding: 2px 8px; font-size: 14px; font-weight: bold;
+}
+.baseline-table {
+  width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 16px;
+}
+.baseline-table th, .baseline-table td {
+  text-align: left; padding: 8px 12px; border-bottom: 1px solid #DADCE0;
+}
+.baseline-table th { color: #5F6368; font-weight: normal; font-size: 13px; }
+.baseline-table td:last-child { color: #5F6368; }
+.step-list {
+  font-size: 14px; color: #202124; line-height: 1.8;
+  padding-left: 20px; margin-bottom: 16px;
+}
+.step-list li { margin-bottom: 8px; }
+.arrow-link {
+  font-size: 14px; color: #1A73E8; text-decoration: none;
+  display: inline-block; margin-bottom: 16px;
+}
+.arrow-link:hover { text-decoration: underline; }
+.disclaimer-box {
+  margin-top: 36px; padding: 20px; border-left: 3px solid #DADCE0;
+  background: #f8f9fa;
+}
+.disclaimer-box .section-heading.small { margin-top: 0; }
+.disclaimer-box p { font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 10px; }
+.disclaimer-box a { color: #1A73E8; text-decoration: none; font-size: 13px; }
+footer {
+  background: #D3E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
+}
+.footer-row { display: flex; justify-content: space-between; align-items: center; }
+.footer-links { margin-top: 8px; }
+.footer-links a { font-size: 13px; color: #1A73E8; text-decoration: none; }
+footer .auth { color: #5F6368; }
+@media (max-width: 600px) {
+  .system-bar { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 16px; }
+  main { padding: 32px 16px; }
+  footer { padding: 12px 16px; }
+  .baseline-table { font-size: 13px; }
+  .baseline-table th, .baseline-table td { padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="system-bar">
+  <div class="system-bar-left">
+    <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg"><g stroke="#5F6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><path d="M12,50 L12,12 L50,12"/><path d="M270,12 L308,12 L308,50"/><path d="M12,270 L12,308 L50,308"/><path d="M270,308 L308,308 L308,270"/></g><g stroke="#5F6368" stroke-width="1.5" stroke-linecap="round" opacity="0.25"><line x1="160" y1="67" x2="160" y2="253"/><line x1="72" y1="160" x2="248" y2="160"/></g><line x1="160" y1="44" x2="160" y2="28" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="160" y1="276" x2="160" y2="292" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="160" x2="28" y2="160" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><circle cx="160" cy="26" r="3" fill="#1A73E8"/><circle cx="160" cy="294" r="3" fill="#1A73E8"/><circle cx="26" cy="160" r="3" fill="#1A73E8"/><circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/><text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text></svg>
+    <div>
+      <div class="system-id">ORBAlpha SYSTEM</div>
+      <div class="system-sub">resources / mes-baseline-free</div>
+    </div>
+  </div>
+  <a href="/" class="back-link">&larr; back</a>
+</div>
+
+<main>
+
+  <div class="section-heading">// MES BASELINE &mdash; FREE EDITION REPRODUCTION GUIDE</div>
+
+  <p class="body-text">this guide walks you through reproducing the published baseline for
+ORB v2.2 Free on MES (Micro E-mini S&amp;P 500). when you finish, your
+strategy tester output should match the published numbers exactly.</p>
+
+  <p class="body-text">if it doesn't, the troubleshooting section at the bottom tells you
+how to find the difference.</p>
+
+  <div class="section-heading small">// THE BASELINE</div>
+  <p class="body-text">ORB v2.2 Free, MES1!, 5-minute chart, January 2019 &ndash; December 2025.</p>
+
+  <table class="baseline-table">
+    <thead>
+      <tr><th>metric</th><th>published baseline</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>net P/L</td><td>+$12,360.50 (+24.72%)</td></tr>
+      <tr><td>max drawdown</td><td>$5,447.75 (10.90%)</td></tr>
+      <tr><td>total trades</td><td>1,629</td></tr>
+      <tr><td>win rate</td><td>50.09% (816 / 1,629)</td></tr>
+      <tr><td>profit factor</td><td>1.072</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body-text">these numbers were generated by TradingView's strategy tester running
+the published Free indicator with the configuration described below.
+they are reproducible &mdash; the goal of this guide is to walk you through
+reproducing them yourself.</p>
+
+  <div class="section-heading small">// WHAT YOU NEED</div>
+  <ul class="step-list">
+    <li>a TradingView account (free or paid)</li>
+    <li>the ORB v2.2 [ORB Alpha] - Free script added to your chart
+(publicly available on TradingView)</li>
+    <li>approximately 5 minutes of setup time</li>
+  </ul>
+
+  <div class="section-heading small">// STEP 1 &mdash; SET THE SYMBOL</div>
+  <p class="body-text">at the top-left of your TradingView chart, change the symbol to:</p>
+  <p class="body-text"><span class="setting-value">MES1!</span></p>
+  <p class="body-text">this is the continuous front-month contract for Micro E-mini S&amp;P 500
+futures. make sure you're on the futures symbol, not the index.</p>
+
+  <div class="section-heading small">// STEP 2 &mdash; SET THE CHART TIMEFRAME</div>
+  <p class="body-text">at the top of the chart, set the timeframe to:</p>
+  <p class="body-text"><span class="setting-value">5m</span></p>
+  <p class="body-text">(5-minute bars). all baseline numbers are computed on this timeframe.
+running on a different timeframe will produce different output.</p>
+
+  <div class="section-heading small">// STEP 3 &mdash; ADD THE INDICATOR</div>
+  <p class="body-text">if you haven't already, click the Indicators button at the top of the
+chart, search for "ORB v2.2 [ORB Alpha] - Free" by ORBAlpha, and add
+it to your chart. you should see the indicator's stats panel appear
+on the right side of the chart.</p>
+
+  <div class="section-heading small">// STEP 4 &mdash; OPEN INDICATOR SETTINGS</div>
+  <p class="body-text">click the gear icon next to the indicator name in the chart legend
+(top-left of the chart) to open the settings dialog.</p>
+
+  <div class="section-heading small">// STEP 5 &mdash; SET SESSION TIMES</div>
+  <p class="body-text">in the Settings dialog, set the following:</p>
+  <ul class="step-list">
+    <li>session start: <span class="setting-value">09:00</span></li>
+    <li>session end: <span class="setting-value">10:00</span></li>
+    <li>ORB cutoff: <span class="setting-value">09:35</span></li>
+    <li>exit time: <span class="setting-value">16:00</span></li>
+    <li>timezone: <span class="setting-value">America/New_York</span> (NY session)</li>
+  </ul>
+  <p class="body-text">these are the indicator's default settings. if you haven't changed
+anything, they should already match.</p>
+
+  <div class="section-heading small">// STEP 6 &mdash; SET RISK PARAMETERS</div>
+  <p class="body-text">still in Settings:</p>
+  <ul class="step-list">
+    <li>target risk: <span class="setting-value">$250</span></li>
+    <li>max risk per trade: <span class="setting-value">$350</span></li>
+    <li>max contracts: <span class="setting-value">40</span></li>
+  </ul>
+  <p class="body-text">these are the default risk values for micro futures. they match the
+baseline exactly.</p>
+
+  <div class="section-heading small">// STEP 7 &mdash; VERIFY ENTRY MODE</div>
+  <p class="body-text">confirm the entry mode is set to:</p>
+  <p class="body-text"><span class="setting-value">ORB</span></p>
+  <p class="body-text">(no Stretch &mdash; Stretch is a Pro-only feature and is not available in
+the Free edition. the Free indicator's only entry mode is ORB.)</p>
+
+  <div class="section-heading small">// STEP 8 &mdash; SET THE DATE RANGE</div>
+  <p class="body-text">at the top of your chart, click the calendar icon (or the date range
+selector) and set the range to:</p>
+  <p class="body-text"><span class="setting-value">January 1, 2019 &ndash; December 31, 2025</span></p>
+  <p class="body-text">this is the full backtest window for the published baseline. the
+indicator will run on every bar in this range.</p>
+
+  <div class="section-heading small">// STEP 9 &mdash; OPEN THE STRATEGY TESTER</div>
+  <p class="body-text">at the bottom of the chart, click the Strategy Tester tab. you should
+see the strategy report for the ORB v2.2 Free script.</p>
+  <p class="body-text">if you don't see anything, make sure:</p>
+  <ul class="step-list">
+    <li>the indicator is added to the chart</li>
+    <li>the symbol is MES1!</li>
+    <li>the timeframe is 5m</li>
+    <li>the date range covers Jan 2019 &ndash; Dec 2025</li>
+  </ul>
+
+  <div class="section-heading small">// STEP 10 &mdash; COMPARE THE OUTPUT</div>
+  <p class="body-text">look at the Metrics tab in the strategy tester. compare your output
+against the published baseline:</p>
+
+  <table class="baseline-table">
+    <thead>
+      <tr><th>metric</th><th>published baseline</th><th>your output</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>net P/L</td><td>+$12,360.50</td><td>_________</td></tr>
+      <tr><td>max drawdown</td><td>$5,447.75 (10.90%)</td><td>_________</td></tr>
+      <tr><td>total trades</td><td>1,629</td><td>_________</td></tr>
+      <tr><td>win rate</td><td>50.09% (816/1,629)</td><td>_________</td></tr>
+      <tr><td>profit factor</td><td>1.072</td><td>_________</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body-text">if your output matches all five metrics exactly, you've reproduced the
+baseline. you're done.</p>
+
+  <p class="body-text">if your output doesn't match, see the troubleshooting section below.</p>
+
+  <div class="section-heading small">// TROUBLESHOOTING</div>
+  <p class="body-text">if your output doesn't match the published baseline, work through these
+checks in order. one of them is the answer.</p>
+
+  <ol class="step-list">
+    <li><strong>SYMBOL</strong> &mdash; confirm you're on MES1!, not ES1!, MNQ1!, or any other
+symbol. the front-month continuous micro S&amp;P contract.</li>
+    <li><strong>TIMEFRAME</strong> &mdash; confirm 5m. not 1m, not 15m. the baseline is computed
+on 5-minute bars.</li>
+    <li><strong>DATE RANGE</strong> &mdash; confirm January 1, 2019 through December 31, 2025
+(inclusive). a one-day shift on either end will change the trade count.</li>
+    <li><strong>SESSION TIMES</strong> &mdash; confirm session start 09:00, session end 10:00,
+ORB cutoff 09:35, exit time 16:00, timezone America/New_York.</li>
+    <li><strong>RISK PARAMETERS</strong> &mdash; confirm target risk $250, max risk per trade
+$350, max contracts 40. mismatched risk values will change position
+sizes and therefore P/L.</li>
+    <li><strong>ENTRY MODE</strong> &mdash; confirm "ORB" only. if your settings dialog shows
+"Open + Stretch" or any other mode, you're either using a Pro
+indicator or you've changed the default. reset to ORB.</li>
+    <li><strong>INDICATOR VERSION</strong> &mdash; confirm you have the published v2.2 Free, not
+an older version. the script title in the chart legend should read
+"ORB v2.2 [ORB Alpha] - Free".</li>
+    <li><strong>DEFAULT SETTINGS</strong> &mdash; try clicking "Defaults" in the indicator settings
+dialog to reset everything, then re-apply the session times, risk
+parameters, and date range above.</li>
+  </ol>
+
+  <p class="body-text">if you've worked through all eight checks and your output still
+doesn't match, the most likely cause is that TradingView has updated
+the way it caches historical data and your local cache is stale. try
+removing the indicator, re-adding it, and re-running the strategy
+tester.</p>
+
+  <p class="body-text">if it still doesn't match after that, contact ORBAlpha and we'll help
+you find the difference.</p>
+
+  <div class="section-heading small">// WHAT THIS BASELINE TELLS YOU</div>
+  <p class="body-text">a 50% win rate with a 1.07 profit factor on 1,629 trades over 7 years
+is a positive-expectancy system with a modest edge. it's not a
+get-rich strategy &mdash; it's a disciplined, mechanical execution of one
+specific entry pattern (opening range breakouts) with strict risk
+management and no discretion.</p>
+
+  <p class="body-text">the modesty is the point. ORB v2.2 Free is the open core. it gives
+you the engine, the discipline, and the audit trail without any of
+the filters, fades, or recovery logic that the Pro edition adds. it
+trades more often, takes more setups, and has a lower win rate than
+the Pro version because it doesn't reject low-quality setups.</p>
+
+  <p class="body-text">ORB v2.2 Pro layers a configurable filter stack, the ORF (Opening
+Range Fade) reversal engine, redemption logic for missed setups, and
+late failure detection on top of the same execution core. Pro takes
+fewer setups, rejects more low-quality entries, and trades a higher
+win rate at meaningfully better profit factor on the same window.</p>
+
+  <p class="body-text">when Pro launches, this guide will have a sister guide that walks
+through reproducing the Pro baseline. side-by-side comparison will
+make the upgrade case visible.</p>
+
+  <a class="arrow-link" href="/indicators/orb-v2-2-pro/">&rarr; Pro is in pre-launch &mdash; get notified when it ships</a>
+
+  <div class="section-heading small">// DOWNLOAD</div>
+  <p class="body-text">this guide is also available as a PDF.</p>
+  <a class="arrow-link" href="/resources/mes-baseline-free/mes-baseline-free.pdf">&rarr; download mes-baseline-free.pdf</a>
+
+  <div class="disclaimer-box">
+    <div class="section-heading small">// DISCLAIMER</div>
+    <p>for educational and research purposes only. not financial, investment,
+or trading advice. trading futures involves substantial risk of loss
+and is not suitable for all investors. past performance of any
+backtest, indicator, or signal is not indicative of future results.
+backtest results are hypothetical and do not reflect the impact of
+factors such as liquidity, slippage, commissions, or execution quality
+that would affect live trading.</p>
+    <a href="/legal/">&rarr; full disclosure</a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-row">
+    <span>&copy; 2026 ORBAlpha.com</span>
+    <span class="auth">authorized access only</span>
+  </div>
+  <div class="footer-links"><a href="/legal/">/legal</a></div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — ORB v2.2 Free Edition</title>
+<meta name="description" content="systematic opening-range strategies for futures. free to use on TradingView.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background: #ECEEF1; color: #202124;
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.system-bar {
+  background: #D3E3FD; display: flex; justify-content: space-between;
+  align-items: center; padding: 14px 32px;
+}
+.system-bar-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark { width: 36px; height: 36px; flex-shrink: 0; }
+.system-id { font-weight: bold; font-size: 15px; color: #202124; }
+.system-sub { font-size: 12px; color: #5F6368; }
+.back-link { font-size: 12px; color: #1A73E8; text-decoration: none; }
+main {
+  flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 32px;
+}
+.section-heading {
+  font-size: 22px; font-weight: bold; color: #202124; margin-bottom: 16px;
+}
+.section-heading.small { font-size: 16px; margin-top: 32px; }
+.body-text {
+  font-size: 14px; color: #202124; line-height: 1.7; margin-bottom: 16px;
+}
+.body-text a { color: #1A73E8; text-decoration: none; }
+.body-text a:hover { text-decoration: underline; }
+.feature-list {
+  font-size: 14px; color: #202124; line-height: 1.8;
+  padding-left: 20px; margin-bottom: 16px;
+}
+.feature-list li { margin-bottom: 4px; }
+.hero-img {
+  width: 100%; max-width: 800px; margin: 0 0 24px 0;
+  border: 1px solid #DADCE0;
+}
+.arrow-link {
+  font-size: 14px; color: #1A73E8; text-decoration: none;
+  display: inline-block; margin-bottom: 16px;
+}
+.arrow-link:hover { text-decoration: underline; }
+.disclaimer-box {
+  margin-top: 36px; padding: 20px; border-left: 3px solid #DADCE0;
+  background: #f8f9fa;
+}
+.disclaimer-box .section-heading.small { margin-top: 0; }
+.disclaimer-box p { font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 10px; }
+.disclaimer-box a { color: #1A73E8; text-decoration: none; font-size: 13px; }
+footer {
+  background: #D3E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
+}
+.footer-row { display: flex; justify-content: space-between; align-items: center; }
+.footer-links { margin-top: 8px; }
+.footer-links a { font-size: 13px; color: #1A73E8; text-decoration: none; }
+footer .auth { color: #5F6368; }
+@media (max-width: 600px) {
+  .system-bar { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 16px; }
+  main { padding: 32px 16px; }
+  footer { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="system-bar">
+  <div class="system-bar-left">
+    <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg"><g stroke="#5F6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><path d="M12,50 L12,12 L50,12"/><path d="M270,12 L308,12 L308,50"/><path d="M12,270 L12,308 L50,308"/><path d="M270,308 L308,308 L308,270"/></g><g stroke="#5F6368" stroke-width="1.5" stroke-linecap="round" opacity="0.25"><line x1="160" y1="67" x2="160" y2="253"/><line x1="72" y1="160" x2="248" y2="160"/></g><line x1="160" y1="44" x2="160" y2="28" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="160" y1="276" x2="160" y2="292" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="160" x2="28" y2="160" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><circle cx="160" cy="26" r="3" fill="#1A73E8"/><circle cx="160" cy="294" r="3" fill="#1A73E8"/><circle cx="26" cy="160" r="3" fill="#1A73E8"/><circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/><text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text></svg>
+    <div>
+      <div class="system-id">ORBAlpha SYSTEM</div>
+      <div class="system-sub">indicators / orb-v2-2-free</div>
+    </div>
+  </div>
+  <a href="/" class="back-link">&larr; back</a>
+</div>
+
+<main>
+
+  <div class="section-heading">// ORB v2.2 &mdash; FREE EDITION</div>
+
+  <p class="body-text">systematic opening-range strategies for futures.</p>
+
+  <img class="hero-img" src="/assets/images/orb-v2-2-free-chart.png" alt="ORB v2.2 Free running on MES — stats panel showing PRO features locked">
+
+  <p class="body-text">ORB v2.2 Free is the open core of the ORBAlpha engine. it captures the
+opening range of your chosen futures session, waits for a confirmed
+breakout, manages the trade with configurable stop loss and take profit
+logic, and exits cleanly at session close.</p>
+
+  <p class="body-text">asset-agnostic. works on any futures contract you trade, full-size or
+micro, on any intraday timeframe.</p>
+
+  <div class="section-heading small">// WHAT IT DOES</div>
+  <ul class="feature-list">
+    <li>captures the opening range of your chosen session</li>
+    <li>waits for a confirmed breakout above or below the range</li>
+    <li>manages the trade with configurable stop loss and take profit</li>
+    <li>exits cleanly at session close</li>
+    <li>sizes positions from your target risk and max risk per trade</li>
+    <li>filters by day-of-week</li>
+    <li>displays live stats: P/L, drawdown, win rate, profit factor</li>
+  </ul>
+
+  <div class="section-heading small">// VALIDATED ON MES</div>
+  <p class="body-text">ORB v2.2 Free has been backtested on MES (Micro E-mini S&amp;P 500) over
+the full 2019&ndash;2025 window using the indicator's default settings.</p>
+
+  <a class="arrow-link" href="/resources/mes-baseline-free/">&rarr; reproduce the baseline yourself</a>
+
+  <p class="body-text">the guide walks you through every setting, every checkbox, and the
+exact symbol and date range. when you're done, your strategy tester
+output should match the published baseline exactly. if it doesn't, the
+guide tells you how to find the difference.</p>
+
+  <div class="section-heading small">// GET IT</div>
+  <p class="body-text">ORB v2.2 Free is published on TradingView.</p>
+
+  <!-- TODO: Replace TRADINGVIEW_URL_HERE with the actual public listing URL -->
+  <a class="arrow-link" href="#">&rarr; open the TradingView listing</a>
+
+  <p class="body-text">free to use. no signup. no email required. add it to your chart and
+run the strategy tester.</p>
+
+  <div class="section-heading small">// WHAT'S LOCKED</div>
+  <p class="body-text">ORB v2.2 Free shows you where the Pro features live in the stats panel
+but does not enable them. the Pro edition unlocks:</p>
+
+  <ul class="feature-list">
+    <li>ORB Stretch entries</li>
+    <li>ORF (Opening Range Fade) reversal engine</li>
+    <li>direction filter</li>
+    <li>sweep filter</li>
+    <li>contraction filter (NR4 / NR7 / ID/NR4)</li>
+    <li>weekly zone filter</li>
+    <li>monthly VWAP filter</li>
+    <li>redemption logic for missed setups</li>
+    <li>late failure detection</li>
+  </ul>
+
+  <p class="body-text">ORB v2.2 Pro is in pre-launch. <a href="/indicators/orb-v2-2-pro/">&rarr; coming soon</a></p>
+
+  <div class="disclaimer-box">
+    <div class="section-heading small">// DISCLAIMER</div>
+    <p>for educational and research purposes only. not financial, investment,
+or trading advice. trading futures involves substantial risk of loss
+and is not suitable for all investors. past performance of any
+backtest, indicator, or signal is not indicative of future results.</p>
+    <a href="/legal/">&rarr; full disclosure</a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-row">
+    <span>&copy; 2026 ORBAlpha.com</span>
+    <span class="auth">authorized access only</span>
+  </div>
+  <div class="footer-links"><a href="/legal/">/legal</a></div>
+</footer>
+
+</body>
+</html>
