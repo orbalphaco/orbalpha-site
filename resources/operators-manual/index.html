@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBAlpha — ORB v2.2 Free Edition</title>
-<meta name="description" content="systematic opening-range strategies for futures. free to use on TradingView.">
+<title>ORBAlpha — Operators Manual</title>
+<meta name="description" content="complete reference for every input, property, and code block in the ORB v2.2 Free indicator.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,20 +34,16 @@ main {
 }
 .body-text a { color: #1A73E8; text-decoration: none; }
 .body-text a:hover { text-decoration: underline; }
-.feature-list {
-  font-size: 14px; color: #202124; line-height: 1.8;
-  padding-left: 20px; margin-bottom: 16px;
-}
-.feature-list li { margin-bottom: 4px; }
-.hero-img {
-  width: 100%; max-width: 800px; margin: 0 0 24px 0;
-  border: 1px solid #DADCE0;
-}
 .arrow-link {
   font-size: 14px; color: #1A73E8; text-decoration: none;
   display: inline-block; margin-bottom: 16px;
 }
 .arrow-link:hover { text-decoration: underline; }
+.signup-stub {
+  margin: 16px 0; padding: 16px 20px; border: 1px solid #DADCE0;
+  background: #fff; font-size: 13px;
+}
+.signup-stub a { color: #1A73E8; text-decoration: none; }
 .disclaimer-box {
   margin-top: 36px; padding: 20px; border-left: 3px solid #DADCE0;
   background: #f8f9fa;
@@ -76,7 +72,7 @@ footer .auth { color: #5F6368; }
     <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg"><g stroke="#5F6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><path d="M12,50 L12,12 L50,12"/><path d="M270,12 L308,12 L308,50"/><path d="M12,270 L12,308 L50,308"/><path d="M270,308 L308,308 L308,270"/></g><g stroke="#5F6368" stroke-width="1.5" stroke-linecap="round" opacity="0.25"><line x1="160" y1="67" x2="160" y2="253"/><line x1="72" y1="160" x2="248" y2="160"/></g><line x1="160" y1="44" x2="160" y2="28" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="160" y1="276" x2="160" y2="292" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="160" x2="28" y2="160" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><circle cx="160" cy="26" r="3" fill="#1A73E8"/><circle cx="160" cy="294" r="3" fill="#1A73E8"/><circle cx="26" cy="160" r="3" fill="#1A73E8"/><circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/><text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text></svg>
     <div>
       <div class="system-id">ORBAlpha SYSTEM</div>
-      <div class="system-sub">indicators / orb-v2-2-free</div>
+      <div class="system-sub">resources / operators-manual</div>
     </div>
   </div>
   <a href="/" class="back-link">&larr; back</a>
@@ -84,67 +80,34 @@ footer .auth { color: #5F6368; }
 
 <main>
 
-  <div class="section-heading">// ORB v2.2 &mdash; FREE EDITION</div>
+  <div class="section-heading">// OPERATORS MANUAL</div>
 
-  <p class="body-text">systematic opening-range strategies for futures.</p>
+  <p class="body-text">complete reference for every input, property, and code block in the
+ORB v2.2 Free indicator.</p>
 
-  <img class="hero-img" src="/assets/images/orb-v2-2-free-chart.png" alt="ORB v2.2 Free running on MES — stats panel showing PRO features locked">
+  <div class="section-heading small">// STATUS</div>
+  <p class="body-text">in development. the manual will document every setting in the indicator,
+explain what each does, and walk through how to configure it for your
+asset and session. when it ships, this page becomes the manual itself.</p>
 
-  <p class="body-text">ORB v2.2 Free is the open core of the ORBAlpha engine. it captures the
-opening range of your chosen futures session, waits for a confirmed
-breakout, manages the trade with configurable stop loss and take profit
-logic, and exits cleanly at session close.</p>
+  <div class="section-heading small">// WHAT IT WILL COVER</div>
+  <p class="body-text">session configuration. ORB range definition. entry logic and confirmation
+rules. stop loss and take profit mechanics. position sizing from target
+risk and max risk per trade. day-of-week filtering. the stats panel
+and what each metric means. every input, every checkbox, every dropdown
+&mdash; documented and explained.</p>
 
-  <p class="body-text">asset-agnostic. works on any futures contract you trade, full-size or
-micro, on any intraday timeframe.</p>
+  <div class="section-heading small">// GET NOTIFIED</div>
+  <p class="body-text">want to know when the Operators Manual is published?</p>
 
-  <div class="section-heading small">// WHAT IT DOES</div>
-  <ul class="feature-list">
-    <li>captures the opening range of your chosen session</li>
-    <li>waits for a confirmed breakout above or below the range</li>
-    <li>manages the trade with configurable stop loss and take profit</li>
-    <li>exits cleanly at session close</li>
-    <li>sizes positions from your target risk and max risk per trade</li>
-    <li>filters by day-of-week</li>
-    <li>displays live stats: P/L, drawdown, win rate, profit factor</li>
-  </ul>
-
-  <div class="section-heading small">// VALIDATED ON MES</div>
-  <p class="body-text">ORB v2.2 Free has been backtested on MES (Micro E-mini S&amp;P 500) over
-the full 2019&ndash;2025 window using the indicator's default settings.</p>
-
-  <div class="section-heading small">// GET IT</div>
-  <p class="body-text">ORB v2.2 Free is published on TradingView.</p>
-
-  <a class="arrow-link" href="https://www.tradingview.com/script/U4GTLq7V-ORB-v2-2-ORB-Alpha-Free/" target="_blank" rel="noopener">&rarr; open the TradingView listing</a>
-
-  <p class="body-text">free to use. no signup. no email required. add it to your chart and
-run the strategy tester.</p>
-
-  <div class="section-heading small">// WHAT'S LOCKED</div>
-  <p class="body-text">ORB v2.2 Free shows you where the Pro features live in the stats panel
-but does not enable them. the Pro edition unlocks:</p>
-
-  <ul class="feature-list">
-    <li>ORB Stretch entries</li>
-    <li>ORF (Opening Range Fade) reversal engine</li>
-    <li>direction filter</li>
-    <li>sweep filter</li>
-    <li>contraction filter (NR4 / NR7 / ID/NR4)</li>
-    <li>weekly zone filter</li>
-    <li>monthly VWAP filter</li>
-    <li>redemption logic for missed setups</li>
-    <li>late failure detection</li>
-  </ul>
-
-  <p class="body-text">ORB v2.2 Pro is in pre-launch. <a href="/indicators/orb-v2-2-pro/">&rarr; coming soon</a></p>
+  <div class="signup-stub">
+    <a href="/contact/">&rarr; drop us a note and we'll email you when it ships</a>
+  </div>
 
   <div class="disclaimer-box">
     <div class="section-heading small">// DISCLAIMER</div>
     <p>for educational and research purposes only. not financial, investment,
-or trading advice. trading futures involves substantial risk of loss
-and is not suitable for all investors. past performance of any
-backtest, indicator, or signal is not indicative of future results.</p>
+or trading advice.</p>
     <a href="/legal/">&rarr; full disclosure</a>
   </div>
 
