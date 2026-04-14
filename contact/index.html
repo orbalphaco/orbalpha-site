@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBAlpha — Contact</title>
-<meta name="description" content="contact ORBAlpha — questions, support, and launch notifications.">
+<meta name="description" content="contact ORBAlpha — questions, feedback, and notification requests.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,58 +28,25 @@ main {
 .section-heading {
   font-size: 22px; font-weight: bold; color: #202124; margin-bottom: 16px;
 }
-.section-heading.small { font-size: 16px; margin-top: 32px; }
 .body-text {
   font-size: 14px; color: #202124; line-height: 1.7; margin-bottom: 16px;
 }
-.contact-form {
-  margin-top: 8px;
+.mailto-block {
+  display: block; margin: 24px 0; padding: 16px 20px;
+  background: #fff; border: 1px solid #DADCE0;
+  font-size: 16px; color: #1A73E8; text-decoration: none;
+  text-align: center;
 }
-.form-group {
-  margin-bottom: 16px;
+.mailto-block:hover { border-color: #1A73E8; }
+.subject-hint {
+  font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 16px;
 }
-.form-group label {
-  display: block;
-  font-size: 13px;
-  color: #5F6368;
-  margin-bottom: 6px;
+.disclaimer-box {
+  margin-top: 36px; padding: 20px; border-left: 3px solid #DADCE0;
+  background: #f8f9fa;
 }
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  color: #202124;
-  background: #fff;
-  border: 1px solid #DADCE0;
-  padding: 10px 12px;
-  outline: none;
-}
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: #1A73E8;
-}
-.form-group textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-.form-group select {
-  cursor: pointer;
-}
-.submit-btn {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  color: #fff;
-  background: #1A73E8;
-  border: none;
-  padding: 10px 24px;
-  cursor: pointer;
-}
-.submit-btn:hover {
-  background: #1557b0;
-}
+.disclaimer-box p { font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 10px; }
+.disclaimer-box a { color: #1A73E8; text-decoration: none; font-size: 13px; }
 footer {
   background: #D3E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
 }
@@ -111,47 +78,19 @@ footer .auth { color: #5F6368; }
 
   <div class="section-heading">// CONTACT</div>
 
-  <p class="body-text">questions, support requests, or launch notifications &mdash; use the form
-below. we read everything.</p>
+  <p class="body-text">questions, feedback, or notification requests &mdash; send an email.
+we read everything.</p>
 
-  <div class="section-heading small">// REASON</div>
+  <a class="mailto-block" href="mailto:orbalphaco@gmail.com">orbalphaco@gmail.com</a>
 
-  <!--
-    FORMSPREE SETUP (one-time):
-    1. Sign up free at https://formspree.io
-    2. Create a new form, set the recipient to your email
-    3. Copy the form endpoint (looks like: https://formspree.io/f/xABCDEFG)
-    4. Replace the action URL below with your endpoint
-  -->
-  <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-    <div class="form-group">
-      <label for="reason">what's this about?</label>
-      <select id="reason" name="reason" required>
-        <option value="" disabled selected>select a reason</option>
-        <option value="general">general question</option>
-        <option value="support">support / troubleshooting</option>
-        <option value="notify-pro">notify me when Pro launches</option>
-        <option value="notify-optimizer">notify me when the Optimizer launches</option>
-        <option value="legal">legal / disclosure question</option>
-        <option value="other">other</option>
-      </select>
-    </div>
+  <p class="subject-hint">include a subject so we can route it: Pro notify / Optimizer notify /
+Operators Manual notify / bug report / general.</p>
 
-    <div class="form-group">
-      <label for="email">your email</label>
-      <input type="email" id="email" name="email" required placeholder="you@example.com">
-    </div>
-
-    <div class="form-group">
-      <label for="message">message</label>
-      <textarea id="message" name="message" required placeholder="what can we help with?"></textarea>
-    </div>
-
-    <!-- honeypot spam filter -->
-    <input type="text" name="_gotcha" style="display:none">
-
-    <button type="submit" class="submit-btn">send &rarr;</button>
-  </form>
+  <div class="disclaimer-box">
+    <p>for educational and research purposes only. not financial, investment,
+or trading advice.</p>
+    <a href="/legal/">&rarr; full disclosure</a>
+  </div>
 
 </main>
 
