@@ -126,7 +126,7 @@ main {
 }
 
 .tree-category {
-  cursor: default;
+  cursor: pointer;
   padding: 8px 0;
   display: flex;
   align-items: center;
@@ -135,18 +135,32 @@ main {
   color: #202124;
 }
 
+.tree-category:hover {
+  color: #1A73E8;
+}
+
 .tree-arrow {
   display: inline-block;
   font-size: 14px;
   width: 16px;
   text-align: center;
   flex-shrink: 0;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
+
+.tree-branch.open .tree-arrow {
   transform: rotate(90deg);
 }
 
 .tree-children {
   list-style: none;
   padding-left: 24px;
+  display: none;
+}
+
+.tree-branch.open .tree-children {
+  display: block;
 }
 
 .tree-children li {
@@ -173,6 +187,140 @@ main {
   color: #C4900C;
   margin-left: 6px;
   font-weight: bold;
+}
+
+/* bot crew — floats right of active modules */
+.modules-wrap {
+  position: relative;
+}
+
+.bot-float {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.bot-scene {
+  width: 200px;
+  height: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* worker pixel sprite — 3px per pixel */
+.bot-px {
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  box-shadow:
+    3px 0 #202124, 6px 0 #202124, 9px 0 #202124,
+    0 3px #202124, 3px 3px #1A73E8, 6px 3px #202124, 9px 3px #1A73E8, 12px 3px #202124,
+    3px 6px #202124, 6px 6px #202124, 9px 6px #202124,
+    3px 9px #5F6368, 6px 9px #5F6368, 9px 9px #5F6368,
+    0 12px #5F6368, 3px 12px #5F6368, 6px 12px #5F6368, 9px 12px #5F6368, 12px 12px #5F6368,
+    6px 15px #5F6368,
+    3px 18px #202124, 9px 18px #202124;
+  animation: step 0.3s ease-in-out infinite;
+}
+
+/* boss sprite — same body + gold crown */
+.bot-px-boss {
+  width: 3px;
+  height: 3px;
+  background: transparent;
+  box-shadow:
+    3px -3px #C4900C, 6px -3px #C4900C, 9px -3px #C4900C,
+    3px 0 #202124, 6px 0 #202124, 9px 0 #202124,
+    0 3px #202124, 3px 3px #1A73E8, 6px 3px #202124, 9px 3px #1A73E8, 12px 3px #202124,
+    3px 6px #202124, 6px 6px #202124, 9px 6px #202124,
+    3px 9px #5F6368, 6px 9px #5F6368, 9px 9px #5F6368,
+    0 12px #5F6368, 3px 12px #5F6368, 6px 12px #5F6368, 9px 12px #5F6368, 12px 12px #5F6368,
+    6px 15px #5F6368,
+    3px 18px #202124, 9px 18px #202124;
+  animation: idle 1.5s ease-in-out infinite;
+}
+
+/* boss — stands at center, meets carriers, walks off, returns */
+.bot-boss {
+  position: absolute;
+  bottom: 2px;
+  animation: boss-move 20s ease-in-out infinite;
+}
+
+/* carrier containers */
+.bot-walk {
+  position: absolute;
+  bottom: 2px;
+}
+
+.bot-walk-r {
+  animation: carrier-r 20s ease-in-out infinite;
+}
+
+.bot-walk-l {
+  animation: carrier-l 20s ease-in-out infinite;
+}
+
+/* data block carried above head */
+.bot-walk::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 3px;
+  width: 9px;
+  height: 5px;
+  background: #1A73E8;
+  opacity: 0.45;
+}
+
+.bot-caption {
+  font-size: 11px;
+  color: #5F6368;
+  margin-top: 6px;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* boss: center → meet R → meet L → exit right → reenter left */
+@keyframes boss-move {
+  0%    { left: 100px; opacity: 1; }
+  50%   { left: 100px; opacity: 1; }
+  65%   { left: 210px; opacity: 1; }
+  65.5% { left: 210px; opacity: 0; }
+  79.5% { left: -18px; opacity: 0; }
+  80%   { left: -18px; opacity: 1; }
+  100%  { left: 100px; opacity: 1; }
+}
+
+/* carrier R: enter left → pause at boss → exit right */
+@keyframes carrier-r {
+  0%   { left: -18px; }
+  20%  { left: 86px; }
+  25%  { left: 86px; }
+  40%  { left: 210px; }
+  100% { left: 210px; }
+}
+
+/* carrier L: enter right → pause at boss → exit left */
+@keyframes carrier-l {
+  0%   { left: 210px; }
+  30%  { left: 210px; }
+  45%  { left: 86px; }
+  50%  { left: 86px; }
+  65%  { left: -18px; }
+  100% { left: -18px; }
+}
+
+@keyframes step {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
 }
 
 /* footer */
@@ -225,6 +373,10 @@ footer .auth {
   footer {
     padding: 12px 16px;
   }
+
+  .bot-float {
+    display: none;
+  }
 }
 </style>
 </head>
@@ -255,14 +407,14 @@ footer .auth {
 
   <hr class="divider">
 
-  <section>
+  <section class="modules-wrap">
     <div class="section-heading small">// ACTIVE MODULES</div>
     <ul class="module-tree">
       <li class="tree-branch" data-tree="indicators">
         <div class="tree-category"><span class="tree-arrow">&#9656;</span> indicators</div>
         <ul class="tree-children">
           <li><a href="/indicators/orb-v2-2-free/">ORB v2.2 Free</a></li>
-          <li><a href="/indicators/orb-v2-2-pro/">ORB v2.2 Pro</a><span class="soon-tag">[SOON]</span></li>
+          <li><a href="/indicators/orb-v2-2-pro/">ORB/ORF v2.2 Pro</a><span class="soon-tag">[SOON]</span></li>
         </ul>
       </li>
       <li class="tree-branch" data-tree="tools">
@@ -281,6 +433,14 @@ footer .auth {
         </ul>
       </li>
     </ul>
+    <div class="bot-float">
+      <div class="bot-scene">
+        <div class="bot-boss"><div class="bot-px-boss"></div></div>
+        <div class="bot-walk bot-walk-r"><div class="bot-px"></div></div>
+        <div class="bot-walk bot-walk-l"><div class="bot-px"></div></div>
+      </div>
+      <div class="bot-caption" id="botCaption"></div>
+    </div>
   </section>
 
   <hr class="divider">
@@ -303,5 +463,58 @@ footer .auth {
 </footer>
 
 
+<script>
+(function () {
+  /* ── accordion toggle ── */
+  document.querySelectorAll('.tree-category').forEach(function (cat) {
+    cat.addEventListener('click', function () {
+      var branch = cat.parentElement;
+      var wasOpen = branch.classList.contains('open');
+      document.querySelectorAll('.tree-branch').forEach(function (b) {
+        b.classList.remove('open');
+      });
+      if (!wasOpen) branch.classList.add('open');
+    });
+  });
+
+  /* ── bot crew — 31 daily captions ── */
+  var captions = [
+    'investigating edge cases...',
+    'backtesting configurations...',
+    'studying price action...',
+    'scanning for setups...',
+    'tuning parameters...',
+    'analyzing trends...',
+    'caffeinating...',
+    'building filter stack...',
+    'running simulations...',
+    'monitoring feeds...',
+    'annotating charts...',
+    'processing signals...',
+    'waiting for confirmation...',
+    'pattern matching...',
+    'crunching numbers...',
+    'receiving market data...',
+    'stress testing...',
+    'mapping correlations...',
+    'pruning dead rules...',
+    'archiving results...',
+    'benchmarking execution...',
+    'engineering features...',
+    'validating risk controls...',
+    'forward-testing...',
+    'flagging anomalies...',
+    'experimenting...',
+    'training models...',
+    'securing edge...',
+    'preparing deployment...',
+    'polishing output...',
+    'defragmenting...'
+  ];
+
+  var day = new Date().getDate();
+  document.getElementById('botCaption').textContent = captions[(day - 1) % captions.length];
+})();
+</script>
 </body>
 </html>
