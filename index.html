@@ -313,6 +313,17 @@ main {
   100% { left: -18px; }
 }
 
+/* boss alternate: exits left, reenters right */
+@keyframes boss-move-l {
+  0%    { left: 100px; opacity: 1; }
+  50%   { left: 100px; opacity: 1; }
+  65%   { left: -18px; opacity: 1; }
+  65.5% { left: -18px; opacity: 0; }
+  79.5% { left: 210px; opacity: 0; }
+  80%   { left: 210px; opacity: 1; }
+  100%  { left: 100px; opacity: 1; }
+}
+
 @keyframes step {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-2px); }
@@ -477,7 +488,7 @@ footer .auth {
     });
   });
 
-  /* ── bot crew — 31 daily captions ── */
+  /* ── bot crew — 31 daily states ── */
   var captions = [
     'investigating edge cases...',
     'backtesting configurations...',
@@ -514,6 +525,25 @@ footer .auth {
 
   var day = new Date().getDate();
   document.getElementById('botCaption').textContent = captions[(day - 1) % captions.length];
+
+  /* ── daily animation variation ── */
+  var durations = [18,22,16,20,17,24,19,21,15,23,18,20,16,22,19,17,24,21,15,23,18,20,16,22,17,24,19,21,15,23,18];
+  var dur = durations[(day - 1) % 31] + 's';
+  var boss = document.querySelector('.bot-boss');
+  var walkR = document.querySelector('.bot-walk-r');
+  var walkL = document.querySelector('.bot-walk-l');
+  var scene = document.querySelector('.bot-scene');
+
+  boss.style.animationDuration = dur;
+  walkR.style.animationDuration = dur;
+  walkL.style.animationDuration = dur;
+
+  if (day % 2 === 0) scene.style.transform = 'scaleX(-1)';
+  if (day % 3 === 0) boss.style.animationName = 'boss-move-l';
+  if (day % 5 === 0 || day % 5 === 2) {
+    walkR.style.animationName = 'carrier-l';
+    walkL.style.animationName = 'carrier-r';
+  }
 })();
 </script>
 </body>
