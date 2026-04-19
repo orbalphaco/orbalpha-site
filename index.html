@@ -336,7 +336,7 @@ main {
 }
 
 /* ============================================
-   MODE 2: ROCKET — idea, build, launch
+   MODE 2: ROCKET — one bot boards, rest watch
    ============================================ */
 .mode-rocket .bot-1,
 .mode-rocket .bot-2,
@@ -344,76 +344,54 @@ main {
 .mode-rocket .bot-4,
 .mode-rocket .bot-5,
 .mode-rocket .rocket,
-.mode-rocket .idea-bulb,
 .mode-rocket .exhaust { display: block; }
-.mode-rocket .bot-1 { left: 20px; bottom: 4px; }
-.idea-bulb {
-  left: 24px; bottom: 34px;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #FFD700;
-  box-shadow: 0 0 6px #FFD700;
-  animation: idea-pulse 22s linear infinite;
-  opacity: 0;
-}
-@keyframes idea-pulse {
-  0%   { opacity: 0; transform: scale(0.6); }
-  4%   { opacity: 1; transform: scale(1.2); }
-  14%  { opacity: 1; transform: scale(1); }
-  22%  { opacity: 0; transform: scale(0.8); }
-  100% { opacity: 0; }
-}
+/* boss and three workers stand at fixed positions, just watching */
+.mode-rocket .bot-1 { left: 30px;  bottom: 4px; }
+.mode-rocket .bot-2 { left: 58px;  bottom: 4px; }
+.mode-rocket .bot-3 { left: 170px; bottom: 4px; }
+.mode-rocket .bot-4 { left: 198px; bottom: 4px; }
+/* workers idle while watching */
+.mode-rocket .bot-2 .bot-px,
+.mode-rocket .bot-3 .bot-px,
+.mode-rocket .bot-4 .bot-px { animation: idle 1.8s ease-in-out infinite; }
+
 .rocket {
   left: 110px; bottom: 4px;
   width: 14px; height: 28px;
   background: #1A73E8;
   clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
-  animation: rocket-build-launch 22s linear infinite;
-  opacity: 0;
+  animation: rocket-launch 18s linear infinite;
 }
 .exhaust {
   left: 113px; bottom: 0;
   width: 8px; height: 6px;
   background: #C4900C;
-  animation: rocket-exhaust 22s linear infinite;
+  animation: rocket-exhaust 18s linear infinite;
   opacity: 0;
 }
-@keyframes rocket-build-launch {
-  0%   { opacity: 0; bottom: 4px; transform: scale(0.3); }
-  22%  { opacity: 0; bottom: 4px; transform: scale(0.3); }
-  32%  { opacity: 1; bottom: 4px; transform: scale(1); }
-  65%  { opacity: 1; bottom: 4px; }
-  85%  { opacity: 1; bottom: 100px; }
-  88%  { opacity: 0; bottom: 100px; }
-  100% { opacity: 0; bottom: 4px; transform: scale(0.3); }
+@keyframes rocket-launch {
+  0%,55%   { opacity: 1; bottom: 4px; }
+  75%      { opacity: 1; bottom: 100px; }
+  78%      { opacity: 0; bottom: 100px; }
+  92%      { opacity: 0; bottom: 4px; }
+  100%     { opacity: 1; bottom: 4px; }
 }
 @keyframes rocket-exhaust {
-  0%,68% { opacity: 0; }
-  70%   { opacity: 1; height: 4px; }
-  85%   { opacity: 1; height: 12px; }
-  88%   { opacity: 0; }
-  100%  { opacity: 0; }
+  0%,50% { opacity: 0; }
+  55%    { opacity: 1; height: 4px; }
+  75%    { opacity: 1; height: 12px; }
+  78%    { opacity: 0; }
+  100%   { opacity: 0; }
 }
-.mode-rocket .bot-2 { bottom: 4px; animation: carry-part 22s linear infinite; animation-delay: -2s; }
-.mode-rocket .bot-3 { bottom: 4px; animation: carry-part 22s linear infinite; animation-delay: -7s; }
-.mode-rocket .bot-4 { bottom: 4px; animation: carry-part 22s linear infinite; animation-delay: -12s; }
-.mode-rocket .bot-5 { bottom: 4px; animation: launcher-bot 22s linear infinite; }
-.mode-rocket .bot-2::before,
-.mode-rocket .bot-3::before,
-.mode-rocket .bot-4::before {
-  content: ''; position: absolute; top: -4px; left: 3px;
-  width: 9px; height: 5px; background: #C4900C; opacity: 0.7;
-}
-@keyframes carry-part {
-  0%   { left: 230px; opacity: 1; }
-  30%  { left: 128px; opacity: 1; }
-  33%  { left: 128px; opacity: 0; }
-  100% { left: 128px; opacity: 0; }
-}
+/* launcher bot walks in from the left, climbs aboard */
+.mode-rocket .bot-5 { bottom: 4px; animation: launcher-bot 18s linear infinite; }
 @keyframes launcher-bot {
-  0%   { left: -18px; opacity: 1; bottom: 4px; }
-  45%  { left: 102px; opacity: 1; bottom: 4px; }
-  50%  { left: 102px; opacity: 0; bottom: 4px; }
-  100% { left: 102px; opacity: 0; bottom: 4px; }
+  0%   { left: -18px; opacity: 1; }
+  30%  { left: 102px; opacity: 1; }
+  35%  { left: 102px; opacity: 0; }
+  88%  { left: 102px; opacity: 0; }
+  95%  { left: -18px; opacity: 0; }
+  100% { left: -18px; opacity: 1; }
 }
 
 /* ============================================
@@ -755,7 +733,6 @@ footer .auth {
         <div class="prop ladder ladder-r"></div>
         <div class="prop rocket"></div>
         <div class="prop exhaust"></div>
-        <div class="prop idea-bulb"></div>
         <div class="prop desk desk-1"></div>
         <div class="prop desk desk-2"></div>
         <div class="prop desk desk-3"></div>
