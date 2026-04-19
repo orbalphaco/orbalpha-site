@@ -345,15 +345,44 @@ main {
 .mode-rocket .bot-5,
 .mode-rocket .rocket,
 .mode-rocket .exhaust { display: block; }
-/* boss and three workers stand at fixed positions, just watching */
-.mode-rocket .bot-1 { left: 30px;  bottom: 4px; }
-.mode-rocket .bot-2 { left: 58px;  bottom: 4px; }
-.mode-rocket .bot-3 { left: 170px; bottom: 4px; }
-.mode-rocket .bot-4 { left: 198px; bottom: 4px; }
-/* workers idle while watching */
+/* boss and three workers walk in, watch, walk off after launch */
+.mode-rocket .bot-1 { bottom: 4px; animation: watch-l1 18s linear infinite; }
+.mode-rocket .bot-2 { bottom: 4px; animation: watch-l2 18s linear infinite; }
+.mode-rocket .bot-3 { bottom: 4px; animation: watch-r1 18s linear infinite; }
+.mode-rocket .bot-4 { bottom: 4px; animation: watch-r2 18s linear infinite; }
 .mode-rocket .bot-2 .bot-px,
 .mode-rocket .bot-3 .bot-px,
 .mode-rocket .bot-4 .bot-px { animation: idle 1.8s ease-in-out infinite; }
+/* watchers on the left — walk in from left, walk off left after launch */
+@keyframes watch-l1 {
+  0%   { left: -18px; }
+  8%   { left: 30px; }
+  78%  { left: 30px; }
+  90%  { left: -30px; }
+  100% { left: -30px; }
+}
+@keyframes watch-l2 {
+  0%   { left: -34px; }
+  10%  { left: 58px; }
+  78%  { left: 58px; }
+  92%  { left: -34px; }
+  100% { left: -34px; }
+}
+/* watchers on the right — walk in from right, walk off right after launch */
+@keyframes watch-r1 {
+  0%   { left: 230px; }
+  8%   { left: 170px; }
+  78%  { left: 170px; }
+  90%  { left: 240px; }
+  100% { left: 240px; }
+}
+@keyframes watch-r2 {
+  0%   { left: 246px; }
+  10%  { left: 198px; }
+  78%  { left: 198px; }
+  92%  { left: 246px; }
+  100% { left: 246px; }
+}
 
 .rocket {
   left: 110px; bottom: 4px;
