@@ -189,11 +189,11 @@ main {
   font-weight: bold;
 }
 
-/* bot crew — floats right of active modules */
-.modules-wrap {
-  position: relative;
-}
-
+/* ============================================
+   BOT CREW — 8 daily animation modes
+   Mode selected by (day-1) % 8 in JS
+   ============================================ */
+.modules-wrap { position: relative; }
 .bot-float {
   position: absolute;
   right: 0;
@@ -201,19 +201,23 @@ main {
   transform: translateY(-50%);
   text-align: center;
 }
-
 .bot-scene {
-  width: 200px;
-  height: 40px;
+  width: 220px;
+  height: 80px;
   position: relative;
   overflow: hidden;
 }
+.bot-caption {
+  font-size: 11px;
+  color: #5F6368;
+  margin-top: 6px;
+  font-style: italic;
+  white-space: nowrap;
+}
 
-/* worker pixel sprite — 3px per pixel */
+/* worker sprite — 3px pixel art */
 .bot-px {
-  width: 3px;
-  height: 3px;
-  background: transparent;
+  width: 3px; height: 3px; background: transparent;
   box-shadow:
     3px 0 #202124, 6px 0 #202124, 9px 0 #202124,
     0 3px #202124, 3px 3px #1A73E8, 6px 3px #202124, 9px 3px #1A73E8, 12px 3px #202124,
@@ -224,12 +228,9 @@ main {
     3px 18px #202124, 9px 18px #202124;
   animation: step 0.3s ease-in-out infinite;
 }
-
-/* boss sprite — same body + gold crown */
+/* boss sprite — worker + gold crown */
 .bot-px-boss {
-  width: 3px;
-  height: 3px;
-  background: transparent;
+  width: 3px; height: 3px; background: transparent;
   box-shadow:
     3px -3px #C4900C, 6px -3px #C4900C, 9px -3px #C4900C,
     3px 0 #202124, 6px 0 #202124, 9px 0 #202124,
@@ -242,96 +243,395 @@ main {
   animation: idle 1.5s ease-in-out infinite;
 }
 
-/* boss — stands at center, meets carriers, walks off, returns */
-.bot-boss {
-  position: absolute;
-  bottom: 2px;
-  animation: boss-move 20s ease-in-out infinite;
-}
+/* slots and props hidden until a mode reveals them */
+.bot { position: absolute; display: none; }
+.prop { position: absolute; display: none; }
 
-/* carrier containers */
-.bot-walk {
-  position: absolute;
-  bottom: 2px;
-}
+@keyframes step { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
 
-.bot-walk-r {
-  animation: carrier-r 20s ease-in-out infinite;
+/* ============================================
+   MODE 0: MEETING — boss meets carriers 1 by 1
+   ============================================ */
+.mode-meeting .bot-1,
+.mode-meeting .bot-2,
+.mode-meeting .bot-3 { display: block; }
+.mode-meeting .bot-1 { bottom: 2px; animation: boss-move 20s ease-in-out infinite; }
+.mode-meeting .bot-2 { bottom: 2px; animation: carrier-r 20s ease-in-out infinite; }
+.mode-meeting .bot-3 { bottom: 2px; animation: carrier-l 20s ease-in-out infinite; }
+.mode-meeting .bot-2::before,
+.mode-meeting .bot-3::before {
+  content: ''; position: absolute; top: -4px; left: 3px;
+  width: 9px; height: 5px; background: #1A73E8; opacity: 0.45;
 }
-
-.bot-walk-l {
-  animation: carrier-l 20s ease-in-out infinite;
-}
-
-/* data block carried above head */
-.bot-walk::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 3px;
-  width: 9px;
-  height: 5px;
-  background: #1A73E8;
-  opacity: 0.45;
-}
-
-.bot-caption {
-  font-size: 11px;
-  color: #5F6368;
-  margin-top: 6px;
-  font-style: italic;
-  white-space: nowrap;
-}
-
-/* boss: center → meet R → meet L → exit right → reenter left */
 @keyframes boss-move {
-  0%    { left: 100px; opacity: 1; }
-  50%   { left: 100px; opacity: 1; }
-  65%   { left: 210px; opacity: 1; }
-  65.5% { left: 210px; opacity: 0; }
+  0%    { left: 110px; opacity: 1; }
+  50%   { left: 110px; opacity: 1; }
+  65%   { left: 230px; opacity: 1; }
+  65.5% { left: 230px; opacity: 0; }
   79.5% { left: -18px; opacity: 0; }
   80%   { left: -18px; opacity: 1; }
-  100%  { left: 100px; opacity: 1; }
+  100%  { left: 110px; opacity: 1; }
 }
-
-/* carrier R: enter left → pause at boss → exit right */
 @keyframes carrier-r {
   0%   { left: -18px; }
-  20%  { left: 86px; }
-  25%  { left: 86px; }
-  40%  { left: 210px; }
-  100% { left: 210px; }
+  20%  { left: 96px; }
+  25%  { left: 96px; }
+  40%  { left: 230px; }
+  100% { left: 230px; }
 }
-
-/* carrier L: enter right → pause at boss → exit left */
 @keyframes carrier-l {
-  0%   { left: 210px; }
-  30%  { left: 210px; }
-  45%  { left: 86px; }
-  50%  { left: 86px; }
+  0%   { left: 230px; }
+  30%  { left: 230px; }
+  45%  { left: 96px; }
+  50%  { left: 96px; }
   65%  { left: -18px; }
   100% { left: -18px; }
 }
 
-/* boss alternate: exits left, reenters right */
-@keyframes boss-move-l {
-  0%    { left: 100px; opacity: 1; }
-  50%   { left: 100px; opacity: 1; }
-  65%   { left: -18px; opacity: 1; }
-  65.5% { left: -18px; opacity: 0; }
-  79.5% { left: 210px; opacity: 0; }
-  80%   { left: 210px; opacity: 1; }
-  100%  { left: 100px; opacity: 1; }
+/* ============================================
+   MODE 1: LADDERS — climbing up and down
+   ============================================ */
+.mode-ladders .bot-1,
+.mode-ladders .bot-2,
+.mode-ladders .bot-3,
+.mode-ladders .bot-4,
+.mode-ladders .bot-5,
+.mode-ladders .ladder-l,
+.mode-ladders .ladder-r { display: block; }
+.ladder {
+  width: 16px; height: 52px; bottom: 4px;
+  border-left: 2px solid #5F6368;
+  border-right: 2px solid #5F6368;
+  background: repeating-linear-gradient(to bottom,
+    transparent 0, transparent 6px,
+    #5F6368 6px, #5F6368 8px);
+}
+.ladder-l { left: 44px; }
+.ladder-r { left: 164px; }
+.mode-ladders .bot-1 { left: 106px; bottom: 4px; animation: boss-idle-sway 3s ease-in-out infinite; }
+.mode-ladders .bot-2 { left: 47px; animation: climb-up-down 6s ease-in-out infinite; }
+.mode-ladders .bot-3 { left: 167px; animation: climb-down-up 6s ease-in-out infinite; }
+.mode-ladders .bot-4 { bottom: 58px; animation: stroll-lr 8s linear infinite; }
+.mode-ladders .bot-5 { bottom: 4px; animation: stroll-rl 7s linear infinite; }
+@keyframes climb-up-down {
+  0%   { bottom: 6px; }
+  45%  { bottom: 48px; }
+  55%  { bottom: 48px; }
+  95%  { bottom: 6px; }
+  100% { bottom: 6px; }
+}
+@keyframes climb-down-up {
+  0%   { bottom: 48px; }
+  45%  { bottom: 6px; }
+  55%  { bottom: 6px; }
+  95%  { bottom: 48px; }
+  100% { bottom: 48px; }
+}
+@keyframes stroll-lr { 0% { left: -18px; } 100% { left: 230px; } }
+@keyframes stroll-rl { 0% { left: 230px; } 100% { left: -18px; } }
+@keyframes boss-idle-sway {
+  0%,100% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
 }
 
-@keyframes step {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+/* ============================================
+   MODE 2: ROCKET — idea, build, launch
+   ============================================ */
+.mode-rocket .bot-1,
+.mode-rocket .bot-2,
+.mode-rocket .bot-3,
+.mode-rocket .bot-4,
+.mode-rocket .bot-5,
+.mode-rocket .rocket,
+.mode-rocket .idea-bulb,
+.mode-rocket .exhaust { display: block; }
+.mode-rocket .bot-1 { left: 20px; bottom: 4px; }
+.idea-bulb {
+  left: 24px; bottom: 34px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #FFD700;
+  box-shadow: 0 0 6px #FFD700;
+  animation: idea-pulse 22s linear infinite;
+  opacity: 0;
+}
+@keyframes idea-pulse {
+  0%   { opacity: 0; transform: scale(0.6); }
+  4%   { opacity: 1; transform: scale(1.2); }
+  14%  { opacity: 1; transform: scale(1); }
+  22%  { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 0; }
+}
+.rocket {
+  left: 110px; bottom: 4px;
+  width: 14px; height: 28px;
+  background: #1A73E8;
+  clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+  animation: rocket-build-launch 22s linear infinite;
+  opacity: 0;
+}
+.exhaust {
+  left: 113px; bottom: 0;
+  width: 8px; height: 6px;
+  background: #C4900C;
+  animation: rocket-exhaust 22s linear infinite;
+  opacity: 0;
+}
+@keyframes rocket-build-launch {
+  0%   { opacity: 0; bottom: 4px; transform: scale(0.3); }
+  22%  { opacity: 0; bottom: 4px; transform: scale(0.3); }
+  32%  { opacity: 1; bottom: 4px; transform: scale(1); }
+  65%  { opacity: 1; bottom: 4px; }
+  85%  { opacity: 1; bottom: 100px; }
+  88%  { opacity: 0; bottom: 100px; }
+  100% { opacity: 0; bottom: 4px; transform: scale(0.3); }
+}
+@keyframes rocket-exhaust {
+  0%,68% { opacity: 0; }
+  70%   { opacity: 1; height: 4px; }
+  85%   { opacity: 1; height: 12px; }
+  88%   { opacity: 0; }
+  100%  { opacity: 0; }
+}
+.mode-rocket .bot-2 { bottom: 4px; animation: carry-part 22s linear infinite; animation-delay: -2s; }
+.mode-rocket .bot-3 { bottom: 4px; animation: carry-part 22s linear infinite; animation-delay: -7s; }
+.mode-rocket .bot-4 { bottom: 4px; animation: carry-part 22s linear infinite; animation-delay: -12s; }
+.mode-rocket .bot-5 { bottom: 4px; animation: launcher-bot 22s linear infinite; }
+.mode-rocket .bot-2::before,
+.mode-rocket .bot-3::before,
+.mode-rocket .bot-4::before {
+  content: ''; position: absolute; top: -4px; left: 3px;
+  width: 9px; height: 5px; background: #C4900C; opacity: 0.7;
+}
+@keyframes carry-part {
+  0%   { left: 230px; opacity: 1; }
+  30%  { left: 128px; opacity: 1; }
+  33%  { left: 128px; opacity: 0; }
+  100% { left: 128px; opacity: 0; }
+}
+@keyframes launcher-bot {
+  0%   { left: -18px; opacity: 1; bottom: 4px; }
+  45%  { left: 102px; opacity: 1; bottom: 4px; }
+  50%  { left: 102px; opacity: 0; bottom: 4px; }
+  100% { left: 102px; opacity: 0; bottom: 4px; }
 }
 
-@keyframes idle {
-  0%, 100% { transform: translateY(0); }
+/* ============================================
+   MODE 3: SOFTWARE — bots typing, data flowing
+   ============================================ */
+.mode-software .bot-1,
+.mode-software .bot-2,
+.mode-software .bot-3,
+.mode-software .bot-4,
+.mode-software .bot-5,
+.mode-software .desk-1,
+.mode-software .desk-2,
+.mode-software .desk-3 { display: block; }
+.desk {
+  width: 22px; height: 2px; bottom: 22px;
+  background: #5F6368;
+}
+.desk-1 { left: 28px; }
+.desk-2 { left: 99px; }
+.desk-3 { left: 170px; }
+.mode-software .bot-1 { left: 103px; bottom: 24px; animation: type-fast 0.35s ease-in-out infinite; }
+.mode-software .bot-2 { left: 32px; bottom: 24px; animation: type-fast 0.3s ease-in-out infinite; animation-delay: -0.1s; }
+.mode-software .bot-3 { left: 174px; bottom: 24px; animation: type-fast 0.32s ease-in-out infinite; animation-delay: -0.2s; }
+.mode-software .bot-4 { bottom: 4px; animation: courier-lr 4s linear infinite; }
+.mode-software .bot-5 { bottom: 4px; animation: courier-rl 5s linear infinite; }
+.mode-software .bot-4::before,
+.mode-software .bot-5::before {
+  content: ''; position: absolute; top: -4px; left: 3px;
+  width: 9px; height: 5px; background: #1A73E8; opacity: 0.6;
+}
+@keyframes type-fast {
+  0%,100% { transform: translateY(0); }
   50% { transform: translateY(-1px); }
+}
+@keyframes courier-lr { 0% { left: -18px; } 100% { left: 230px; } }
+@keyframes courier-rl { 0% { left: 230px; } 100% { left: -18px; } }
+
+/* ============================================
+   MODE 4: HEAVY — bots carry big box together
+   ============================================ */
+.mode-heavy .bot-1,
+.mode-heavy .bot-2,
+.mode-heavy .bot-3,
+.mode-heavy .bot-4,
+.mode-heavy .bot-5,
+.mode-heavy .heavy-box { display: block; }
+.heavy-box {
+  width: 54px; height: 14px; bottom: 22px;
+  background: #C4900C;
+  border: 2px solid #202124;
+  animation: heavy-move 18s linear infinite;
+}
+.mode-heavy .bot-1 { bottom: 4px; animation: heavy-leader 18s linear infinite; }
+.mode-heavy .bot-2 { bottom: 4px; animation: heavy-move-b2 18s linear infinite; }
+.mode-heavy .bot-3 { bottom: 4px; animation: heavy-move-b3 18s linear infinite; }
+.mode-heavy .bot-4 { bottom: 4px; animation: heavy-move-b4 18s linear infinite; }
+.mode-heavy .bot-5 { bottom: 4px; animation: heavy-rear 18s linear infinite; }
+.mode-heavy .bot-2 .bot-px,
+.mode-heavy .bot-3 .bot-px,
+.mode-heavy .bot-4 .bot-px { animation: step 0.5s ease-in-out infinite; }
+@keyframes heavy-move { 0% { left: -60px; } 100% { left: 230px; } }
+@keyframes heavy-leader {
+  0% { left: -6px; } 100% { left: 224px; }
+}
+@keyframes heavy-move-b2 {
+  0% { left: -56px; } 100% { left: 234px; }
+}
+@keyframes heavy-move-b3 {
+  0% { left: -42px; } 100% { left: 248px; }
+}
+@keyframes heavy-move-b4 {
+  0% { left: -26px; } 100% { left: 264px; }
+}
+@keyframes heavy-rear {
+  0% { left: -76px; } 100% { left: 214px; }
+}
+
+/* ============================================
+   MODE 5: SWITCH — bots stack, flip switch
+   ============================================ */
+.mode-switch .bot-1,
+.mode-switch .bot-2,
+.mode-switch .bot-3,
+.mode-switch .bot-4,
+.mode-switch .bot-5,
+.mode-switch .switch-base,
+.mode-switch .switch-lever,
+.mode-switch .switch-light { display: block; }
+.switch-base {
+  left: 172px; bottom: 46px;
+  width: 10px; height: 6px;
+  background: #5F6368;
+}
+.switch-lever {
+  left: 175px; bottom: 50px;
+  width: 3px; height: 10px;
+  background: #202124;
+  transform-origin: bottom center;
+  animation: lever-flip 15s ease-in-out infinite;
+}
+@keyframes lever-flip {
+  0%,38%  { transform: rotate(-30deg); }
+  45%,90% { transform: rotate(30deg); }
+  100%    { transform: rotate(-30deg); }
+}
+.switch-light {
+  left: 188px; bottom: 52px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #C4900C;
+  animation: light-on 15s linear infinite;
+  opacity: 0;
+}
+@keyframes light-on {
+  0%,44%  { opacity: 0; box-shadow: 0 0 0 #C4900C; }
+  48%,88% { opacity: 1; box-shadow: 0 0 8px #C4900C; }
+  92%,100%{ opacity: 0; box-shadow: 0 0 0 #C4900C; }
+}
+.mode-switch .bot-1 { left: 132px; bottom: 48px; animation: stack-top 15s ease-in-out infinite; }
+.mode-switch .bot-2 { left: 132px; bottom: 4px; animation: stack-idle 15s ease-in-out infinite; }
+.mode-switch .bot-3 { left: 132px; bottom: 26px; animation: stack-idle 15s ease-in-out infinite; animation-delay: -0.3s; }
+.mode-switch .bot-4 { left: 40px; bottom: 4px; }
+.mode-switch .bot-5 { left: 76px; bottom: 4px; }
+@keyframes stack-top {
+  0%   { left: -18px; bottom: 48px; }
+  25%  { left: 132px; bottom: 48px; }
+  40%  { left: 160px; bottom: 48px; }
+  70%  { left: 160px; bottom: 48px; }
+  85%  { left: 132px; bottom: 48px; }
+  100% { left: -18px; bottom: 48px; }
+}
+@keyframes stack-idle {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-1px); }
+}
+
+/* ============================================
+   MODE 6: SUPER BOT — bots merge, pose, split
+   ============================================ */
+.mode-super .bot-1,
+.mode-super .bot-2,
+.mode-super .bot-3,
+.mode-super .bot-4,
+.mode-super .bot-5 { display: block; }
+.mode-super .bot-1 { bottom: 4px; animation: merge-from-l 14s ease-in-out infinite; }
+.mode-super .bot-2 { bottom: 4px; animation: merge-from-l2 14s ease-in-out infinite; }
+.mode-super .bot-3 { bottom: 4px; animation: merge-from-r 14s ease-in-out infinite; }
+.mode-super .bot-4 { bottom: 4px; animation: merge-from-r2 14s ease-in-out infinite; }
+.mode-super .bot-5 { left: 105px; bottom: 4px; animation: super-reveal 14s ease-in-out infinite; }
+.mode-super .bot-5 .bot-px {
+  animation: super-pose 14s ease-in-out infinite;
+}
+@keyframes merge-from-l {
+  0%   { left: -18px; opacity: 1; }
+  25%  { left: 100px; opacity: 1; }
+  30%  { left: 105px; opacity: 0; }
+  70%  { left: 105px; opacity: 0; }
+  75%  { left: 100px; opacity: 1; }
+  100% { left: -18px; opacity: 1; }
+}
+@keyframes merge-from-l2 {
+  0%   { left: -18px; opacity: 1; }
+  25%  { left: 106px; opacity: 1; }
+  30%  { left: 105px; opacity: 0; }
+  70%  { left: 105px; opacity: 0; }
+  75%  { left: 106px; opacity: 1; }
+  100% { left: -18px; opacity: 1; }
+}
+@keyframes merge-from-r {
+  0%   { left: 230px; opacity: 1; }
+  25%  { left: 112px; opacity: 1; }
+  30%  { left: 108px; opacity: 0; }
+  70%  { left: 108px; opacity: 0; }
+  75%  { left: 112px; opacity: 1; }
+  100% { left: 230px; opacity: 1; }
+}
+@keyframes merge-from-r2 {
+  0%   { left: 230px; opacity: 1; }
+  25%  { left: 118px; opacity: 1; }
+  30%  { left: 110px; opacity: 0; }
+  70%  { left: 110px; opacity: 0; }
+  75%  { left: 118px; opacity: 1; }
+  100% { left: 230px; opacity: 1; }
+}
+@keyframes super-reveal {
+  0%,28%   { opacity: 0; transform: scale(1); }
+  32%      { opacity: 1; transform: scale(2.2); }
+  68%      { opacity: 1; transform: scale(2.2); }
+  72%      { opacity: 0; transform: scale(1); }
+  100%     { opacity: 0; }
+}
+@keyframes super-pose {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-3px); }
+}
+
+/* ============================================
+   MODE 7: MARCHING — bots march in formation
+   ============================================ */
+.mode-march .bot-1,
+.mode-march .bot-2,
+.mode-march .bot-3,
+.mode-march .bot-4,
+.mode-march .bot-5 { display: block; }
+.mode-march .bot-1 { bottom: 4px; animation: march 10s linear infinite; animation-delay: 0s; }
+.mode-march .bot-2 { bottom: 4px; animation: march 10s linear infinite; animation-delay: -0.3s; }
+.mode-march .bot-3 { bottom: 4px; animation: march 10s linear infinite; animation-delay: -0.6s; }
+.mode-march .bot-4 { bottom: 4px; animation: march 10s linear infinite; animation-delay: -0.9s; }
+.mode-march .bot-5 { bottom: 4px; animation: march 10s linear infinite; animation-delay: -1.2s; }
+.mode-march .bot .bot-px,
+.mode-march .bot .bot-px-boss { animation: march-step 0.5s steps(2) infinite; }
+@keyframes march {
+  0% { left: -24px; } 100% { left: 234px; }
+}
+@keyframes march-step {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
 }
 
 /* footer */
@@ -445,10 +745,24 @@ footer .auth {
       </li>
     </ul>
     <div class="bot-float">
-      <div class="bot-scene">
-        <div class="bot-boss"><div class="bot-px-boss"></div></div>
-        <div class="bot-walk bot-walk-r"><div class="bot-px"></div></div>
-        <div class="bot-walk bot-walk-l"><div class="bot-px"></div></div>
+      <div class="bot-scene" id="botScene">
+        <div class="bot bot-1"><div class="bot-px-boss"></div></div>
+        <div class="bot bot-2"><div class="bot-px"></div></div>
+        <div class="bot bot-3"><div class="bot-px"></div></div>
+        <div class="bot bot-4"><div class="bot-px"></div></div>
+        <div class="bot bot-5"><div class="bot-px"></div></div>
+        <div class="prop ladder ladder-l"></div>
+        <div class="prop ladder ladder-r"></div>
+        <div class="prop rocket"></div>
+        <div class="prop exhaust"></div>
+        <div class="prop idea-bulb"></div>
+        <div class="prop desk desk-1"></div>
+        <div class="prop desk desk-2"></div>
+        <div class="prop desk desk-3"></div>
+        <div class="prop heavy-box"></div>
+        <div class="prop switch-base"></div>
+        <div class="prop switch-lever"></div>
+        <div class="prop switch-light"></div>
       </div>
       <div class="bot-caption" id="botCaption"></div>
     </div>
@@ -526,24 +840,11 @@ footer .auth {
   var day = new Date().getDate();
   document.getElementById('botCaption').textContent = captions[(day - 1) % captions.length];
 
-  /* ── daily animation variation ── */
-  var durations = [18,22,16,20,17,24,19,21,15,23,18,20,16,22,19,17,24,21,15,23,18,20,16,22,17,24,19,21,15,23,18];
-  var dur = durations[(day - 1) % 31] + 's';
-  var boss = document.querySelector('.bot-boss');
-  var walkR = document.querySelector('.bot-walk-r');
-  var walkL = document.querySelector('.bot-walk-l');
-  var scene = document.querySelector('.bot-scene');
-
-  boss.style.animationDuration = dur;
-  walkR.style.animationDuration = dur;
-  walkL.style.animationDuration = dur;
-
-  if (day % 2 === 0) scene.style.transform = 'scaleX(-1)';
-  if (day % 3 === 0) boss.style.animationName = 'boss-move-l';
-  if (day % 5 === 0 || day % 5 === 2) {
-    walkR.style.animationName = 'carrier-l';
-    walkL.style.animationName = 'carrier-r';
-  }
+  /* ── daily mode — 8 choreographed scenes, cycles by day ── */
+  var modes = ['meeting', 'ladders', 'rocket', 'software', 'heavy', 'switch', 'super', 'march'];
+  var override = new URLSearchParams(location.search).get('mode');
+  var mode = (override && modes.indexOf(override) !== -1) ? override : modes[(day - 1) % 8];
+  document.getElementById('botScene').classList.add('mode-' + mode);
 })();
 </script>
 </body>
