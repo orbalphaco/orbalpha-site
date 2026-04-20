@@ -506,7 +506,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="./assets/index-Br2hAr9U.js"></script>
+    <script type="module" crossorigin src="./assets/index-1GZKQNpp.js"></script>
   </head>
   <body>
     <header>
@@ -533,11 +533,12 @@
             <div class="drop-zone-prompt">Drop CSV here or tap to browse</div>
             <div class="upload-meta" id="meta-ohlcv">No file selected</div>
           </div>
-          <div class="upload-cell" id="drop-daily" role="button" tabindex="0" aria-label="Chart Data Daily Override — drop CSV or click to browse">
-            <label for="file-daily">Chart Data (v2.3 Daily Override)</label>
+          <div class="upload-cell" id="drop-daily" role="button" tabindex="0" aria-label="Daily Override CSV (optional) — drop CSV or click to browse">
+            <label for="file-daily">DAILY OVERRIDE CSV (OPTIONAL)</label>
             <input type="file" id="file-daily" accept=".csv" />
             <div class="drop-zone-prompt">Drop CSV here or tap to browse</div>
             <div class="upload-meta" id="meta-daily">No file selected</div>
+            <div class="hint" style="margin-top: 8px; margin-bottom: 0;">If omitted, daily bars are computed from the 5-min data. Provide for exact Pine Strategy Tester parity.</div>
           </div>
         </div>
       </section>
@@ -620,7 +621,7 @@
         <div class="run-bar">
           <button id="run-btn" disabled>RUN OPTIMIZER</button>
           <button id="cancel-btn" class="hidden">CANCEL</button>
-          <span class="muted" id="run-status">Upload both CSV files to enable.</span>
+          <span class="muted" id="run-status">Upload the 5-min OHLCV CSV to enable.</span>
         </div>
         <div id="progress-area" class="hidden">
           <div class="progress-phase" id="progress-phase">Phase 1: Exploring…</div>
