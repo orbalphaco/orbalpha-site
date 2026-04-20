@@ -662,11 +662,48 @@ main {
 /* ============================================
    MODE 7: UFO — ship beams down alien, becomes bot
    ============================================ */
+.mode-ufo .bot-1,
+.mode-ufo .bot-2,
+.mode-ufo .bot-3,
+.mode-ufo .bot-4,
 .mode-ufo .bot-5,
 .mode-ufo .ufo,
 .mode-ufo .beam,
 .mode-ufo .alien,
 .mode-ufo .flash { display: block; }
+.mode-ufo .bot-1 { animation: ufo-witness-l1 20s ease-in-out infinite; }
+.mode-ufo .bot-2 { animation: ufo-witness-l2 20s ease-in-out infinite; }
+.mode-ufo .bot-3 { animation: ufo-witness-r1 20s ease-in-out infinite; }
+.mode-ufo .bot-4 { animation: ufo-witness-r2 20s ease-in-out infinite; }
+/* witnesses enter from their sides, stand watching, then leave together */
+@keyframes ufo-witness-l1 {
+  0%   { left: -24px; bottom: 4px; }
+  10%  { left: 40px;  bottom: 4px; }
+  80%  { left: 40px;  bottom: 4px; }
+  94%  { left: -30px; bottom: 4px; }
+  100% { left: -30px; bottom: 4px; }
+}
+@keyframes ufo-witness-l2 {
+  0%   { left: -40px; bottom: 4px; }
+  12%  { left: 66px;  bottom: 4px; }
+  80%  { left: 66px;  bottom: 4px; }
+  94%  { left: -40px; bottom: 4px; }
+  100% { left: -40px; bottom: 4px; }
+}
+@keyframes ufo-witness-r1 {
+  0%   { left: 240px; bottom: 4px; }
+  10%  { left: 165px; bottom: 4px; }
+  80%  { left: 165px; bottom: 4px; }
+  94%  { left: 250px; bottom: 4px; }
+  100% { left: 250px; bottom: 4px; }
+}
+@keyframes ufo-witness-r2 {
+  0%   { left: 260px; bottom: 4px; }
+  12%  { left: 190px; bottom: 4px; }
+  80%  { left: 190px; bottom: 4px; }
+  94%  { left: 260px; bottom: 4px; }
+  100% { left: 260px; bottom: 4px; }
+}
 
 .ufo {
   left: 92px; top: -18px;
@@ -764,14 +801,196 @@ main {
 @keyframes ufo-bot {
   0%,54%  { left: 106px; opacity: 0; }
   58%     { left: 106px; opacity: 1; }
-  70%     { left: 106px; opacity: 1; }
-  84%     { left: 240px; opacity: 1; }
-  86%     { left: 240px; opacity: 0; }
-  100%    { left: 240px; opacity: 0; }
+  80%     { left: 106px; opacity: 1; }
+  94%     { left: 250px; opacity: 1; }
+  100%    { left: 250px; opacity: 0; }
 }
 
 /* ============================================
-   MODE 8: MARCHING — bots march in formation
+   MODE 8: WATER — bot gets watered, multiplies to 5
+   ============================================ */
+.mode-water .bot-1,
+.mode-water .bot-2,
+.mode-water .bot-3,
+.mode-water .bot-4,
+.mode-water .bot-5,
+.mode-water .water-drop { display: block; }
+
+.water-drop {
+  width: 4px; height: 7px;
+  background: #1A73E8;
+  border-radius: 0 0 50% 50%;
+  animation: water-fall 20s linear infinite;
+  opacity: 0;
+}
+/* single drop teleports between four positions, falling each time */
+@keyframes water-fall {
+  0%,13%   { left: 66px;  top: -8px; opacity: 0; }
+  15%      { left: 66px;  top: -8px; opacity: 1; }
+  18%      { left: 66px;  top: 46px; opacity: 1; }
+  19%      { left: 66px;  top: 46px; opacity: 0; }
+  23%      { left: 96px;  top: -8px; opacity: 0; }
+  25%      { left: 96px;  top: -8px; opacity: 1; }
+  28%      { left: 96px;  top: 46px; opacity: 1; }
+  29%      { left: 96px;  top: 46px; opacity: 0; }
+  33%      { left: 126px; top: -8px; opacity: 0; }
+  35%      { left: 126px; top: -8px; opacity: 1; }
+  38%      { left: 126px; top: 46px; opacity: 1; }
+  39%      { left: 126px; top: 46px; opacity: 0; }
+  43%      { left: 156px; top: -8px; opacity: 0; }
+  45%      { left: 156px; top: -8px; opacity: 1; }
+  48%      { left: 156px; top: 46px; opacity: 1; }
+  49%      { left: 156px; top: 46px; opacity: 0; }
+  100%     { opacity: 0; }
+}
+
+/* boss walks in, stands center-left, gets watered first */
+.mode-water .bot-1 { animation: water-boss 20s ease-in-out infinite; }
+.mode-water .bot-2 { animation: water-clone-2 20s ease-in-out infinite; }
+.mode-water .bot-3 { animation: water-clone-3 20s ease-in-out infinite; }
+.mode-water .bot-4 { animation: water-clone-4 20s ease-in-out infinite; }
+.mode-water .bot-5 { animation: water-clone-5 20s ease-in-out infinite; }
+@keyframes water-boss {
+  0%   { left: -24px; bottom: 4px; opacity: 1; }
+  10%  { left: 36px;  bottom: 4px; opacity: 1; }
+  80%  { left: 36px;  bottom: 4px; opacity: 1; }
+  94%  { left: -30px; bottom: 4px; opacity: 1; }
+  100% { left: -30px; bottom: 4px; opacity: 1; }
+}
+/* clones fade into existence at their positions after each water drop */
+@keyframes water-clone-2 {
+  0%,18%  { left: 66px;  bottom: 4px; opacity: 0; transform: scale(0.6); }
+  20%     { left: 66px;  bottom: 4px; opacity: 1; transform: scale(1); }
+  80%     { left: 66px;  bottom: 4px; opacity: 1; transform: scale(1); }
+  94%     { left: -30px; bottom: 4px; opacity: 1; transform: scale(1); }
+  100%    { left: -30px; bottom: 4px; opacity: 1; transform: scale(1); }
+}
+@keyframes water-clone-3 {
+  0%,28%  { left: 96px;  bottom: 4px; opacity: 0; transform: scale(0.6); }
+  30%     { left: 96px;  bottom: 4px; opacity: 1; transform: scale(1); }
+  80%     { left: 96px;  bottom: 4px; opacity: 1; transform: scale(1); }
+  94%     { left: 260px; bottom: 4px; opacity: 1; transform: scale(1); }
+  100%    { left: 260px; bottom: 4px; opacity: 1; transform: scale(1); }
+}
+@keyframes water-clone-4 {
+  0%,38%  { left: 126px; bottom: 4px; opacity: 0; transform: scale(0.6); }
+  40%     { left: 126px; bottom: 4px; opacity: 1; transform: scale(1); }
+  80%     { left: 126px; bottom: 4px; opacity: 1; transform: scale(1); }
+  94%     { left: 260px; bottom: 4px; opacity: 1; transform: scale(1); }
+  100%    { left: 260px; bottom: 4px; opacity: 1; transform: scale(1); }
+}
+@keyframes water-clone-5 {
+  0%,48%  { left: 156px; bottom: 4px; opacity: 0; transform: scale(0.6); }
+  50%     { left: 156px; bottom: 4px; opacity: 1; transform: scale(1); }
+  80%     { left: 156px; bottom: 4px; opacity: 1; transform: scale(1); }
+  94%     { left: 260px; bottom: 4px; opacity: 1; transform: scale(1); }
+  100%    { left: 260px; bottom: 4px; opacity: 1; transform: scale(1); }
+}
+
+/* ============================================
+   MODE 9: FIGHT — workers shoot shrinking giant
+   ============================================ */
+.mode-fight .bot-1,
+.mode-fight .bot-2,
+.mode-fight .bot-3,
+.mode-fight .bot-4,
+.mode-fight .bot-5,
+.mode-fight .enemy,
+.mode-fight .projectile-1,
+.mode-fight .projectile-2,
+.mode-fight .projectile-3 { display: block; }
+
+/* enemy sprite — bigger, red */
+.enemy {
+  left: 165px; bottom: 4px;
+  width: 3px; height: 3px;
+  background: transparent;
+  box-shadow:
+    3px 0 #C62828, 6px 0 #C62828, 9px 0 #C62828,
+    0 3px #C62828, 3px 3px #FFD54F, 6px 3px #C62828, 9px 3px #FFD54F, 12px 3px #C62828,
+    3px 6px #C62828, 6px 6px #C62828, 9px 6px #C62828,
+    3px 9px #EF5350, 6px 9px #EF5350, 9px 9px #EF5350,
+    0 12px #EF5350, 3px 12px #EF5350, 6px 12px #EF5350, 9px 12px #EF5350, 12px 12px #EF5350,
+    6px 15px #EF5350,
+    3px 18px #C62828, 9px 18px #C62828;
+  transform-origin: bottom left;
+  animation: enemy-shrink 20s ease-in-out infinite;
+}
+@keyframes enemy-shrink {
+  0%,10%   { left: 240px; transform: scale(2); opacity: 0; }
+  14%      { left: 165px; transform: scale(2); opacity: 1; }
+  25%      { transform: scale(2);   opacity: 1; }
+  35%      { transform: scale(1.7); opacity: 1; }
+  45%      { transform: scale(1.4); opacity: 1; }
+  55%      { transform: scale(1.1); opacity: 1; }
+  63%      { transform: scale(0.8); opacity: 1; }
+  70%      { transform: scale(0.5); opacity: 1; }
+  76%      { transform: scale(0);   opacity: 0; }
+  100%     { transform: scale(0);   opacity: 0; }
+}
+
+/* workers line up on the left, boss in the lead */
+.mode-fight .bot-1 { animation: fight-b1 20s linear infinite; }
+.mode-fight .bot-2 { animation: fight-b2 20s linear infinite; }
+.mode-fight .bot-3 { animation: fight-b3 20s linear infinite; }
+.mode-fight .bot-4 { animation: fight-b4 20s linear infinite; }
+.mode-fight .bot-5 { animation: fight-b5 20s linear infinite; }
+@keyframes fight-b1 {
+  0%   { left: -40px; bottom: 4px; }
+  10%  { left: 20px;  bottom: 4px; }
+  88%  { left: 20px;  bottom: 4px; }
+  100% { left: -40px; bottom: 4px; }
+}
+@keyframes fight-b2 {
+  0%   { left: -58px; bottom: 4px; }
+  12%  { left: 38px;  bottom: 4px; }
+  88%  { left: 38px;  bottom: 4px; }
+  100% { left: -58px; bottom: 4px; }
+}
+@keyframes fight-b3 {
+  0%   { left: -76px; bottom: 4px; }
+  14%  { left: 56px;  bottom: 4px; }
+  88%  { left: 56px;  bottom: 4px; }
+  100% { left: -76px; bottom: 4px; }
+}
+@keyframes fight-b4 {
+  0%   { left: -94px; bottom: 4px; }
+  16%  { left: 74px;  bottom: 4px; }
+  88%  { left: 74px;  bottom: 4px; }
+  100% { left: -94px; bottom: 4px; }
+}
+@keyframes fight-b5 {
+  0%   { left: -112px; bottom: 4px; }
+  18%  { left: 92px;   bottom: 4px; }
+  88%  { left: 92px;   bottom: 4px; }
+  100% { left: -112px; bottom: 4px; }
+}
+
+/* projectiles fly across the scene during the fight window only */
+.projectile-1,
+.projectile-2,
+.projectile-3 {
+  width: 6px; height: 2px;
+  background: #1A73E8;
+  bottom: 18px;
+}
+.projectile-1 { animation: projectile-fly 1.2s linear infinite, projectile-on 20s linear infinite; animation-delay: 0s, 0s; }
+.projectile-2 { animation: projectile-fly 1.2s linear infinite, projectile-on 20s linear infinite; animation-delay: -0.4s, 0s; }
+.projectile-3 { animation: projectile-fly 1.2s linear infinite, projectile-on 20s linear infinite; animation-delay: -0.8s, 0s; }
+@keyframes projectile-fly {
+  0%   { left: 100px; opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { left: 170px; opacity: 1; }
+  100% { left: 170px; opacity: 0; }
+}
+@keyframes projectile-on {
+  0%,18%   { visibility: hidden; }
+  20%,74%  { visibility: visible; }
+  76%,100% { visibility: hidden; }
+}
+
+/* ============================================
+   MODE 10: MARCHING — bots march in formation
    ============================================ */
 .mode-march .bot-1,
 .mode-march .bot-2,
@@ -926,6 +1145,11 @@ footer .auth {
         <div class="prop beam"></div>
         <div class="prop alien"></div>
         <div class="prop flash"></div>
+        <div class="prop water-drop"></div>
+        <div class="prop enemy"></div>
+        <div class="prop projectile-1"></div>
+        <div class="prop projectile-2"></div>
+        <div class="prop projectile-3"></div>
       </div>
       <div class="bot-caption" id="botCaption"></div>
     </div>
@@ -1004,7 +1228,7 @@ footer .auth {
   document.getElementById('botCaption').textContent = captions[(day - 1) % captions.length];
 
   /* ── daily mode — 8 choreographed scenes, cycles by day ── */
-  var modes = ['meeting', 'ladders', 'rocket', 'software', 'heavy', 'switch', 'super', 'ufo', 'march'];
+  var modes = ['meeting', 'ladders', 'rocket', 'software', 'heavy', 'switch', 'super', 'ufo', 'water', 'fight', 'march'];
   var override = new URLSearchParams(location.search).get('mode');
   var mode = (override && modes.indexOf(override) !== -1) ? override : modes[(day - 1) % modes.length];
   document.getElementById('botScene').classList.add('mode-' + mode);
