@@ -207,13 +207,6 @@ main {
   position: relative;
   overflow: hidden;
 }
-.bot-caption {
-  font-size: 11px;
-  color: #5F6368;
-  margin-top: 6px;
-  font-style: italic;
-  white-space: nowrap;
-}
 
 /* worker sprite — 3px pixel art */
 .bot-px {
@@ -1151,7 +1144,6 @@ footer .auth {
         <div class="prop projectile-2"></div>
         <div class="prop projectile-3"></div>
       </div>
-      <div class="bot-caption" id="botCaption"></div>
     </div>
   </section>
 
@@ -1189,45 +1181,8 @@ footer .auth {
     });
   });
 
-  /* ── bot crew — 31 daily states ── */
-  var captions = [
-    'investigating edge cases...',
-    'backtesting configurations...',
-    'studying price action...',
-    'scanning for setups...',
-    'tuning parameters...',
-    'analyzing trends...',
-    'caffeinating...',
-    'building filter stack...',
-    'running simulations...',
-    'monitoring feeds...',
-    'annotating charts...',
-    'processing signals...',
-    'waiting for confirmation...',
-    'pattern matching...',
-    'crunching numbers...',
-    'receiving market data...',
-    'stress testing...',
-    'mapping correlations...',
-    'pruning dead rules...',
-    'archiving results...',
-    'benchmarking execution...',
-    'engineering features...',
-    'validating risk controls...',
-    'forward-testing...',
-    'flagging anomalies...',
-    'experimenting...',
-    'training models...',
-    'securing edge...',
-    'preparing deployment...',
-    'polishing output...',
-    'defragmenting...'
-  ];
-
+  /* ── daily mode — choreographed scenes, cycles by day ── */
   var day = new Date().getDate();
-  document.getElementById('botCaption').textContent = captions[(day - 1) % captions.length];
-
-  /* ── daily mode — 8 choreographed scenes, cycles by day ── */
   var modes = ['meeting', 'ladders', 'rocket', 'software', 'heavy', 'switch', 'super', 'ufo', 'water', 'fight', 'march'];
   var override = new URLSearchParams(location.search).get('mode');
   var mode = (override && modes.indexOf(override) !== -1) ? override : modes[(day - 1) % modes.length];
