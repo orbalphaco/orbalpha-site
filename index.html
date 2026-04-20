@@ -193,12 +193,15 @@ main {
    BOT CREW — 8 daily animation modes
    Mode selected by (day-1) % 8 in JS
    ============================================ */
-.bot-section {
-  display: flex;
-  justify-content: center;
-  padding: 36px 0 8px 0;
+.modules-wrap {
+  position: relative;
+  min-height: 130px;
 }
 .bot-float {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   text-align: center;
 }
 .bot-scene {
@@ -1115,6 +1118,10 @@ footer .auth {
   footer {
     padding: 12px 16px;
   }
+
+  .bot-float {
+    display: none;
+  }
 }
 </style>
 </head>
@@ -1145,7 +1152,7 @@ footer .auth {
 
   <hr class="divider">
 
-  <section>
+  <section class="modules-wrap">
     <div class="section-heading small">// ACTIVE MODULES</div>
     <ul class="module-tree">
       <li class="tree-branch" data-tree="indicators">
@@ -1171,16 +1178,6 @@ footer .auth {
         </ul>
       </li>
     </ul>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-heading small">// CORE DIRECTIVE</div>
-    <p class="directive-text">research first. backtest everything. deploy what survives.</p>
-  </section>
-
-  <section class="bot-section">
     <div class="bot-float">
       <div class="bot-scene" id="botScene">
         <div class="bot bot-1"><div class="bot-px-boss"></div></div>
@@ -1211,6 +1208,13 @@ footer .auth {
         <div class="prop projectile-3"></div>
       </div>
     </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-heading small">// CORE DIRECTIVE</div>
+    <p class="directive-text">research first. backtest everything. deploy what survives.</p>
   </section>
 
 </main>
