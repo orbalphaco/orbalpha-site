@@ -208,31 +208,31 @@ main {
   overflow: hidden;
 }
 
-/* worker sprite — 3px pixel art */
+/* worker sprite — 3px pixel art, extends UP from the element */
 .bot-px {
   width: 3px; height: 3px; background: transparent;
   box-shadow:
-    3px 0 #202124, 6px 0 #202124, 9px 0 #202124,
-    0 3px #202124, 3px 3px #1A73E8, 6px 3px #202124, 9px 3px #1A73E8, 12px 3px #202124,
-    3px 6px #202124, 6px 6px #202124, 9px 6px #202124,
-    3px 9px #5F6368, 6px 9px #5F6368, 9px 9px #5F6368,
-    0 12px #5F6368, 3px 12px #5F6368, 6px 12px #5F6368, 9px 12px #5F6368, 12px 12px #5F6368,
-    6px 15px #5F6368,
-    3px 18px #202124, 9px 18px #202124;
+    3px -18px #202124, 6px -18px #202124, 9px -18px #202124,
+    0 -15px #202124, 3px -15px #1A73E8, 6px -15px #202124, 9px -15px #1A73E8, 12px -15px #202124,
+    3px -12px #202124, 6px -12px #202124, 9px -12px #202124,
+    3px -9px #5F6368, 6px -9px #5F6368, 9px -9px #5F6368,
+    0 -6px #5F6368, 3px -6px #5F6368, 6px -6px #5F6368, 9px -6px #5F6368, 12px -6px #5F6368,
+    6px -3px #5F6368,
+    3px 0 #202124, 9px 0 #202124;
   animation: step 0.3s ease-in-out infinite;
 }
 /* boss sprite — worker + gold crown */
 .bot-px-boss {
   width: 3px; height: 3px; background: transparent;
   box-shadow:
-    3px -3px #C4900C, 6px -3px #C4900C, 9px -3px #C4900C,
-    3px 0 #202124, 6px 0 #202124, 9px 0 #202124,
-    0 3px #202124, 3px 3px #1A73E8, 6px 3px #202124, 9px 3px #1A73E8, 12px 3px #202124,
-    3px 6px #202124, 6px 6px #202124, 9px 6px #202124,
-    3px 9px #5F6368, 6px 9px #5F6368, 9px 9px #5F6368,
-    0 12px #5F6368, 3px 12px #5F6368, 6px 12px #5F6368, 9px 12px #5F6368, 12px 12px #5F6368,
-    6px 15px #5F6368,
-    3px 18px #202124, 9px 18px #202124;
+    3px -21px #C4900C, 6px -21px #C4900C, 9px -21px #C4900C,
+    3px -18px #202124, 6px -18px #202124, 9px -18px #202124,
+    0 -15px #202124, 3px -15px #1A73E8, 6px -15px #202124, 9px -15px #1A73E8, 12px -15px #202124,
+    3px -12px #202124, 6px -12px #202124, 9px -12px #202124,
+    3px -9px #5F6368, 6px -9px #5F6368, 9px -9px #5F6368,
+    0 -6px #5F6368, 3px -6px #5F6368, 6px -6px #5F6368, 9px -6px #5F6368, 12px -6px #5F6368,
+    6px -3px #5F6368,
+    3px 0 #202124, 9px 0 #202124;
   animation: idle 1.5s ease-in-out infinite;
 }
 
@@ -747,19 +747,19 @@ main {
   100%   { opacity: 0; }
 }
 
-/* alien sprite — green, same grid as bot */
+/* alien sprite — green, extends UP from the element */
 .alien {
   left: 106px; bottom: 4px;
   width: 3px; height: 3px;
   background: transparent;
   box-shadow:
-    3px 0 #2E7D32, 6px 0 #2E7D32, 9px 0 #2E7D32,
-    0 3px #2E7D32, 3px 3px #A5D6A7, 6px 3px #2E7D32, 9px 3px #A5D6A7, 12px 3px #2E7D32,
-    3px 6px #2E7D32, 6px 6px #2E7D32, 9px 6px #2E7D32,
-    3px 9px #4CAF50, 6px 9px #4CAF50, 9px 9px #4CAF50,
-    0 12px #4CAF50, 3px 12px #4CAF50, 6px 12px #4CAF50, 9px 12px #4CAF50, 12px 12px #4CAF50,
-    6px 15px #4CAF50,
-    3px 18px #2E7D32, 9px 18px #2E7D32;
+    3px -18px #2E7D32, 6px -18px #2E7D32, 9px -18px #2E7D32,
+    0 -15px #2E7D32, 3px -15px #A5D6A7, 6px -15px #2E7D32, 9px -15px #A5D6A7, 12px -15px #2E7D32,
+    3px -12px #2E7D32, 6px -12px #2E7D32, 9px -12px #2E7D32,
+    3px -9px #4CAF50, 6px -9px #4CAF50, 9px -9px #4CAF50,
+    0 -6px #4CAF50, 3px -6px #4CAF50, 6px -6px #4CAF50, 9px -6px #4CAF50, 12px -6px #4CAF50,
+    6px -3px #4CAF50,
+    3px 0 #2E7D32, 9px 0 #2E7D32;
   animation: alien-present 20s ease-in-out infinite;
   opacity: 0;
 }
@@ -939,19 +939,19 @@ main {
 .mode-fight .projectile-2,
 .mode-fight .projectile-3 { display: block; }
 
-/* enemy sprite — bigger, red */
+/* enemy sprite — bigger, red, extends UP from the element */
 .enemy {
   left: 165px; bottom: 4px;
   width: 3px; height: 3px;
   background: transparent;
   box-shadow:
-    3px 0 #C62828, 6px 0 #C62828, 9px 0 #C62828,
-    0 3px #C62828, 3px 3px #FFD54F, 6px 3px #C62828, 9px 3px #FFD54F, 12px 3px #C62828,
-    3px 6px #C62828, 6px 6px #C62828, 9px 6px #C62828,
-    3px 9px #EF5350, 6px 9px #EF5350, 9px 9px #EF5350,
-    0 12px #EF5350, 3px 12px #EF5350, 6px 12px #EF5350, 9px 12px #EF5350, 12px 12px #EF5350,
-    6px 15px #EF5350,
-    3px 18px #C62828, 9px 18px #C62828;
+    3px -18px #C62828, 6px -18px #C62828, 9px -18px #C62828,
+    0 -15px #C62828, 3px -15px #FFD54F, 6px -15px #C62828, 9px -15px #FFD54F, 12px -15px #C62828,
+    3px -12px #C62828, 6px -12px #C62828, 9px -12px #C62828,
+    3px -9px #EF5350, 6px -9px #EF5350, 9px -9px #EF5350,
+    0 -6px #EF5350, 3px -6px #EF5350, 6px -6px #EF5350, 9px -6px #EF5350, 12px -6px #EF5350,
+    6px -3px #EF5350,
+    3px 0 #C62828, 9px 0 #C62828;
   transform-origin: bottom left;
   animation: enemy-shrink 20s ease-in-out infinite;
 }
