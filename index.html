@@ -810,9 +810,9 @@ main {
 .mode-water .watering-can,
 .mode-water .water-stream { display: block; }
 
-/* tilted watering can — sits right above the boss's head */
+/* tilted watering can — sits right above the boss at center */
 .watering-can {
-  left: 14px; top: 30px;
+  left: 78px; top: 30px;
   width: 20px; height: 11px;
   background: #78909C;
   border-radius: 2px 2px 4px 4px;
@@ -842,16 +842,16 @@ main {
   background: transparent;
 }
 @keyframes can-hover {
-  0%     { left: 14px; top: 18px;  opacity: 0; }
-  12%    { left: 14px; top: 30px;  opacity: 1; }
-  64%    { left: 14px; top: 30px;  opacity: 1; }
-  72%    { left: 14px; top: 18px;  opacity: 0; }
+  0%     { left: 78px; top: 18px; opacity: 0; }
+  12%    { left: 78px; top: 30px; opacity: 1; }
+  52%    { left: 78px; top: 30px; opacity: 1; }
+  58%    { left: 78px; top: 18px; opacity: 0; }
   100%   { opacity: 0; }
 }
 
-/* short stream from spout straight down to the boss's head */
+/* short stream from spout down onto the boss */
 .water-stream {
-  left: 41px; top: 48px;
+  left: 105px; top: 48px;
   width: 3px; height: 36px;
   background: linear-gradient(to bottom, #1A73E8 0%, rgba(26,115,232,0.2) 100%);
   opacity: 0;
@@ -860,70 +860,83 @@ main {
 @keyframes stream-flow {
   0%,15%  { opacity: 0; height: 6px; }
   18%     { opacity: 0.85; height: 36px; }
-  62%     { opacity: 0.85; height: 36px; }
-  66%     { opacity: 0; height: 6px; }
+  50%     { opacity: 0.85; height: 36px; }
+  55%     { opacity: 0; height: 6px; }
   100%    { opacity: 0; }
 }
 
-.mode-water .bot-1 { animation: water-boss 20s ease-in-out infinite; }
-.mode-water .bot-2 { animation: popcorn-2 20s ease-in-out infinite; }
-.mode-water .bot-3 { animation: popcorn-3 20s ease-in-out infinite; }
-.mode-water .bot-4 { animation: popcorn-4 20s ease-in-out infinite; }
-.mode-water .bot-5 { animation: popcorn-5 20s ease-in-out infinite; }
+.mode-water .bot-1 { animation: water-boss 20s linear infinite; }
+.mode-water .bot-2 { animation: popcorn-left-far 20s ease-in-out infinite; }
+.mode-water .bot-3 { animation: popcorn-left-near 20s ease-in-out infinite; }
+.mode-water .bot-4 { animation: popcorn-right-near 20s ease-in-out infinite; }
+.mode-water .bot-5 { animation: popcorn-right-far 20s ease-in-out infinite; }
 
-/* boss walks in, stands under the stream, walks off left */
+/* boss: enter center, get wet, shake, stay, exit with the group */
 @keyframes water-boss {
-  0%   { left: -24px; bottom: 4px; }
-  10%  { left: 36px;  bottom: 4px; }
-  85%  { left: 36px;  bottom: 4px; }
-  96%  { left: -30px; bottom: 4px; }
-  100% { left: -30px; bottom: 4px; }
+  0%     { left: -24px; }
+  10%    { left: 100px; }
+  /* wet phase (10–50%): standing still under the stream */
+  50%    { left: 100px; }
+  /* shake phase (50–60%): rapid left/right wobble */
+  51%    { left: 98px; }
+  52%    { left: 102px; }
+  53%    { left: 98px; }
+  54%    { left: 102px; }
+  55%    { left: 98px; }
+  56%    { left: 102px; }
+  57%    { left: 98px; }
+  58%    { left: 102px; }
+  59%    { left: 98px; }
+  60%    { left: 100px; }
+  85%    { left: 100px; }
+  96%    { left: -30px; }
+  100%   { left: -30px; }
 }
 
-/* clones pop OUT of the boss: start at boss x, arc up and land at spread spots */
-@keyframes popcorn-2 {
-  0%,22%   { left: 36px; bottom: 4px; transform: scale(0); }
-  23%      { left: 36px; bottom: 4px; transform: scale(0.3); }
-  26%      { left: 54px; bottom: 40px; transform: scale(1); }
-  30%      { left: 72px; bottom: 4px; transform: scale(1.25) scaleY(0.8); }
-  31.5%    { left: 72px; bottom: 10px; transform: scale(1); }
-  33%      { left: 72px; bottom: 4px; transform: scale(1); }
-  85%      { left: 72px; bottom: 4px; transform: scale(1); }
-  96%      { left: -30px; bottom: 4px; transform: scale(1); }
-  100%     { left: -30px; bottom: 4px; transform: scale(1); }
+/* all four clones pop out simultaneously at 60%, landing on both sides */
+@keyframes popcorn-left-far {
+  0%,59%  { left: 100px; bottom: 4px; transform: scale(0); }
+  60%     { left: 100px; bottom: 4px; transform: scale(0.3); }
+  63%     { left: 70px;  bottom: 44px; transform: scale(1); }
+  66%     { left: 34px;  bottom: 4px; transform: scale(1.25) scaleY(0.8); }
+  67.5%   { left: 34px;  bottom: 10px; transform: scale(1); }
+  69%     { left: 34px;  bottom: 4px; transform: scale(1); }
+  85%     { left: 34px;  bottom: 4px; transform: scale(1); }
+  96%     { left: -30px; bottom: 4px; transform: scale(1); }
+  100%    { left: -30px; bottom: 4px; transform: scale(1); }
 }
-@keyframes popcorn-3 {
-  0%,32%   { left: 36px; bottom: 4px; transform: scale(0); }
-  33%      { left: 36px; bottom: 4px; transform: scale(0.3); }
-  36%      { left: 72px; bottom: 52px; transform: scale(1); }
-  40%      { left: 108px; bottom: 4px; transform: scale(1.25) scaleY(0.8); }
-  41.5%    { left: 108px; bottom: 10px; transform: scale(1); }
-  43%      { left: 108px; bottom: 4px; transform: scale(1); }
-  85%      { left: 108px; bottom: 4px; transform: scale(1); }
-  96%      { left: 280px; bottom: 4px; transform: scale(1); }
-  100%     { left: 280px; bottom: 4px; transform: scale(1); }
+@keyframes popcorn-left-near {
+  0%,59%  { left: 100px; bottom: 4px; transform: scale(0); }
+  60%     { left: 100px; bottom: 4px; transform: scale(0.3); }
+  63%     { left: 85px;  bottom: 36px; transform: scale(1); }
+  66%     { left: 67px;  bottom: 4px; transform: scale(1.25) scaleY(0.8); }
+  67.5%   { left: 67px;  bottom: 10px; transform: scale(1); }
+  69%     { left: 67px;  bottom: 4px; transform: scale(1); }
+  85%     { left: 67px;  bottom: 4px; transform: scale(1); }
+  96%     { left: -30px; bottom: 4px; transform: scale(1); }
+  100%    { left: -30px; bottom: 4px; transform: scale(1); }
 }
-@keyframes popcorn-4 {
-  0%,42%   { left: 36px; bottom: 4px; transform: scale(0); }
-  43%      { left: 36px; bottom: 4px; transform: scale(0.3); }
-  46%      { left: 90px; bottom: 60px; transform: scale(1); }
-  50%      { left: 144px; bottom: 4px; transform: scale(1.25) scaleY(0.8); }
-  51.5%    { left: 144px; bottom: 10px; transform: scale(1); }
-  53%      { left: 144px; bottom: 4px; transform: scale(1); }
-  85%      { left: 144px; bottom: 4px; transform: scale(1); }
-  96%      { left: 280px; bottom: 4px; transform: scale(1); }
-  100%     { left: 280px; bottom: 4px; transform: scale(1); }
+@keyframes popcorn-right-near {
+  0%,59%  { left: 100px; bottom: 4px; transform: scale(0); }
+  60%     { left: 100px; bottom: 4px; transform: scale(0.3); }
+  63%     { left: 115px; bottom: 36px; transform: scale(1); }
+  66%     { left: 133px; bottom: 4px; transform: scale(1.25) scaleY(0.8); }
+  67.5%   { left: 133px; bottom: 10px; transform: scale(1); }
+  69%     { left: 133px; bottom: 4px; transform: scale(1); }
+  85%     { left: 133px; bottom: 4px; transform: scale(1); }
+  96%     { left: 280px; bottom: 4px; transform: scale(1); }
+  100%    { left: 280px; bottom: 4px; transform: scale(1); }
 }
-@keyframes popcorn-5 {
-  0%,52%   { left: 36px; bottom: 4px; transform: scale(0); }
-  53%      { left: 36px; bottom: 4px; transform: scale(0.3); }
-  56%      { left: 108px; bottom: 68px; transform: scale(1); }
-  60%      { left: 180px; bottom: 4px; transform: scale(1.25) scaleY(0.8); }
-  61.5%    { left: 180px; bottom: 10px; transform: scale(1); }
-  63%      { left: 180px; bottom: 4px; transform: scale(1); }
-  85%      { left: 180px; bottom: 4px; transform: scale(1); }
-  96%      { left: 280px; bottom: 4px; transform: scale(1); }
-  100%     { left: 280px; bottom: 4px; transform: scale(1); }
+@keyframes popcorn-right-far {
+  0%,59%  { left: 100px; bottom: 4px; transform: scale(0); }
+  60%     { left: 100px; bottom: 4px; transform: scale(0.3); }
+  63%     { left: 130px; bottom: 44px; transform: scale(1); }
+  66%     { left: 166px; bottom: 4px; transform: scale(1.25) scaleY(0.8); }
+  67.5%   { left: 166px; bottom: 10px; transform: scale(1); }
+  69%     { left: 166px; bottom: 4px; transform: scale(1); }
+  85%     { left: 166px; bottom: 4px; transform: scale(1); }
+  96%     { left: 280px; bottom: 4px; transform: scale(1); }
+  100%    { left: 280px; bottom: 4px; transform: scale(1); }
 }
 
 /* ============================================
@@ -1166,8 +1179,6 @@ footer .auth {
     <div class="section-heading small">// CORE DIRECTIVE</div>
     <p class="directive-text">research first. backtest everything. deploy what survives.</p>
   </section>
-
-  <hr class="divider">
 
   <section class="bot-section">
     <div class="bot-float">
