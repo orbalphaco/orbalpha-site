@@ -233,8 +233,10 @@ main {
   animation: idle 1.5s ease-in-out infinite;
 }
 
-/* slots and props hidden until a mode reveals them */
-.bot { position: absolute; display: none; }
+/* slots and props hidden until a mode reveals them.
+   will-change forces every bot onto its own compositor layer so
+   sub-pixel rendering is uniform across all bots */
+.bot { position: absolute; display: none; will-change: transform; }
 .prop { position: absolute; display: none; }
 
 @keyframes step { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
