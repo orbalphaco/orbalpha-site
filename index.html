@@ -454,39 +454,107 @@ main {
 }
 
 /* ============================================
-   MODE 3: SOFTWARE — bots typing, data flowing
+   MODE 3: SOFTWARE — backs to viewer, typing at a CPU screen
    ============================================ */
 .mode-software .bot-1,
 .mode-software .bot-2,
 .mode-software .bot-3,
 .mode-software .bot-4,
 .mode-software .bot-5,
-.mode-software .desk-1,
-.mode-software .desk-2,
-.mode-software .desk-3 { display: block; }
-.desk {
-  width: 22px; height: 2px; bottom: 22px;
-  background: #5F6368;
+.mode-software .cpu-screen { display: block; }
+
+/* back-facing sprites: same as front but blue eyes replaced with dark
+   so the back of the head is solid */
+.mode-software .bot-1 .bot-px-boss {
+  box-shadow:
+    3px -12px #C4900C, 6px -12px #C4900C, 9px -12px #C4900C,
+    3px -9px #202124, 6px -9px #202124, 9px -9px #202124,
+    0 -6px #202124, 3px -6px #202124, 6px -6px #202124, 9px -6px #202124, 12px -6px #202124,
+    3px -3px #202124, 6px -3px #202124, 9px -3px #202124,
+    3px 0 #5F6368, 6px 0 #5F6368, 9px 0 #5F6368;
 }
-.desk-1 { left: 28px; }
-.desk-2 { left: 99px; }
-.desk-3 { left: 170px; }
-.mode-software .bot-1 { left: 103px; bottom: 24px; animation: type-fast 0.35s ease-in-out infinite; }
-.mode-software .bot-2 { left: 32px; bottom: 24px; animation: type-fast 0.3s ease-in-out infinite; animation-delay: -0.1s; }
-.mode-software .bot-3 { left: 174px; bottom: 24px; animation: type-fast 0.32s ease-in-out infinite; animation-delay: -0.2s; }
-.mode-software .bot-4 { bottom: 4px; animation: courier-lr 4s linear infinite; }
-.mode-software .bot-5 { bottom: 4px; animation: courier-rl 5s linear infinite; }
-.mode-software .bot-4::before,
-.mode-software .bot-5::before {
-  content: ''; position: absolute; top: -4px; left: 3px;
-  width: 9px; height: 5px; background: #1A73E8; opacity: 0.6;
+.mode-software .bot-2 .bot-px,
+.mode-software .bot-3 .bot-px,
+.mode-software .bot-4 .bot-px,
+.mode-software .bot-5 .bot-px {
+  box-shadow:
+    3px -9px #202124, 6px -9px #202124, 9px -9px #202124,
+    0 -6px #202124, 3px -6px #202124, 6px -6px #202124, 9px -6px #202124, 12px -6px #202124,
+    3px -3px #202124, 6px -3px #202124, 9px -3px #202124,
+    3px 0 #5F6368, 6px 0 #5F6368, 9px 0 #5F6368;
 }
-@keyframes type-fast {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-1px); }
+
+/* big CPU screen above the bots, binary code flickering inside */
+.cpu-screen {
+  left: 20px; top: 8px;
+  width: 180px; height: 70px;
+  background: #0a0a0a;
+  border: 2px solid #5F6368;
+  padding: 4px;
+  box-sizing: border-box;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 8px;
+  line-height: 10px;
+  color: #4CAF50;
+  overflow: hidden;
+  animation: cpu-show 18s ease-in-out infinite;
+  opacity: 0;
 }
-@keyframes courier-lr { 0% { left: -18px; } 100% { left: 230px; } }
-@keyframes courier-rl { 0% { left: 230px; } 100% { left: -18px; } }
+.binary-line { white-space: nowrap; }
+.binary-line:nth-child(1) { animation: flicker 1.7s ease-in-out infinite; }
+.binary-line:nth-child(2) { animation: flicker 2.3s ease-in-out infinite; animation-delay: -0.3s; }
+.binary-line:nth-child(3) { animation: flicker 1.9s ease-in-out infinite; animation-delay: -0.6s; }
+.binary-line:nth-child(4) { animation: flicker 2.1s ease-in-out infinite; animation-delay: -0.9s; }
+.binary-line:nth-child(5) { animation: flicker 1.5s ease-in-out infinite; animation-delay: -1.2s; }
+.binary-line:nth-child(6) { animation: flicker 1.8s ease-in-out infinite; animation-delay: -0.4s; }
+
+@keyframes cpu-show {
+  0%, 8% { opacity: 0; }
+  12%, 87% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  40% { opacity: 0.35; }
+  60% { opacity: 1; }
+}
+
+/* five bots line up at the bottom, walking in then typing */
+.mode-software .bot-1 { animation: type-in-1 18s linear infinite; }
+.mode-software .bot-2 { animation: type-in-2 18s linear infinite; }
+.mode-software .bot-3 { animation: type-in-3 18s linear infinite; }
+.mode-software .bot-4 { animation: type-in-4 18s linear infinite; }
+.mode-software .bot-5 { animation: type-in-5 18s linear infinite; }
+@keyframes type-in-1 {
+  0%   { left: -24px; bottom: 4px; }
+  10%  { left: 30px;  bottom: 4px; }
+  87%  { left: 30px;  bottom: 4px; }
+  100% { left: -30px; bottom: 4px; }
+}
+@keyframes type-in-2 {
+  0%   { left: -24px; bottom: 4px; }
+  12%  { left: 60px;  bottom: 4px; }
+  87%  { left: 60px;  bottom: 4px; }
+  100% { left: -30px; bottom: 4px; }
+}
+@keyframes type-in-3 {
+  0%   { left: -24px; bottom: 4px; }
+  14%  { left: 100px; bottom: 4px; }
+  87%  { left: 100px; bottom: 4px; }
+  100% { left: 240px; bottom: 4px; }
+}
+@keyframes type-in-4 {
+  0%   { left: 240px; bottom: 4px; }
+  12%  { left: 140px; bottom: 4px; }
+  87%  { left: 140px; bottom: 4px; }
+  100% { left: 240px; bottom: 4px; }
+}
+@keyframes type-in-5 {
+  0%   { left: 240px; bottom: 4px; }
+  10%  { left: 180px; bottom: 4px; }
+  87%  { left: 180px; bottom: 4px; }
+  100% { left: 240px; bottom: 4px; }
+}
 
 /* ============================================
    MODE 4: HEAVY — bots carry big box together
@@ -1203,9 +1271,14 @@ footer .auth {
         <div class="prop ladder ladder-r"></div>
         <div class="prop rocket"></div>
         <div class="prop exhaust"></div>
-        <div class="prop desk desk-1"></div>
-        <div class="prop desk desk-2"></div>
-        <div class="prop desk desk-3"></div>
+        <div class="prop cpu-screen">
+          <div class="binary-line">10110010 11001010 01110101</div>
+          <div class="binary-line">01001110 11100100 10110011</div>
+          <div class="binary-line">11010110 01001011 10101001</div>
+          <div class="binary-line">10101110 00110101 11001100</div>
+          <div class="binary-line">11100010 10011011 01010110</div>
+          <div class="binary-line">00110101 11001010 10110011</div>
+        </div>
         <div class="prop heavy-box"></div>
         <div class="prop switch-base"></div>
         <div class="prop switch-lever"></div>
