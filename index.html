@@ -310,31 +310,55 @@ main {
   82%  { left: 106px; bottom: 4px; }
   100% { left: 240px; bottom: 4px; }
 }
-/* left-ladder climber: enter, climb up-down twice, exit */
-@keyframes ladder-climb-l {
-  0%   { left: -24px; bottom: 4px; }
-  10%  { left: 47px;  bottom: 4px; }
-  22%  { left: 47px;  bottom: 48px; }
-  32%  { left: 47px;  bottom: 4px; }
-  45%  { left: 47px;  bottom: 48px; }
-  58%  { left: 47px;  bottom: 4px; }
-  70%  { left: 47px;  bottom: 48px; }
-  82%  { left: 47px;  bottom: 4px; }
-  88%  { left: 47px;  bottom: 4px; }
-  100% { left: -24px; bottom: 4px; }
+/* climbers carry a small block above their head — visible only on the way up */
+.mode-ladders .bot-2::before,
+.mode-ladders .bot-3::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 3px;
+  width: 9px;
+  height: 4px;
+  background: #1A73E8;
+  animation: ladder-block 18s ease-in-out infinite;
+  opacity: 0;
 }
-/* right-ladder climber: enter from right, climb, exit right */
+@keyframes ladder-block {
+  0%, 10%   { opacity: 0; }
+  12%, 26%  { opacity: 1; }
+  30%, 46%  { opacity: 0; }
+  48%, 62%  { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+/* left-ladder climber: enter, pickup, up, drop, down, repeat, exit */
+@keyframes ladder-climb-l {
+  0%    { left: -24px; bottom: 4px; }
+  8%    { left: 47px;  bottom: 4px; }
+  10%   { left: 47px;  bottom: 4px; }
+  26%   { left: 47px;  bottom: 48px; }
+  30%   { left: 47px;  bottom: 48px; }
+  44%   { left: 47px;  bottom: 4px; }
+  46%   { left: 47px;  bottom: 4px; }
+  62%   { left: 47px;  bottom: 48px; }
+  66%   { left: 47px;  bottom: 48px; }
+  82%   { left: 47px;  bottom: 4px; }
+  92%   { left: 47px;  bottom: 4px; }
+  100%  { left: -24px; bottom: 4px; }
+}
+/* right-ladder climber: same routine, mirrored entry/exit */
 @keyframes ladder-climb-r {
-  0%   { left: 240px; bottom: 4px; }
-  10%  { left: 167px; bottom: 4px; }
-  22%  { left: 167px; bottom: 48px; }
-  32%  { left: 167px; bottom: 4px; }
-  45%  { left: 167px; bottom: 48px; }
-  58%  { left: 167px; bottom: 4px; }
-  70%  { left: 167px; bottom: 48px; }
-  82%  { left: 167px; bottom: 4px; }
-  88%  { left: 167px; bottom: 4px; }
-  100% { left: 240px; bottom: 4px; }
+  0%    { left: 240px; bottom: 4px; }
+  8%    { left: 167px; bottom: 4px; }
+  10%   { left: 167px; bottom: 4px; }
+  26%   { left: 167px; bottom: 48px; }
+  30%   { left: 167px; bottom: 48px; }
+  44%   { left: 167px; bottom: 4px; }
+  46%   { left: 167px; bottom: 4px; }
+  62%   { left: 167px; bottom: 48px; }
+  66%   { left: 167px; bottom: 48px; }
+  82%   { left: 167px; bottom: 4px; }
+  92%   { left: 167px; bottom: 4px; }
+  100%  { left: 240px; bottom: 4px; }
 }
 @keyframes stroll-lr { 0% { left: -24px; } 100% { left: 240px; } }
 @keyframes stroll-rl { 0% { left: 240px; } 100% { left: -24px; } }
