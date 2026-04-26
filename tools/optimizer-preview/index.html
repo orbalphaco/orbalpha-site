@@ -506,7 +506,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="./assets/index-C0jic7VW.js"></script>
+    <script type="module" crossorigin src="./assets/index-Bz3SDyAi.js"></script>
   </head>
   <body>
     <header>
@@ -547,7 +547,7 @@
       <section id="section-config">
         <h2>2. Configuration</h2>
         <div class="config-grid">
-          <label>
+          <label style="grid-column: 1 / -1;">
             Asset
             <select id="input-asset"></select>
             <div id="manual-tick-wrap" class="hidden" style="margin-top: 8px;">
@@ -557,27 +557,40 @@
             </div>
           </label>
           <label>
-            Target Risk ($)
-            <input type="number" id="input-target-risk" min="0" step="10" value="250" />
+            Max Risk Per Trade ($)
+            <input type="number" id="input-max-risk" min="1" step="10" value="350" />
           </label>
           <label>
-            Max Risk Per Trade ($)
-            <input type="number" id="input-max-risk" min="0" step="10" value="350" />
+            Target Risk ($)
+            <input type="number" id="input-target-risk" min="1" step="10" value="250" />
+          </label>
+          <label>
+            Initial Capital ($)
+            <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
           </label>
           <label>
             Max Contracts
             <input type="number" id="input-max-contracts" min="1" step="1" value="40" />
           </label>
           <label>
+            Min Trades
+            <input type="number" id="input-min-trades" min="1" step="1" value="25" />
+          </label>
+          <label>
             Phase 1 Samples
             <input type="number" id="input-phase1" min="100" step="100" value="2000" />
           </label>
           <label>
-            Min Trades
-            <input type="number" id="input-min-trades" min="1" step="1" value="10" />
+            Test Window From
+            <input type="date" id="input-trade-from" />
+          </label>
+          <label>
+            Test Window To
+            <input type="date" id="input-trade-to" />
           </label>
         </div>
-        <p class="hint" style="margin-top: 12px; margin-bottom: 0;">All results use a $0 baseline for uniform comparison.</p>
+        <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Test Window bounds are NY wall-clock dates, inclusive; bars outside the window are used for warmup but don't generate trades.</p>
+        <p class="hint" style="margin-top: 6px; margin-bottom: 0;">Matching this window to a Pine Strategy Tester range does not guarantee bit-exact parity in the first ~3 weeks of the window. Pine's indicators get their warmup depth from whatever chart history is loaded, while Optimizer warms from the full Daily Override. The difference is warmup-depth asymmetry, not engine drift.</p>
 
         <details class="weights-section">
           <summary>SCORING WEIGHTS (ADVANCED)</summary>
@@ -648,9 +661,9 @@
           <div class="methodology-body">
             <p><strong>Phase 1 — Explore.</strong> The optimizer draws random configurations across ~82 parameter dimensions and runs the certified JS engine on your data for each one. This is the exploration phase: it samples widely to find promising regions of the parameter space.</p>
             <p><strong>Phase 2 — Refine.</strong> The top 5 configurations from Phase 1 are used as seeds. For each seed, the optimizer expands ±1-step neighbors across every parameter dimension and re-tests them. This locks in the best variant of each promising region.</p>
-            <p><strong>Scoring.</strong> Each configuration is scored as a weighted composite. Default weights: PnL (40%), Profit Factor (15%), Win Rate (10%), Drawdown Penalty (15%), Trade Count (10%), Expectancy (10%). Weights are user-configurable in Section 2 (Scoring Weights — Advanced); the six values must sum to 1.00. Values are min-max normalized within the eligible pool (configs with at least the configured Min Trades).</p>
+            <p><strong>Scoring.</strong> Each configuration is scored as a weighted composite. Weights: PnL (40%), Profit Factor (15%), Win Rate (10%), Drawdown Penalty (15%), Trade Count (10%), Expectancy (10%). The drawdown term uses percent-of-peak-equity, which is approximately scale-invariant across Initial Capitals well above peak profits — at materially different capital sizes the rank order of configs with similar dollar drawdowns can shift slightly. Values are min-max normalized within the eligible pool (configs with at least the configured Min Trades).</p>
             <p><strong>Trade-list dedup.</strong> Distinct parameter combinations often produce identical trade lists. After scoring, configurations whose trades match exactly (same entry/exit times and prices) are collapsed into a single representative — the highest-scoring one — with the parameter ranges across the collapsed variants surfaced in the config block. The "N variants collapsed" badge indicates how many duplicates were merged.</p>
-            <p><strong>Reading the numbers.</strong> PnL and Max Drawdown are in dollars at a starting balance of $0 so all configs share the same baseline. Profit Factor is gross profit / gross loss, capped at 10.0 (displayed as ≥10.0 when the cap binds) so configurations with very small loss totals don't dominate scoring. Expectancy is average net PnL per trade. Trade Count is included in the composite to reward configs with enough activity to be statistically meaningful.</p>
+            <p><strong>Reading the numbers.</strong> PnL and Max Drawdown are reported in dollars and are scale-invariant — they don't depend on Initial Capital. MDD % and the equity curves are computed against your Initial Capital: each curve starts at Initial Capital and accumulates net PnL trade-by-trade, and MDD % is the worst peak-to-trough drop divided by the peak equity at the start of that drop. Composite scoring uses the %-of-peak drawdown term (min-max normalized across the eligible config pool that meets Min Trades). Profit Factor is gross profit / gross loss, capped at 10.0 (displayed as ≥10.0 when the cap binds) so configurations with very small loss totals don't dominate scoring. Expectancy is average net PnL per trade. Trade Count is included in the composite to reward configs with enough activity to be statistically meaningful.</p>
           </div>
         </details>
       </section>
