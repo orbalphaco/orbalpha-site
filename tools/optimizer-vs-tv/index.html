@@ -14,7 +14,7 @@ body {
   min-height: 100vh; display: flex; flex-direction: column;
 }
 .system-bar {
-  background: #D3E3FD; display: flex; justify-content: space-between;
+  background: #D1E3FD; display: flex; justify-content: space-between;
   align-items: center; padding: 14px 32px;
 }
 .system-bar-left { display: flex; align-items: center; gap: 12px; }
@@ -71,7 +71,7 @@ main {
 .disclaimer-box p { font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 10px; }
 .disclaimer-box a { color: #1A73E8; text-decoration: none; font-size: 13px; }
 footer {
-  background: #D3E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
+  background: #D1E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
 }
 .footer-row { display: flex; justify-content: space-between; align-items: center; }
 .footer-links { margin-top: 8px; }
@@ -133,9 +133,7 @@ footer .auth { color: #5F6368; }
 
   <p class="body-text">The mechanism is rooted in how Pine Script accesses higher-timeframe data. Strategies like ORB/ORF use daily-bar lookbacks (e.g., the previous 5 days' high to compute a stretch range). Pine Script accesses these via <code>request.security()</code> calls.</p>
 
-  <p class="body-text">By default in Pine v5+, <code>request.security()</code> uses <code>barmerge.lookahead_off</code> semantics. From <a href="https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/" target="_blank" rel="noopener">TradingView's official Pine Script documentation</a>:</p>
-
-  <blockquote class="quote">"This method returns data that is up to one HTF bar 'late', and is thus not subject to change."</blockquote>
+  <p class="body-text">By default in Pine v5+, <code>request.security()</code> uses <code>barmerge.lookahead_off</code> semantics, which effectively returns historical-timeframe data with a one-bar lag relative to the current bar. (See <a href="https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/" target="_blank" rel="noopener">TradingView's official Pine Script documentation on other timeframes and data</a>.)</p>
 
   <p class="body-text">In practice: a 5-day stretch lookback functionally requires 6 daily bars to produce a fully populated value at the start of a backtest window. Pine Script's broker emulator (the engine that simulates trades) does not wait for this warmup &mdash; it fires entry orders as soon as conditions evaluate true. <strong>TradingView's Strategy Tester display, however, suppresses those early trades.</strong></p>
 
@@ -193,7 +191,7 @@ footer .auth { color: #5F6368; }
 
   <ul class="body-list">
     <li>TradingView Pine Script &mdash; Other timeframes and data: <a href="https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/" target="_blank" rel="noopener">tradingview.com/pine-script-docs/concepts/other-timeframes-and-data</a></li>
-    <li>TradingView Strategy Tester documentation: <a href="https://www.tradingview.com/support/solutions/43000764138-tradingview-strategy-report-how-to-start/" target="_blank" rel="noopener">tradingview.com/support/solutions/43000764138</a></li>
+    <li>TradingView Strategy Tester documentation: <a href="https://www.tradingview.com/support/solutions/43000764138-tradingview-strategy-tester-how-to-start/" target="_blank" rel="noopener">tradingview.com/support/solutions/43000764138</a></li>
     <li>ORBAlpha v2.3.2 production indicator on TradingView publisher</li>
   </ul>
 
