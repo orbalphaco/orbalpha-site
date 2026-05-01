@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — Why Optimizer Counts May Differ from TradingView</title>
+<meta name="description" content="why ORBAlpha Optimizer trade counts and PnL may differ from TradingView's Strategy Tester display, and why the Optimizer's numbers are the ones that match live execution.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'%3E%3Cg stroke='%23DADCE0' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12,50 L12,12 L50,12'/%3E%3Cpath d='M270,12 L308,12 L308,50'/%3E%3Cpath d='M12,270 L12,308 L50,308'/%3E%3Cpath d='M270,308 L308,308 L308,270'/%3E%3C/g%3E%3Ccircle cx='160' cy='160' r='100' fill='none' stroke='%23202124' stroke-width='24'/%3E%3Ctext x='172' y='228' font-family='Georgia,serif' font-style='italic' font-size='108' fill='%231A73E8'%3E%CE%B1%3C/text%3E%3C/svg%3E">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background: #ECEEF1; color: #202124;
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.system-bar {
+  background: #D3E3FD; display: flex; justify-content: space-between;
+  align-items: center; padding: 14px 32px;
+}
+.system-bar-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark { width: 36px; height: 36px; flex-shrink: 0; }
+.system-id { font-weight: bold; font-size: 15px; color: #202124; }
+.system-sub { font-size: 12px; color: #5F6368; }
+.back-link { font-size: 12px; color: #1A73E8; text-decoration: none; }
+main {
+  flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 32px;
+}
+.section-heading {
+  font-size: 22px; font-weight: bold; color: #202124; margin-bottom: 16px;
+}
+.section-heading.small { font-size: 16px; margin-top: 32px; }
+.body-text {
+  font-size: 14px; color: #202124; line-height: 1.7; margin-bottom: 16px;
+}
+.body-text a { color: #1A73E8; text-decoration: none; }
+.body-text a:hover { text-decoration: underline; }
+.body-text code, .data-table code, .quote code {
+  font-family: 'Courier New', Courier, monospace;
+  background: #fff; border: 1px solid #DADCE0;
+  padding: 1px 5px; font-size: 13px;
+}
+.body-text strong { font-weight: bold; }
+.body-text em { font-style: italic; color: #5F6368; }
+.body-list {
+  font-size: 14px; color: #202124; line-height: 1.7;
+  margin: 0 0 16px 22px;
+}
+.body-list li { margin-bottom: 6px; }
+.body-list a { color: #1A73E8; text-decoration: none; }
+.body-list a:hover { text-decoration: underline; }
+.data-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0 24px 0;
+  font-size: 13px; background: #fff;
+}
+.data-table th, .data-table td {
+  text-align: left; padding: 10px 14px; border: 1px solid #DADCE0;
+}
+.data-table th {
+  background: #f8f9fa; font-weight: bold; color: #202124;
+}
+.quote {
+  margin: 16px 0 20px 0; padding: 14px 20px;
+  border-left: 3px solid #1A73E8; background: #f8f9fa;
+  font-size: 14px; color: #202124; line-height: 1.7;
+}
+.disclaimer-box {
+  margin-top: 36px; padding: 20px; border-left: 3px solid #DADCE0;
+  background: #f8f9fa;
+}
+.disclaimer-box .section-heading.small { margin-top: 0; }
+.disclaimer-box p { font-size: 13px; color: #5F6368; line-height: 1.6; margin-bottom: 10px; }
+.disclaimer-box a { color: #1A73E8; text-decoration: none; font-size: 13px; }
+footer {
+  background: #D3E3FD; padding: 14px 32px; font-size: 12px; color: #202124;
+}
+.footer-row { display: flex; justify-content: space-between; align-items: center; }
+.footer-links { margin-top: 8px; }
+.footer-links a { font-size: 13px; color: #1A73E8; text-decoration: none; }
+footer .auth { color: #5F6368; }
+@media (max-width: 600px) {
+  .system-bar { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 16px; }
+  main { padding: 32px 16px; }
+  footer { padding: 12px 16px; }
+  .data-table th, .data-table td { padding: 8px 10px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="system-bar">
+  <div class="system-bar-left">
+    <svg class="logo-mark" viewBox="36 36 260 260" xmlns="http://www.w3.org/2000/svg"><g stroke="#5F6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><path d="M12,50 L12,12 L50,12"/><path d="M270,12 L308,12 L308,50"/><path d="M12,270 L12,308 L50,308"/><path d="M270,308 L308,308 L308,270"/></g><g stroke="#5F6368" stroke-width="1.5" stroke-linecap="round" opacity="0.25"><line x1="160" y1="67" x2="160" y2="253"/><line x1="72" y1="160" x2="248" y2="160"/></g><line x1="160" y1="44" x2="160" y2="28" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="160" y1="276" x2="160" y2="292" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="160" x2="28" y2="160" stroke="#5F6368" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/><circle cx="160" cy="26" r="3" fill="#1A73E8"/><circle cx="160" cy="294" r="3" fill="#1A73E8"/><circle cx="26" cy="160" r="3" fill="#1A73E8"/><circle cx="160" cy="160" r="100" fill="none" stroke="#202124" stroke-width="24"/><text x="172" y="228" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="108" fill="#1A73E8">&#945;</text></svg>
+    <div>
+      <div class="system-id">ORBAlpha SYSTEM</div>
+      <div class="system-sub">tools / optimizer-vs-tv</div>
+    </div>
+  </div>
+  <a href="/" class="back-link">&larr; back</a>
+</div>
+
+<main>
+
+  <div class="section-heading">// WHY OPTIMIZER COUNTS MAY DIFFER FROM TRADINGVIEW'S STRATEGY TESTER</div>
+
+  <p class="body-text">When you compare ORBAlpha Optimizer results to a TradingView Strategy Tester run on the same configuration, you may notice the Optimizer reports more trades and a different cumulative PnL. This is expected, documented, and <strong>the Optimizer's numbers are the ones that match what your live trading system will execute.</strong></p>
+
+  <p class="body-text">This page explains why.</p>
+
+  <div class="section-heading small">// WHAT YOU'LL SEE</div>
+
+  <p class="body-text">Run a backtest on TradingView's Strategy Tester. Note the trade count and total PnL.</p>
+
+  <p class="body-text">Run the same configuration through the ORBAlpha Optimizer. The Optimizer's trade count will typically be <strong>higher</strong> by a small number of trades &mdash; and those extra trades cluster at the start of the test window.</p>
+
+  <p class="body-text">For example, a representative MES configuration over a 90-day window might show:</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Source</th><th>Trades</th><th>PnL</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>TradingView Strategy Tester display</td><td>44</td><td>$3,553</td></tr>
+      <tr><td>ORBAlpha Optimizer</td><td>49</td><td>$4,264</td></tr>
+      <tr><td>Pine Script's actual internal trade count</td><td>49</td><td>$4,264</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body-text">The 5-trade gap is not an Optimizer error. It's the difference between <strong>what Pine Script actually does</strong> and <strong>what TradingView's Strategy Tester shows you</strong>.</p>
+
+  <div class="section-heading small">// WHY THIS HAPPENS</div>
+
+  <p class="body-text">TradingView's Strategy Tester applies an undocumented warmup filter to its trade list display. This filter <strong>suppresses the display of early trades</strong> that Pine Script's strategy code actually fires.</p>
+
+  <p class="body-text">The mechanism is rooted in how Pine Script accesses higher-timeframe data. Strategies like ORB/ORF use daily-bar lookbacks (e.g., the previous 5 days' high to compute a stretch range). Pine Script accesses these via <code>request.security()</code> calls.</p>
+
+  <p class="body-text">By default in Pine v5+, <code>request.security()</code> uses <code>barmerge.lookahead_off</code> semantics. From <a href="https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/" target="_blank" rel="noopener">TradingView's official Pine Script documentation</a>:</p>
+
+  <blockquote class="quote">"This method returns data that is up to one HTF bar 'late', and is thus not subject to change."</blockquote>
+
+  <p class="body-text">In practice: a 5-day stretch lookback functionally requires 6 daily bars to produce a fully populated value at the start of a backtest window. Pine Script's broker emulator (the engine that simulates trades) does not wait for this warmup &mdash; it fires entry orders as soon as conditions evaluate true. <strong>TradingView's Strategy Tester display, however, suppresses those early trades.</strong></p>
+
+  <p class="body-text">The result: Pine fires N trades. TV displays N &minus; k trades, where k depends on the strategy's lookback parameters.</p>
+
+  <div class="section-heading small">// THE OPTIMIZER MATCHES PINE'S ACTUAL BEHAVIOR</div>
+
+  <p class="body-text">The ORBAlpha Optimizer engine is a JavaScript port of the v2.3.2 Pine indicator. We've verified its logical parity by:</p>
+
+  <ol class="body-list">
+    <li><strong>Trade-by-trade comparison</strong> against Pine Script's <code>strategy.closedtrades</code> count and per-trade <code>log.info()</code> output.</li>
+    <li><strong>Cross-asset confirmation</strong> on MES, MGC, and MCL &mdash; engine and Pine fire the same trades, with prices and PnL matching to the cent.</li>
+    <li><strong>Diagnostic Pine builds</strong> (v2.3.3-TEST and v2.3.4-TEST) that surface Pine's internal trade list directly, bypassing TV's display filter.</li>
+  </ol>
+
+  <p class="body-text">In every case, the Optimizer's output matches Pine's actual fired trades &mdash; not TV's filtered display.</p>
+
+  <div class="section-heading small">// WHY WE DON'T &ldquo;FIX&rdquo; THE OPTIMIZER TO MATCH TV</div>
+
+  <p class="body-text">Calibrating the Optimizer to mirror TV's display would mean <strong>deliberately hiding trades that your live system will execute.</strong> That's the opposite of what a backtesting tool should do.</p>
+
+  <p class="body-text"><strong>The Optimizer is calibrated to reality, not to TV's display.</strong></p>
+
+  <p class="body-text">Specifically:</p>
+
+  <ul class="body-list">
+    <li>Pine's broker emulator fires N trades.</li>
+    <li>Live webhook execution via TradersPost fires the same N trades.</li>
+    <li>TV's Strategy Tester display shows N &minus; k.</li>
+    <li>The Optimizer reports N.</li>
+  </ul>
+
+  <p class="body-text">If we suppressed those k trades to match TV, your Optimizer numbers would be <strong>less</strong> predictive of live trading outcomes. Configurations that look acceptable in TV's display might be carrying real PnL in those hidden early trades &mdash; PnL that your live system will realize. We'd rather show you the truth.</p>
+
+  <div class="section-heading small">// LIVE TRADING IMPLICATIONS</div>
+
+  <p class="body-text">If you trade ORBAlpha strategies via webhooks (TradersPost or equivalent), your fills will match Pine's actual <code>strategy.closedtrades</code> &mdash; which is what the Optimizer reports.</p>
+
+  <p class="body-text">This means:</p>
+
+  <ul class="body-list">
+    <li><strong>Optimizer PnL projections are the right reference for live performance.</strong></li>
+    <li>The early trades hidden by TV's display will fire in live trading.</li>
+    <li>Comparing live PnL against TV's display will show consistent overperformance early in any window.</li>
+    <li>Comparing live PnL against the Optimizer should show close alignment.</li>
+  </ul>
+
+  <p class="body-text">If you want a single number to use as your live-trading expectation, <strong>use the Optimizer's number, not TV's display.</strong></p>
+
+  <div class="section-heading small">// HOW TO VERIFY THIS YOURSELF</div>
+
+  <p class="body-text"><em>Coming soon: a step-by-step guide using our v2.3.4-TEST diagnostic indicator that exposes Pine's actual internal trade list. You'll be able to confirm the Optimizer's accuracy in your own TradingView account in about 10 minutes.</em></p>
+
+  <div class="section-heading small">// REFERENCE</div>
+
+  <ul class="body-list">
+    <li>TradingView Pine Script &mdash; Other timeframes and data: <a href="https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/" target="_blank" rel="noopener">tradingview.com/pine-script-docs/concepts/other-timeframes-and-data</a></li>
+    <li>TradingView Strategy Tester documentation: <a href="https://www.tradingview.com/support/solutions/43000764138-tradingview-strategy-report-how-to-start/" target="_blank" rel="noopener">tradingview.com/support/solutions/43000764138</a></li>
+    <li>ORBAlpha v2.3.2 production indicator on TradingView publisher</li>
+  </ul>
+
+  <p class="body-text">If you have questions or want to dig deeper, reach out via the contact form on <a href="https://orbalpha.com/">orbalpha.com</a>.</p>
+
+  <div class="disclaimer-box">
+    <div class="section-heading small">// DISCLAIMER</div>
+    <p>for educational and research purposes only. not financial, investment,
+or trading advice.</p>
+    <a href="/legal/">&rarr; full disclosure</a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-row">
+    <span>&copy; 2026 ORBAlpha.com</span>
+    <span class="auth">authorized access only</span>
+  </div>
+  <div class="footer-links"><a href="/legal/">/legal</a></div>
+</footer>
+
+</body>
+</html>
