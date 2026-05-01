@@ -313,6 +313,52 @@
       .stat-value.neg {
         color: #B3261E;
       }
+      .info-icon-btn {
+        font-family: inherit;
+        font-size: 12px;
+        line-height: 1;
+        color: #5F6368;
+        background: transparent;
+        border: 1px solid #5F6368;
+        padding: 1px 5px;
+        margin-left: 6px;
+        cursor: pointer;
+        border-radius: 0;
+        vertical-align: 1px;
+      }
+      .info-icon-btn:hover,
+      .info-icon-btn:focus-visible {
+        background: #D1E3FD;
+        color: #202124;
+        border-color: #202124;
+        outline: none;
+      }
+      .info-popover {
+        position: absolute;
+        z-index: 50;
+        max-width: 320px;
+        background: #FFFFFF;
+        border: 1px solid #202124;
+        border-left: 4px solid #1A73E8;
+        padding: 12px 14px;
+        font-size: 13px;
+        line-height: 1.5;
+        box-shadow: 0 2px 6px rgba(32, 33, 36, 0.18);
+      }
+      .info-popover p {
+        margin: 0 0 8px 0;
+      }
+      .info-popover p:last-of-type {
+        margin-bottom: 10px;
+      }
+      .info-popover a {
+        color: #1A73E8;
+        font-weight: 700;
+      }
+      .info-popover a:focus-visible {
+        outline: 2px solid #1A73E8;
+        outline-offset: 2px;
+      }
       .equity-holder {
         border: 1px solid #5F6368;
         background: #ECEEF1;
@@ -333,7 +379,8 @@
         gap: 8px;
         margin-bottom: 8px;
       }
-      .copy-btn {
+      .copy-btn,
+      .export-btn {
         font-size: 12px;
         padding: 6px 12px;
       }
@@ -460,6 +507,40 @@
       .hidden {
         display: none !important;
       }
+      .disclosure-banner {
+        background: #FFF8E1;
+        border: 1px solid #202124;
+        border-left: 4px solid #1A73E8;
+        margin-bottom: 20px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .disclosure-banner-body {
+        flex: 1;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .disclosure-banner-headline {
+        font-weight: 700;
+        display: block;
+        margin-bottom: 4px;
+      }
+      .disclosure-banner-dismiss {
+        background: transparent;
+        border: 1px solid #202124;
+        color: #202124;
+        padding: 2px 8px;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+        border-radius: 0;
+        flex-shrink: 0;
+      }
+      .disclosure-banner-dismiss:hover {
+        background: #D1E3FD;
+      }
       footer {
         border-top: 1px solid #202124;
         background: #D1E3FD;
@@ -506,7 +587,7 @@
         }
       }
     </style>
-    <script type="module" crossorigin src="./assets/index-KLt_BTTz.js"></script>
+    <script type="module" crossorigin src="./assets/index-DnC3W_lM.js"></script>
   </head>
   <body>
     <header>
@@ -634,6 +715,7 @@
         <div class="run-bar">
           <button id="run-btn" disabled>RUN OPTIMIZER</button>
           <button id="cancel-btn" class="hidden">CANCEL</button>
+          <button id="btn-new-sample" disabled title="Re-run the sweep with a new RNG seed for Phase 1 sampling">NEW SAMPLE</button>
           <span class="muted" id="run-status">Upload the 5-min OHLCV CSV to enable.</span>
         </div>
         <div id="progress-area" class="hidden">
@@ -645,6 +727,16 @@
           <div class="progress-stats" id="progress-stats">0 / 0 configs tested | Elapsed: 0s | Est. remaining: —</div>
         </div>
       </section>
+
+      <!-- Disclosure banner — sibling above results section, visible until session-dismissed -->
+      <div id="disclosure-banner" class="disclosure-banner">
+        <div class="disclosure-banner-body">
+          <span class="disclosure-banner-headline">Trade counts here may differ from TradingView's Strategy Tester display.</span>
+          We match Pine's actual broker-fired trades — what live trading executes.
+          <a href="/tools/optimizer-vs-tv/" target="_blank" rel="noopener">Learn more →</a>
+        </div>
+        <button type="button" id="disclosure-banner-dismiss" class="disclosure-banner-dismiss" aria-label="Dismiss disclosure banner">×</button>
+      </div>
 
       <!-- Section 4 — Results -->
       <section id="section-results" class="hidden">
