@@ -40,6 +40,25 @@
       .footer { background: #042C53; color: #E6F1FB; border-radius: 12px; flex-shrink: 0; height: 290px; padding: 0; display: flex; flex-direction: column; }
       .footer-placeholder { color: #5F7B97; font-size: 12px; }
 
+      /* === B2: v4 pipeline (replaces old progress-bar in Processor col) === */
+      .pipeline { padding: 4px 0 8px; display: flex; flex-direction: column; gap: 5px; }
+      .pipe-row { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 6px; background: #0C447C; transition: background 0.2s, opacity 0.2s; position: relative; overflow: hidden; }
+      .pipe-row.queued { opacity: 0.45; background: #0A2A4D; }
+      .pipe-row.queued .pipe-count { color: #5F7B97; }
+      .pipe-row.active { background: #185FA5; }
+      .pipe-row.active .pipe-name { color: #E6F1FB; font-weight: 500; }
+      .pipe-icon { width: 18px; height: 18px; border-radius: 50%; background: #1D9E75; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: #042C53; font-weight: 600; flex-shrink: 0; }
+      .pipe-row.queued .pipe-icon { background: #1A3A60; color: #5F7B97; }
+      .pipe-row.active .pipe-icon { background: #378ADD; color: #042C53; animation: pulse 1.1s ease-in-out infinite; }
+      .pipe-name { font-size: 12px; color: #B5D4F4; }
+      .pipe-count { font-size: 13px; font-weight: 500; color: #E6F1FB; font-variant-numeric: tabular-nums; }
+      .proc-status { display: flex; align-items: center; gap: 8px; padding: 8px 4px; font-size: 12px; }
+      .pulse { width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; animation: pulse 1.6s ease-in-out infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(1.4); } }
+      .proc-engine { font-size: 10px; color: #5F7B97; padding-top: 8px; margin-top: 8px; border-top: 0.5px solid #1A3A60; display: flex; justify-content: space-between; }
+      .proc-engine b { color: #B5D4F4; font-weight: 500; }
+      .proc-status .running-label { color: #378ADD; font-weight: 500; }
+
       /* === B1: v4 card list (replaces old .card / .stats-grid / etc.) === */
       .card-list-h { display: grid; grid-template-columns: 36px 1fr 1fr 28px; gap: 8px; align-items: center; padding: 0 10px 5px; font-size: 9px; color: #5F7B97; letter-spacing: 0.4px; text-transform: uppercase; flex-shrink: 0; border-bottom: 0.5px solid #0C447C; margin-bottom: 4px; }
       .cl-h-pnl, .cl-h-score { text-align: left; }
@@ -280,62 +299,6 @@
         margin-top: 4px;
       }
 
-      /* Processor pipeline rows (Phase A: hidden via #processor-default rule below) */
-      .pipeline-rows { display: flex; flex-direction: column; gap: 8px; }
-      .pipeline-row {
-        padding: 12px 14px;
-        border: 1px solid var(--border);
-        background: var(--bg-surface);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-      }
-      .pipeline-row-label { color: var(--text-dim); }
-      .pipeline-row-value { color: var(--text); font-weight: 700; }
-
-      /* Progress area */
-      #progress-area { margin-top: 0; }
-      .progress-phase {
-        font-weight: 700;
-        font-size: 12px;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        color: var(--text);
-      }
-      .progress-bar-outer {
-        width: 100%;
-        height: 22px;
-        border: 1px solid var(--border-strong);
-        background: var(--bg-surface);
-        position: relative;
-      }
-      .progress-bar-inner {
-        height: 100%;
-        background: var(--accent);
-        width: 0%;
-        transition: width 120ms linear;
-      }
-      .progress-percent {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--text);
-        text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-      }
-      .progress-stats {
-        color: var(--text-dim);
-        font-size: 11px;
-        margin-top: 8px;
-        letter-spacing: 0.5px;
-      }
-
       /* Results summary */
       .results-summary {
         margin-bottom: 14px;
@@ -487,11 +450,8 @@
       /* Utilities */
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
-
-      /* Pipeline rows hidden in Phase A; surfaced/animated in Phase B */
-      #processor-default { display: none; }
     </style>
-    <script type="module" crossorigin src="./assets/index-BqovZz0B.js"></script>
+    <script type="module" crossorigin src="./assets/index-DVZP9Fr5.js"></script>
   </head>
   <body>
     <div id="disclosure-banner" class="disclosure-banner">
@@ -668,22 +628,52 @@
             <!-- Processor col -->
             <div class="col" id="col-processor">
               <div class="col-h">Processor</div>
-              <div id="processor-default">
-                <div class="pipeline-rows">
-                  <div class="pipeline-row"><span class="pipeline-row-label">Sampled</span><span class="pipeline-row-value">—</span></div>
-                  <div class="pipeline-row"><span class="pipeline-row-label">Viable</span><span class="pipeline-row-value">—</span></div>
-                  <div class="pipeline-row"><span class="pipeline-row-label">Refined</span><span class="pipeline-row-value">—</span></div>
-                  <div class="pipeline-row"><span class="pipeline-row-label">Ranked</span><span class="pipeline-row-value">—</span></div>
+
+              <div class="pipeline" id="pipeline">
+                <div class="pipe-row queued" id="pipe-row-1">
+                  <span class="pipe-icon" id="pipe-icon-1">&check;</span>
+                  <span class="pipe-name">Sampled</span>
+                  <span class="pipe-count" id="pipe-count-1">—</span>
+                </div>
+                <div class="pipe-row queued" id="pipe-row-2">
+                  <span class="pipe-icon" id="pipe-icon-2">&check;</span>
+                  <span class="pipe-name">Viable</span>
+                  <span class="pipe-count" id="pipe-count-2">—</span>
+                </div>
+                <div class="pipe-row queued" id="pipe-row-3">
+                  <span class="pipe-icon" id="pipe-icon-3">&check;</span>
+                  <span class="pipe-name">Refined</span>
+                  <span class="pipe-count" id="pipe-count-3">—</span>
+                </div>
+                <div class="pipe-row queued" id="pipe-row-4">
+                  <span class="pipe-icon" id="pipe-icon-4">&check;</span>
+                  <span class="pipe-name">Ranked</span>
+                  <span class="pipe-count" id="pipe-count-4">—</span>
                 </div>
               </div>
-              <div id="progress-area" class="hidden">
-                <div class="progress-phase" id="progress-phase">Phase 1: Exploring…</div>
-                <div class="progress-bar-outer">
-                  <div class="progress-bar-inner" id="progress-bar-inner"></div>
-                  <div class="progress-percent" id="progress-percent">0%</div>
-                </div>
-                <div class="progress-stats" id="progress-stats">0 / 0 configs tested | Elapsed: 0s | Est. remaining: —</div>
+
+              <div class="proc-status">
+                <span class="pulse" id="proc-pulse" style="background:#1A3A60;"></span>
+                <span id="proc-status-text" style="color:#5F7B97;">Awaiting data</span>
               </div>
+
+              <!-- spacer pushes engine line to bottom -->
+              <div style="flex:1;"></div>
+
+              <div class="proc-engine">
+                <span>Engine</span><b data-engine-version>v—</b>
+              </div>
+
+              <!-- B2 KEEPS legacy progress-area + processor-default as hidden no-op stubs
+                   so any unforeseen main.ts reference doesn't crash. Cleanup pass
+                   can drop them later. -->
+              <div id="progress-area" class="hidden" hidden>
+                <span id="progress-phase"></span>
+                <span id="progress-percent"></span>
+                <div id="progress-bar-inner"></div>
+                <span id="progress-stats"></span>
+              </div>
+              <div id="processor-default" style="display:none;"></div>
             </div>
 
             <div class="arrow">
