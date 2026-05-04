@@ -34,7 +34,7 @@
       .hero { text-align: center; padding: 0 0 12px; flex-shrink: 0; }
       .hero h1 { margin: 0; font-size: 19px; font-weight: 500; color: #042C53; letter-spacing: -0.3px; }
 
-      .body { flex: 1; padding: 0 16px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; position: relative; }
+      .body { flex: 1; padding: 0 80px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; position: relative; }
       .flow { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap: 6px; position: relative; flex: 1; min-height: 0; }
       .col { background: #042C53; color: #E6F1FB; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
       .col-h { font-size: 11px; font-weight: 500; color: #85B7EB; letter-spacing: 0.4px; margin: 0 0 9px; padding-bottom: 6px; border-bottom: 0.5px solid #185FA5; flex-shrink: 0; }
@@ -189,7 +189,10 @@
       a:hover { text-decoration: underline; }
 
       /* ===== Inner col layout helpers (Phase A only — Phase B will redo) ===== */
-      .col-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+      .col-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-right: 12px; }
+      .col-scroll::-webkit-scrollbar { width: 5px; }
+      .col-scroll::-webkit-scrollbar-thumb { background: #185FA5; border-radius: 3px; }
+      .col-scroll::-webkit-scrollbar-track { background: transparent; }
       .col-foot {
         margin-top: 8px;
         padding-top: 10px;
@@ -278,7 +281,8 @@
       .hint { font-size: 12px; margin: 0 0 12px 0; }
 
       /* Upload cells */
-      .upload-row { display: flex; flex-direction: column; gap: 12px; }
+      .upload-row { display: flex; flex-direction: row; gap: 10px; align-items: stretch; }
+      .upload-row > .upload-cell { flex: 1 1 0; min-width: 0; }
       .upload-cell {
         border: 2px dashed var(--border-strong);
         padding: 14px;
@@ -532,7 +536,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-Bsen9elx.js"></script>
+    <script type="module" crossorigin src="./assets/index-D1IdKl0D.js"></script>
   </head>
   <body>
     <div id="disclosure-banner" class="disclosure-banner">
