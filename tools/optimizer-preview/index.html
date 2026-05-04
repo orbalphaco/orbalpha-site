@@ -5,7 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ORBAlpha Settings Optimizer</title>
     <style>
-      /* ===== v4 frame tokens ===== */
+      /* ===== v4 frame CSS — embedded verbatim from Phase A REDO prompt. Do not modify. ===== */
+      html, body { height: 100%; }
+      body { margin: 0; padding: 12px 16px 14px; background: #F4F2EC; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2C2C2A; overflow: hidden; box-sizing: border-box; }
+
+      .frame { max-width: 1280px; height: calc(100vh - 70px); margin: 0 auto; background: #E6F1FB; border-radius: 16px; overflow: hidden; display: flex; }
+      .sb { width: 56px; background: #DFEBF7; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 14px; flex-shrink: 0; border-right: 0.5px solid #C5D9EC; }
+      .sb-icon { width: 30px; height: 30px; cursor: pointer; color: #042C53; display: flex; align-items: center; justify-content: center; border-radius: 6px; position: relative; }
+      .sb-icon:hover { background: #C5D9EC; }
+      .sb-icon svg { width: 20px; height: 20px; stroke: #042C53; fill: none; stroke-width: 1.6; }
+      .sb-icon[data-tip]::after { content: attr(data-tip); position: absolute; left: 38px; top: 50%; transform: translateY(-50%); background: #042C53; color: #E6F1FB; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 100; }
+      .sb-icon[data-tip]:hover::after { opacity: 1; }
+      .sb-spacer { flex: 1; }
+
+      .main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px 8px; flex-shrink: 0; }
+      .topbar-l { display: flex; align-items: center; gap: 10px; }
+      .topbar-logo { font-size: 17px; font-weight: 500; color: #042C53; letter-spacing: -0.2px; }
+      .free-pill { font-size: 10px; padding: 3px 9px; background: #EAF3DE; color: #3B6D11; border-radius: 999px; font-weight: 500; letter-spacing: 0.3px; }
+      .topbar-r { display: flex; gap: 8px; align-items: center; }
+      .topbar-r .op-btn { padding: 6px 14px; font-size: 13px; background: transparent; color: #042C53; border: 0.5px solid #042C53; border-radius: 8px; cursor: pointer; font-family: inherit; }
+      .topbar-r .op-btn.op-primary { background: #042C53; color: #E6F1FB; }
+
+      .hero { text-align: center; padding: 0 0 12px; flex-shrink: 0; }
+      .hero h1 { margin: 0; font-size: 19px; font-weight: 500; color: #042C53; letter-spacing: -0.3px; }
+
+      .body { flex: 1; padding: 0 16px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; position: relative; }
+      .flow { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap: 6px; position: relative; flex: 1; min-height: 0; }
+      .col { background: #042C53; color: #E6F1FB; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+      .col-h { font-size: 11px; font-weight: 500; color: #85B7EB; letter-spacing: 0.4px; margin: 0 0 9px; padding-bottom: 6px; border-bottom: 0.5px solid #185FA5; flex-shrink: 0; }
+      .arrow { display: flex; align-items: center; justify-content: center; color: #85B7EB; opacity: 0.7; }
+      .arrow svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+      .footer { background: #042C53; color: #E6F1FB; border-radius: 12px; flex-shrink: 0; height: 290px; padding: 16px; display: flex; align-items: center; justify-content: center; }
+      .footer-placeholder { color: #5F7B97; font-size: 12px; }
+
+      /* ===== existing tokens preserved for inner CSS rules ===== */
       :root {
         --bg-deep: #0B1220;
         --bg-surface: #111827;
@@ -23,163 +58,38 @@
         --warning: #F59E0B;
       }
       *, *::before, *::after { box-sizing: border-box; }
-      html, body {
-        margin: 0;
-        padding: 0;
-        background: var(--bg-deep);
-        color: var(--text);
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 14px;
-        line-height: 1.45;
-        min-height: 100vh;
-      }
       a { color: var(--accent); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
-      /* ===== v4 frame: sidebar + main column ===== */
-      .app {
-        display: grid;
-        grid-template-columns: 56px 1fr;
-        min-height: 100vh;
-      }
-      .sidebar {
-        background: var(--bg-rail);
-        border-right: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 14px 0;
-        gap: 14px;
-      }
-      .sidebar-logo {
-        width: 32px;
-        height: 32px;
-        background: var(--accent);
-        color: #FFFFFF;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 1px;
-      }
-      .main-col {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-      }
-
-      /* ===== topbar ===== */
-      .topbar {
-        height: 56px;
-        border-bottom: 1px solid var(--border);
-        background: var(--bg-surface);
-        padding: 0 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-      }
-      .topbar-brand {
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 1.5px;
-        color: var(--text);
-        text-transform: uppercase;
-      }
-      .topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        font-size: 12px;
-      }
-      .topbar-right a { color: var(--text-dim); }
-      .topbar-right a:hover { color: var(--text); }
-      #rev-counter { color: var(--text-muted); font-size: 11px; }
-
-      /* ===== hero ===== */
-      .hero {
-        padding: 28px 24px 20px;
-        border-bottom: 1px solid var(--border);
-        background: var(--bg-surface);
-      }
-      .hero-title {
-        font-size: 22px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        margin: 0 0 6px 0;
-      }
-      .hero-sub {
-        color: var(--text-dim);
-        font-size: 13px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-      }
-
-      /* ===== 3-col flow ===== */
-      .flow {
-        display: grid;
-        grid-template-columns: 360px 1fr 400px;
-        gap: 16px;
-        padding: 16px 24px 24px;
-        background: var(--bg-deep);
-        align-items: stretch;
-      }
-      .col {
-        background: var(--bg-raised);
-        border: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        min-height: 600px;
-      }
-      .col-head {
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--border);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--text-dim);
-        background: var(--bg-surface);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .col-body {
-        flex: 1;
-        padding: 16px;
-        overflow-y: auto;
-        min-height: 0;
-      }
+      /* ===== Inner col layout helpers (Phase A only — Phase B will redo) ===== */
+      .col-scroll { flex: 1; overflow-y: auto; min-height: 0; }
       .col-foot {
-        padding: 14px 16px;
-        border-top: 1px solid var(--border);
-        background: var(--bg-surface);
+        margin-top: 8px;
+        padding-top: 10px;
+        border-top: 0.5px solid #185FA5;
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         align-items: center;
+        flex-shrink: 0;
       }
 
       /* Inputs col groups */
-      .input-section {
-        margin-bottom: 18px;
-      }
+      .input-section { margin-bottom: 18px; }
       .input-section:last-child { margin-bottom: 0; }
       .input-section-title {
         font-size: 11px;
         font-weight: 700;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: var(--text-dim);
+        color: #85B7EB;
         margin: 0 0 10px 0;
         padding-bottom: 6px;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 0.5px solid #185FA5;
       }
       details.collapsible {
         margin-bottom: 18px;
-        border-top: 1px solid var(--border);
+        border-top: 0.5px solid #185FA5;
         padding-top: 12px;
       }
       details.collapsible:last-child { margin-bottom: 0; }
@@ -189,7 +99,7 @@
         font-weight: 700;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: var(--text-dim);
+        color: #85B7EB;
         margin-bottom: 10px;
         list-style: none;
       }
@@ -197,12 +107,12 @@
       details.collapsible > summary::after {
         content: "+";
         float: right;
-        color: var(--text-muted);
+        color: #5F7B97;
         font-weight: 400;
       }
       details.collapsible[open] > summary::after { content: "−"; }
 
-      /* Form controls (dark) */
+      /* Form controls (dark theme inside dark navy col) */
       button {
         font-family: inherit;
         font-size: inherit;
@@ -237,20 +147,16 @@
         outline: 1px solid var(--accent);
         outline-offset: -1px;
       }
-      .muted, .hint { color: var(--text-dim); }
+      .muted, .hint { color: #94A3B8; }
       .hint { font-size: 12px; margin: 0 0 12px 0; }
 
-      /* Upload cells (dark) */
-      .upload-row {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+      /* Upload cells */
+      .upload-row { display: flex; flex-direction: column; gap: 12px; }
       .upload-cell {
         border: 2px dashed var(--border-strong);
         padding: 14px;
         cursor: pointer;
-        background: var(--bg-surface);
+        background: rgba(255,255,255,0.02);
         transition: background-color 120ms ease, border-color 120ms ease;
       }
       .upload-cell:hover { border-color: var(--accent); }
@@ -266,7 +172,7 @@
         font-size: 12px;
         letter-spacing: 1px;
         text-transform: uppercase;
-        color: var(--text);
+        color: #E6F1FB;
       }
       .upload-cell input[type="file"] { display: none; }
       .drop-zone-prompt {
@@ -312,7 +218,7 @@
         letter-spacing: 0;
       }
 
-      /* Run controls (Inputs col foot) */
+      /* Run controls */
       #run-btn {
         font-size: 13px;
         font-weight: 700;
@@ -346,12 +252,8 @@
         margin-top: 4px;
       }
 
-      /* Processor col */
-      .pipeline-rows {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
+      /* Processor pipeline rows (Phase A: hidden via #processor-default rule below) */
+      .pipeline-rows { display: flex; flex-direction: column; gap: 8px; }
       .pipeline-row {
         padding: 12px 14px;
         border: 1px solid var(--border);
@@ -366,6 +268,7 @@
       .pipeline-row-label { color: var(--text-dim); }
       .pipeline-row-value { color: var(--text); font-weight: 700; }
 
+      /* Progress area */
       #progress-area { margin-top: 0; }
       .progress-phase {
         font-weight: 700;
@@ -405,7 +308,7 @@
         letter-spacing: 0.5px;
       }
 
-      /* Outputs col */
+      /* Results summary */
       .results-summary {
         margin-bottom: 14px;
         font-size: 12px;
@@ -624,68 +527,47 @@
         padding: 5px 10px;
       }
 
-      /* Disclosure banner — top of body, above topbar */
+      /* Disclosure banner — at top of body, above frame. Compacted to fit
+         within v4 frame's 70px allowance (body padding 26px + banner ~36px). */
       .disclosure-banner {
-        background: rgba(245, 158, 11, 0.08);
-        border-bottom: 1px solid var(--warning);
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.55);
         border-left: 4px solid var(--warning);
-        padding: 12px 24px;
+        border-radius: 8px;
+        padding: 6px 12px;
         display: flex;
-        align-items: flex-start;
-        gap: 16px;
+        align-items: center;
+        gap: 12px;
+        margin: 0 auto 6px;
+        max-width: 1280px;
+        font-size: 12px;
+        line-height: 1.4;
       }
       .disclosure-banner-body {
         flex: 1;
-        font-size: 13px;
-        line-height: 1.55;
-        color: var(--text);
+        color: #2C2C2A;
       }
       .disclosure-banner-headline {
         font-weight: 700;
-        display: block;
-        margin-bottom: 4px;
+        margin-right: 4px;
       }
-      .disclosure-banner-body a { color: var(--accent); }
+      .disclosure-banner-body a { color: #1A73E8; font-weight: 600; }
       .disclosure-banner-dismiss {
         background: transparent;
-        border: 1px solid var(--text-dim);
-        color: var(--text-dim);
-        padding: 2px 8px;
+        border: 1px solid #5F7B97;
+        color: #2C2C2A;
+        padding: 0 8px;
         font-size: 14px;
         line-height: 1;
         cursor: pointer;
-        border-radius: 0;
+        border-radius: 4px;
         flex-shrink: 0;
       }
       .disclosure-banner-dismiss:hover {
-        background: var(--bg-raised);
-        color: var(--text);
+        background: rgba(0,0,0,0.06);
       }
 
-      /* Footer placeholder (Phase C will replace with tabs + equity) */
-      .footer-area {
-        border-top: 1px solid var(--border);
-        background: var(--bg-surface);
-        padding: 14px 24px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 11px;
-        color: var(--text-muted);
-        letter-spacing: 1px;
-        text-transform: uppercase;
-      }
-      .footer-area a { color: var(--text-dim); }
-
-      /* Utility */
-      .hidden { display: none !important; }
-
-      /* Pipeline rows hidden in Phase A; visible/animated in Phase B */
-      #processor-default { display: none; }
-
-      /* Methodology hidden in Phase A; surfaced via footer tabs in Phase C */
-      [hidden] { display: none !important; }
-
-      /* Methodology body styling preserved for when surfaced */
+      /* Methodology body styling preserved (Phase C surfaces via footer tabs) */
       details.methodology summary {
         cursor: pointer;
         font-weight: 700;
@@ -693,27 +575,12 @@
       details.methodology[open] summary { margin-bottom: 10px; }
       .methodology-body p { margin: 0 0 10px 0; }
 
-      /* ===== responsive ===== */
-      @media (max-width: 1100px) {
-        .flow { grid-template-columns: 1fr; }
-        .col { min-height: auto; }
-        .config-grid { grid-template-columns: 1fr; }
-        .weights-grid { grid-template-columns: 1fr; }
-      }
-      @media (max-width: 600px) {
-        .app { grid-template-columns: 0 1fr; }
-        .sidebar { display: none; }
-        .topbar {
-          padding: 0 14px;
-          height: auto;
-          flex-wrap: wrap;
-          padding-top: 10px;
-          padding-bottom: 10px;
-        }
-        .hero { padding: 18px 14px 12px; }
-        .hero-title { font-size: 18px; }
-        .flow { padding: 12px 14px; }
-      }
+      /* Utilities */
+      .hidden { display: none !important; }
+      [hidden] { display: none !important; }
+
+      /* Pipeline rows hidden in Phase A; surfaced/animated in Phase B */
+      #processor-default { display: none; }
     </style>
     <script type="module" crossorigin src="./assets/index-DbZ4mYDa.js"></script>
   </head>
@@ -727,141 +594,171 @@
       <button type="button" id="disclosure-banner-dismiss" class="disclosure-banner-dismiss" aria-label="Dismiss disclosure banner">×</button>
     </div>
 
-    <div class="app">
-      <aside class="sidebar" aria-label="Sidebar">
-        <div class="sidebar-logo">OA</div>
-      </aside>
+    <div class="frame">
 
-      <div class="main-col">
-        <header class="topbar">
-          <div class="topbar-brand">ORB/ORF <span data-engine-version>v2.3.2</span> · OPTIMIZER · PRO</div>
-          <div class="topbar-right">
-            <a href="/resources/operators-manual/" target="_blank" rel="noopener">How to Use</a>
-            <span id="rev-counter">rev —</span>
+      <div class="sb">
+        <div class="sb-icon" data-tip="Menu" role="button" tabindex="0" aria-label="Menu">
+          <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </div>
+        <div class="sb-icon" data-tip="New session" role="button" tabindex="0" aria-label="New session">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div class="sb-icon" data-tip="Indicators" role="button" tabindex="0" aria-label="Indicators">
+          <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+        </div>
+        <div class="sb-icon" data-tip="Tools" role="button" tabindex="0" aria-label="Tools">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 014 6.4l5.6 5.6-2.8 2.8-5.6-5.6a4 4 0 01-6.4-4 4 4 0 014-4z"/></svg>
+        </div>
+        <div class="sb-icon" data-tip="History" role="button" tabindex="0" aria-label="History">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <div class="sb-spacer"></div>
+        <div class="sb-icon" data-tip="Account" role="button" tabindex="0" aria-label="Account">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+        </div>
+      </div>
+
+      <div class="main">
+
+        <div class="topbar">
+          <div class="topbar-l">
+            <div class="topbar-logo">ORBAlpha</div>
+            <span class="free-pill">FREE PREVIEW</span>
+            <span style="font-size:10px;color:#5F7B97;letter-spacing:0.4px;">ORB/ORF · Pine <span data-engine-version>v2.3.2</span></span>
           </div>
-        </header>
+          <div class="topbar-r">
+            <span id="rev-counter" style="font-size:11px;color:#5F7B97;margin-right:6px;">rev —</span>
+            <button class="op-btn">Sign in</button>
+            <button class="op-btn op-primary">Get access</button>
+          </div>
+        </div>
 
-        <section class="hero">
-          <h1 class="hero-title">Settings Optimizer</h1>
-          <div class="hero-sub">ORB/ORF · Pine <span data-engine-version>v2.3.2</span> · ORBAlpha</div>
-        </section>
+        <div class="hero">
+          <h1>A trading system you can tune.</h1>
+        </div>
 
-        <div class="flow">
-          <!-- Inputs column -->
-          <section class="col col-inputs" aria-label="Inputs">
-            <div class="col-head"><span>Inputs</span></div>
-            <div class="col-body">
+        <div class="body">
 
-              <div class="input-section" id="section-upload">
-                <h3 class="input-section-title">1. Data</h3>
-                <p class="hint">Export both files from TradingView with Pine <span data-engine-version>v2.3.2</span> loaded.</p>
-                <div class="upload-row">
-                  <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="5-Min OHLCV Data — drop CSV or click to browse">
-                    <label for="file-ohlcv">5-Min OHLCV Data</label>
-                    <input type="file" id="file-ohlcv" accept=".csv" />
-                    <div class="drop-zone-prompt">Drop CSV here or tap to browse</div>
-                    <div class="upload-meta" id="meta-ohlcv">No file selected</div>
-                  </div>
-                  <div class="upload-cell" id="drop-daily" role="button" tabindex="0" aria-label="Daily Override CSV (optional) — drop CSV or click to browse">
-                    <label for="file-daily">DAILY OVERRIDE CSV (OPTIONAL)</label>
-                    <input type="file" id="file-daily" accept=".csv" />
-                    <div class="drop-zone-prompt">Drop CSV here or tap to browse</div>
-                    <div class="upload-meta" id="meta-daily">No file selected</div>
-                    <div class="hint" style="margin-top: 8px; margin-bottom: 0;">If omitted, daily bars are computed from the 5-min data. Provide for exact Pine Strategy Tester parity.</div>
-                  </div>
-                </div>
-              </div>
+          <div class="flow">
 
-              <details class="collapsible" id="section-config" open>
-                <summary>Configuration</summary>
-                <div class="config-grid">
-                  <label class="full">
-                    Asset
-                    <select id="input-asset"></select>
-                    <div id="manual-tick-wrap" class="hidden" style="margin-top: 8px;">
-                      <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Tick Dollar Value ($/Tick)</div>
-                      <input type="number" id="input-manual-tick-dollar" min="0.01" step="0.01" value="12.50" style="width: 100%;" />
-                      <div class="manual-tick-meta">ES=12.50 | NQ=5.00 | CL=10.00 | ZN=15.625 | 6E=12.50 | ZC=12.50</div>
+            <!-- Inputs / Configs col -->
+            <div class="col" id="col-inputs">
+              <div class="col-h">Inputs / Configs</div>
+              <div class="col-scroll">
+
+                <div class="input-section" id="section-upload">
+                  <h3 class="input-section-title">1. Data</h3>
+                  <p class="hint">Export both files from TradingView with Pine <span data-engine-version>v2.3.2</span> loaded.</p>
+                  <div class="upload-row">
+                    <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="5-Min OHLCV Data — drop CSV or click to browse">
+                      <label for="file-ohlcv">5-Min OHLCV Data</label>
+                      <input type="file" id="file-ohlcv" accept=".csv" />
+                      <div class="drop-zone-prompt">Drop CSV here or tap to browse</div>
+                      <div class="upload-meta" id="meta-ohlcv">No file selected</div>
                     </div>
-                  </label>
-                  <label>
-                    Max Risk Per Trade ($)
-                    <input type="number" id="input-max-risk" min="1" step="10" value="350" />
-                  </label>
-                  <label>
-                    Target Risk ($)
-                    <input type="number" id="input-target-risk" min="1" step="10" value="250" />
-                  </label>
-                  <label>
-                    Initial Capital ($)
-                    <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
-                  </label>
-                  <label>
-                    Max Contracts
-                    <input type="number" id="input-max-contracts" min="1" step="1" value="40" />
-                  </label>
-                  <label>
-                    Min Trades
-                    <input type="number" id="input-min-trades" min="1" step="1" value="25" />
-                  </label>
-                  <label>
-                    Phase 1 Samples
-                    <input type="number" id="input-phase1" min="100" step="100" value="2000" />
-                  </label>
-                  <label>
-                    Test Window From
-                    <input type="date" id="input-trade-from" />
-                  </label>
-                  <label>
-                    Test Window To
-                    <input type="date" id="input-trade-to" />
-                  </label>
+                    <div class="upload-cell" id="drop-daily" role="button" tabindex="0" aria-label="Daily Override CSV (optional) — drop CSV or click to browse">
+                      <label for="file-daily">DAILY OVERRIDE CSV (OPTIONAL)</label>
+                      <input type="file" id="file-daily" accept=".csv" />
+                      <div class="drop-zone-prompt">Drop CSV here or tap to browse</div>
+                      <div class="upload-meta" id="meta-daily">No file selected</div>
+                      <div class="hint" style="margin-top: 8px; margin-bottom: 0;">If omitted, daily bars are computed from the 5-min data. Provide for exact Pine Strategy Tester parity.</div>
+                    </div>
+                  </div>
                 </div>
-                <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Test Window bounds are NY wall-clock dates, inclusive; bars outside the window are used for warmup but don't generate trades.</p>
-                <p class="hint" style="margin-top: 6px; margin-bottom: 0;">Matching this window to a Pine Strategy Tester range does not guarantee bit-exact parity in the first ~3 weeks of the window. Pine's indicators get their warmup depth from whatever chart history is loaded, while Optimizer warms from the full Daily Override. The difference is warmup-depth asymmetry, not engine drift.</p>
-              </details>
 
-              <details class="collapsible">
-                <summary>Scoring Weights (Advanced)</summary>
-                <p class="hint" style="margin-top: 4px;">Tune the composite score weights. All six values must sum to 1.00.</p>
-                <div class="weights-grid">
-                  <label>PnL Weight
-                    <input type="number" id="input-weight-pnl" min="0" max="1" step="0.05" value="0.40" />
-                  </label>
-                  <label>Profit Factor Weight
-                    <input type="number" id="input-weight-pf" min="0" max="1" step="0.05" value="0.15" />
-                  </label>
-                  <label>Win Rate Weight
-                    <input type="number" id="input-weight-wr" min="0" max="1" step="0.05" value="0.10" />
-                  </label>
-                  <label>Drawdown Penalty Weight
-                    <input type="number" id="input-weight-dd" min="0" max="1" step="0.05" value="0.15" />
-                  </label>
-                  <label>Trade Count Weight
-                    <input type="number" id="input-weight-tc" min="0" max="1" step="0.05" value="0.10" />
-                  </label>
-                  <label>Expectancy Weight
-                    <input type="number" id="input-weight-exp" min="0" max="1" step="0.05" value="0.10" />
-                  </label>
-                </div>
-                <div class="weights-footer">
-                  <span id="weight-total" class="weight-ok">Total: 1.00</span>
-                  <button type="button" id="reset-weights-btn">Reset to Defaults</button>
-                </div>
-              </details>
+                <details class="collapsible" id="section-config" open>
+                  <summary>Configuration</summary>
+                  <div class="config-grid">
+                    <label class="full">
+                      Asset
+                      <select id="input-asset"></select>
+                      <div id="manual-tick-wrap" class="hidden" style="margin-top: 8px;">
+                        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Tick Dollar Value ($/Tick)</div>
+                        <input type="number" id="input-manual-tick-dollar" min="0.01" step="0.01" value="12.50" style="width: 100%;" />
+                        <div class="manual-tick-meta">ES=12.50 | NQ=5.00 | CL=10.00 | ZN=15.625 | 6E=12.50 | ZC=12.50</div>
+                      </div>
+                    </label>
+                    <label>
+                      Max Risk Per Trade ($)
+                      <input type="number" id="input-max-risk" min="1" step="10" value="350" />
+                    </label>
+                    <label>
+                      Target Risk ($)
+                      <input type="number" id="input-target-risk" min="1" step="10" value="250" />
+                    </label>
+                    <label>
+                      Initial Capital ($)
+                      <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
+                    </label>
+                    <label>
+                      Max Contracts
+                      <input type="number" id="input-max-contracts" min="1" step="1" value="40" />
+                    </label>
+                    <label>
+                      Min Trades
+                      <input type="number" id="input-min-trades" min="1" step="1" value="25" />
+                    </label>
+                    <label>
+                      Phase 1 Samples
+                      <input type="number" id="input-phase1" min="100" step="100" value="2000" />
+                    </label>
+                    <label>
+                      Test Window From
+                      <input type="date" id="input-trade-from" />
+                    </label>
+                    <label>
+                      Test Window To
+                      <input type="date" id="input-trade-to" />
+                    </label>
+                  </div>
+                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Test Window bounds are NY wall-clock dates, inclusive; bars outside the window are used for warmup but don't generate trades.</p>
+                  <p class="hint" style="margin-top: 6px; margin-bottom: 0;">Matching this window to a Pine Strategy Tester range does not guarantee bit-exact parity in the first ~3 weeks of the window. Pine's indicators get their warmup depth from whatever chart history is loaded, while Optimizer warms from the full Daily Override. The difference is warmup-depth asymmetry, not engine drift.</p>
+                </details>
 
+                <details class="collapsible">
+                  <summary>Scoring Weights (Advanced)</summary>
+                  <p class="hint" style="margin-top: 4px;">Tune the composite score weights. All six values must sum to 1.00.</p>
+                  <div class="weights-grid">
+                    <label>PnL Weight
+                      <input type="number" id="input-weight-pnl" min="0" max="1" step="0.05" value="0.40" />
+                    </label>
+                    <label>Profit Factor Weight
+                      <input type="number" id="input-weight-pf" min="0" max="1" step="0.05" value="0.15" />
+                    </label>
+                    <label>Win Rate Weight
+                      <input type="number" id="input-weight-wr" min="0" max="1" step="0.05" value="0.10" />
+                    </label>
+                    <label>Drawdown Penalty Weight
+                      <input type="number" id="input-weight-dd" min="0" max="1" step="0.05" value="0.15" />
+                    </label>
+                    <label>Trade Count Weight
+                      <input type="number" id="input-weight-tc" min="0" max="1" step="0.05" value="0.10" />
+                    </label>
+                    <label>Expectancy Weight
+                      <input type="number" id="input-weight-exp" min="0" max="1" step="0.05" value="0.10" />
+                    </label>
+                  </div>
+                  <div class="weights-footer">
+                    <span id="weight-total" class="weight-ok">Total: 1.00</span>
+                    <button type="button" id="reset-weights-btn">Reset to Defaults</button>
+                  </div>
+                </details>
+
+              </div>
+              <div class="col-foot" id="section-run">
+                <button id="run-btn" disabled>RUN OPTIMIZER</button>
+                <button id="cancel-btn" class="hidden">CANCEL</button>
+                <span id="run-status">Upload the 5-min OHLCV CSV to enable.</span>
+              </div>
             </div>
-            <div class="col-foot" id="section-run">
-              <button id="run-btn" disabled>RUN OPTIMIZER</button>
-              <button id="cancel-btn" class="hidden">CANCEL</button>
-              <span id="run-status">Upload the 5-min OHLCV CSV to enable.</span>
-            </div>
-          </section>
 
-          <!-- Processor column -->
-          <section class="col col-processor" aria-label="Processor">
-            <div class="col-head"><span>Processor</span></div>
-            <div class="col-body">
+            <div class="arrow">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </div>
+
+            <!-- Processor col -->
+            <div class="col" id="col-processor">
+              <div class="col-h">Processor</div>
               <div id="processor-default">
                 <div class="pipeline-rows">
                   <div class="pipeline-row"><span class="pipeline-row-label">Sampled</span><span class="pipeline-row-value">—</span></div>
@@ -879,28 +776,39 @@
                 <div class="progress-stats" id="progress-stats">0 / 0 configs tested | Elapsed: 0s | Est. remaining: —</div>
               </div>
             </div>
-          </section>
 
-          <!-- Outputs column -->
-          <section class="col col-outputs" aria-label="Outputs">
-            <div class="col-head"><span>Outputs</span></div>
-            <div class="col-body">
-              <section id="section-results" class="hidden">
-                <div class="results-summary" id="results-summary"></div>
-                <div class="cards-grid" id="cards-grid"></div>
-              </section>
+            <div class="arrow">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </div>
-            <div class="col-foot">
-              <button id="btn-new-sample" disabled title="Re-run the sweep with a new RNG seed for Phase 1 sampling">NEW SAMPLE</button>
-              <button id="btn-export-sweep" disabled title="Download all top-N cards as one JSON file (selection-stability snapshot)">EXPORT SWEEP</button>
+
+            <!-- Outputs / Cards col -->
+            <div class="col" id="col-outputs">
+              <div class="col-h">Outputs / Cards</div>
+              <div class="col-scroll">
+                <section id="section-results" class="hidden">
+                  <div class="results-summary" id="results-summary"></div>
+                  <div class="cards-grid" id="cards-grid"></div>
+                </section>
+              </div>
+              <div class="col-foot">
+                <button id="btn-new-sample" disabled title="Re-run the sweep with a new RNG seed for Phase 1 sampling">NEW SAMPLE</button>
+                <button id="btn-export-sweep" disabled title="Download all top-N cards as one JSON file (selection-stability snapshot)">EXPORT SWEEP</button>
+              </div>
             </div>
-          </section>
+
+          </div>
+
+          <div class="footer">
+            <span class="footer-placeholder">Run a sweep to see results.</span>
+          </div>
+
         </div>
 
-        <!-- Methodology — Option B: hidden wrapper inside main column, outside flow. Phase C surfaces via footer tabs. -->
+        <!-- Methodology preserved (Option B: hidden until Phase C surfaces it as a footer tab) -->
         <div id="methodology-content" hidden>
           <section id="section-methodology">
             <h2>5. Methodology</h2>
+            <p style="font-size:11px;color:#5F6368;">ORB/ORF · Pine <span data-engine-version>v2.3.2</span></p>
             <details class="methodology">
               <summary>How the hybrid search works</summary>
               <div class="methodology-body">
@@ -914,14 +822,11 @@
           </section>
         </div>
 
-        <div class="footer-area">
-          <div>ORBAlpha &copy; 2026</div>
-          <div>
-            <a href="/legal/">Legal</a> &nbsp;·&nbsp; <a href="/contact/">Contact</a>
-          </div>
-        </div>
       </div>
     </div>
+
+    <!-- existing 3 [data-engine-version] placeholders preserved.
+         ENGINE_VERSION DOM injection still works via main.ts. -->
 
   </body>
 </html>
