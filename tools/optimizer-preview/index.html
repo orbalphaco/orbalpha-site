@@ -112,6 +112,16 @@
       .lock { font-size: 9px; color: #5F7B97; }
 
       .tab-body { padding: 9px 14px 11px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+      /* Prompt 2: Tradelist tab body */
+      .tradelist-body { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+      .tradelist-actions { display: flex; gap: 12px; }
+      .tradelist-btn { display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: #0C447C; color: #E6F1FB; border: 0.5px solid #185FA5; border-radius: 7px; cursor: pointer; font-family: inherit; font-size: 12px; transition: background 0.15s, border-color 0.15s; }
+      .tradelist-btn:hover { background: #185FA5; border-color: #378ADD; }
+      .tradelist-btn:active { background: #042C53; }
+      .tradelist-btn .dl-ico { font-size: 14px; }
+      .tradelist-btn .dl-label { font-weight: 500; }
+      .tradelist-btn .dl-sub { color: #85B7EB; font-size: 11px; }
+      .tradelist-hint { font-size: 11px; color: #85B7EB; margin: 0; max-width: 480px; text-align: center; line-height: 1.5; }
       .stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 7px; flex-shrink: 0; }
       .stat-box { background: #0C447C; border-radius: 6px; padding: 5px 9px; }
       .stat-l { font-size: 9px; color: #85B7EB; margin-bottom: 1px; }
@@ -195,7 +205,7 @@
       .col-scroll::-webkit-scrollbar-thumb { background: #185FA5; border-radius: 3px; }
       .col-scroll::-webkit-scrollbar-track { background: transparent; }
       .col-foot {
-        margin-top: 8px;
+        margin-top: 6px;
         padding-top: 10px;
         border-top: 0.5px solid #185FA5;
         display: flex;
@@ -206,7 +216,7 @@
       }
 
       /* Inputs col groups */
-      .input-section { margin-bottom: 0; }
+      .input-section { margin-bottom: 8px; }
       .input-section-title {
         font-size: 11px;
         font-weight: 700;
@@ -218,9 +228,9 @@
         border-bottom: 0.5px solid #185FA5;
       }
       details.collapsible {
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         border-top: 0.5px solid #185FA5;
-        padding-top: 8px;
+        padding-top: 6px;
       }
       details.collapsible:last-child { margin-bottom: 0; }
       details.collapsible > summary {
@@ -539,7 +549,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-D1IdKl0D.js"></script>
+    <script type="module" crossorigin src="./assets/index-Brs0a1SJ.js"></script>
   </head>
   <body>
     <div id="disclosure-banner" class="disclosure-banner">
@@ -804,8 +814,8 @@
             <div class="tabs" id="footer-tabs">
               <div class="tab active" data-tab="stats">Stats</div>
               <div class="tab" data-tab="advanced">Advanced stats</div>
-              <div class="tab disabled" data-tab="tradelist">Tradelist <span class="lock">&#x1F512;</span></div>
-              <div class="tab disabled" data-tab="compare">Compare <span class="lock">&#x1F512;</span><span class="pro-pill">PRO</span></div>
+              <div class="tab" data-tab="tradelist">Tradelist</div>
+              <div class="tab disabled" data-tab="compare">Compare <span class="lock">&#x1F512;</span></div>
             </div>
 
             <div class="tab-body" id="tab-body" style="display:none;">
@@ -821,6 +831,21 @@
                 <svg class="equity-svg" id="ft-equity" viewBox="0 0 600 80" preserveAspectRatio="none"></svg>
                 <div class="eq-axis-row" id="eq-axis-row"></div>
                 <div class="eq-tip" id="eq-tip"></div>
+              </div>
+              <div class="tradelist-body" id="tradelist-body" style="display:none;">
+                <div class="tradelist-actions">
+                  <button class="tradelist-btn" id="dl-csv">
+                    <span class="dl-ico">⬇</span>
+                    <span class="dl-label">Download CSV</span>
+                    <span class="dl-sub" id="dl-csv-sub">— trades</span>
+                  </button>
+                  <button class="tradelist-btn" id="dl-json">
+                    <span class="dl-ico">⬇</span>
+                    <span class="dl-label">Download JSON</span>
+                    <span class="dl-sub" id="dl-json-sub">— trades</span>
+                  </button>
+                </div>
+                <p class="tradelist-hint">CSV opens in Excel directly. JSON preserves data types and includes card metadata for analyst consumption.</p>
               </div>
             </div>
 
