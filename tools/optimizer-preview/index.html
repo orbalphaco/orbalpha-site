@@ -104,7 +104,7 @@
       .footer-id-score b { color: #1D9E75; font-weight: 500; }
 
       .tabs { display: flex; border-bottom: 0.5px solid #185FA5; padding: 0 14px; flex-shrink: 0; }
-      .tab { padding: 7px 12px; font-size: 12px; color: #B5D4F4; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; display: flex; align-items: center; gap: 6px; user-select: none; }
+      .tab { padding: 7px 12px; font-size: 12px; color: #B5D4F4; cursor: pointer; border: 0; border-bottom: 2px solid transparent; margin-bottom: -0.5px; display: flex; align-items: center; gap: 6px; user-select: none; background: transparent; font-family: inherit; }
       .tab:hover:not(.disabled) { color: #E6F1FB; }
       .tab.active { color: #E6F1FB; border-bottom-color: #378ADD; font-weight: 500; }
       .tab.disabled { color: #5F7B97; cursor: not-allowed; }
@@ -549,7 +549,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-Brs0a1SJ.js"></script>
+    <script type="module" crossorigin src="./assets/index-DszvVjhh.js"></script>
   </head>
   <body>
     <div id="disclosure-banner" class="disclosure-banner">
@@ -812,10 +812,10 @@
             </div>
 
             <div class="tabs" id="footer-tabs">
-              <div class="tab active" data-tab="stats">Stats</div>
-              <div class="tab disabled" data-tab="advanced">Advanced stats <span class="lock">&#x1F512;</span></div>
-              <div class="tab" data-tab="tradelist">Tradelist</div>
-              <div class="tab disabled" data-tab="compare">Compare <span class="lock">&#x1F512;</span></div>
+              <button class="tab active" type="button" data-tab="stats">Stats</button>
+              <button class="tab disabled" type="button" data-tab="advanced" aria-disabled="true" tabindex="-1">Advanced stats <span class="lock">&#x1F512;</span></button>
+              <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
+              <button class="tab disabled" type="button" data-tab="compare" aria-disabled="true" tabindex="-1">Compare <span class="lock">&#x1F512;</span></button>
             </div>
 
             <div class="tab-body" id="tab-body" style="display:none;">
