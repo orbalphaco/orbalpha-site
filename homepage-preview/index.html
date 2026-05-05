@@ -129,6 +129,16 @@
   .price-features { list-style: none; padding: 0; margin: 16px 0; font-size: 14px; line-height: 1.9; color: #1A4D7A; }
   .price-card.featured .price-features { color: #B5D4F4; }
   .price-features li::before { content: "✓ "; color: #1D9E75; font-weight: 600; }
+  .price-tagline {
+    font-size: 13px;
+    font-style: italic;
+    color: #5F7B97;
+    margin: 8px 0 16px;
+    line-height: 1.5;
+  }
+  .price-card.featured .price-tagline {
+    color: #85B7EB;
+  }
   .price-cta {
     display: inline-block;
     text-align: center;
@@ -145,7 +155,6 @@
   .price-cta:hover { background: #0C447C; }
   .price-card.featured .price-cta { background: #E6F1FB; color: #042C53; }
   .price-card.featured .price-cta:hover { background: #B5D4F4; }
-  .pricing-note { font-size: 12px; color: #5F7B97; text-align: center; margin: 24px 0 0; max-width: 600px; margin-left: auto; margin-right: auto; }
 
   /* === FOOTER === */
   .site-links {
@@ -163,20 +172,6 @@
   .site-links a { color: #5F7B97; text-decoration: none; transition: color 0.15s; }
   .site-links a:hover { color: #042C53; }
   .site-links .sep { opacity: 0.4; }
-
-  /* === DRAFT MARKERS === */
-  .draft-tag {
-    display: inline-block;
-    font-size: 10px;
-    padding: 2px 6px;
-    background: #FAC775;
-    color: #5C3D00;
-    border-radius: 999px;
-    letter-spacing: 0.4px;
-    font-weight: 500;
-    margin-left: 8px;
-    vertical-align: middle;
-  }
 
   /* === MOBILE RESPONSIVE (768px breakpoint) === */
   @media (max-width: 768px) {
@@ -259,7 +254,7 @@
 
   <!-- PRICING -->
   <section class="section">
-    <h2 class="section-h2">Pricing<span class="draft-tag">DRAFT FEATURES</span></h2>
+    <h2 class="section-h2">Pricing</h2>
     <p class="section-sub">Two tiers. Cancel anytime.</p>
     <div class="pricing-grid">
       <article class="price-card">
@@ -267,9 +262,9 @@
         <p class="price-amount">$0<span class="price-period"> / forever</span></p>
         <ul class="price-features">
           <li>ORB v2.2 indicator on TradingView</li>
-          <li>Settings Optimizer (preview access)</li>
-          <li>Community support</li>
+          <li>Free tools and resources on the site</li>
         </ul>
+        <p class="price-tagline">Enough to develop and execute strategies. Slow but real.</p>
         <a href="https://www.tradingview.com/script/U4GTLq7V-ORB-v2-2-ORB-Alpha-Free/" target="_blank" rel="noopener" class="price-cta">Get the free indicator</a>
       </article>
       <article class="price-card featured">
@@ -277,14 +272,14 @@
         <p class="price-amount">$149<span class="price-period"> / month</span></p>
         <ul class="price-features">
           <li>ORB/ORF v2.3.2 Pro indicator</li>
-          <li>Full Optimizer access</li>
-          <li>Direct support</li>
-          <li>Future tools (Validator, Drifter) included</li>
+          <li>Settings Optimizer</li>
+          <li>All future Pro tools</li>
+          <li>Everything in Free</li>
         </ul>
+        <p class="price-tagline">Accelerated. Find what works in seconds, not weeks.</p>
         <a href="#" class="price-cta">Get access</a>
       </article>
     </div>
-    <p class="pricing-note">Steven — confirm exact features per tier. This is placeholder copy.</p>
   </section>
 
   <!-- FOOTER -->
