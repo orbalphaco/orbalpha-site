@@ -60,7 +60,7 @@
 
   /* === SECTION SHARED === */
   .section {
-    padding: 72px 80px;
+    padding: 48px 80px;
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -74,39 +74,6 @@
   .what-aside { background: #042C53; color: #E6F1FB; padding: 32px; border-radius: 12px; }
   .what-aside h3 { font-size: 18px; margin: 0 0 16px; font-weight: 500; }
   .what-aside ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.8; color: #B5D4F4; }
-
-  /* === INDICATORS === */
-  .indicators-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .indicator-card {
-    background: #042C53;
-    color: #E6F1FB;
-    padding: 32px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .indicator-name { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.3px; }
-  .indicator-version { font-size: 12px; color: #85B7EB; letter-spacing: 0.4px; text-transform: uppercase; }
-  .indicator-desc { font-size: 14px; color: #B5D4F4; line-height: 1.6; flex: 1; }
-  .indicator-link {
-    display: inline-block;
-    font-size: 13px;
-    padding: 10px 20px;
-    background: #185FA5;
-    color: #E6F1FB;
-    border-radius: 7px;
-    text-decoration: none;
-    text-align: center;
-    align-self: flex-start;
-    transition: background 0.15s;
-  }
-  .indicator-link:hover { background: #378ADD; }
-  .indicator-link.disabled {
-    background: #1A4D7A;
-    color: #5F7B97;
-    cursor: not-allowed;
-  }
 
   /* === PRICING === */
   .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 880px; margin: 0 auto; }
@@ -182,7 +149,6 @@
     .section { padding: 56px 20px; }
     .section-h2 { font-size: 26px; }
     .what-grid { grid-template-columns: 1fr; gap: 32px; }
-    .indicators-grid { grid-template-columns: 1fr; }
     .pricing-grid { grid-template-columns: 1fr; }
     .site-links { padding: 14px 20px; font-size: 11px; }
   }
@@ -225,30 +191,6 @@
           <li>Customer support and documentation</li>
         </ul>
       </aside>
-    </div>
-  </section>
-
-  <!-- INDICATORS -->
-  <section class="section">
-    <h2 class="section-h2">Indicators</h2>
-    <p class="section-sub">Pine Script indicators published on TradingView. Free version available now; Pro coming soon.</p>
-    <div class="indicators-grid">
-      <article class="indicator-card">
-        <div>
-          <div class="indicator-version">Free · v2.2</div>
-          <h3 class="indicator-name">ORB v2.2 [ORBAlpha] — Free</h3>
-        </div>
-        <p class="indicator-desc">Opening range breakout indicator. Public on TradingView. Use it free, no signup required.</p>
-        <a href="https://www.tradingview.com/script/U4GTLq7V-ORB-v2-2-ORB-Alpha-Free/" target="_blank" rel="noopener" class="indicator-link">View on TradingView</a>
-      </article>
-      <article class="indicator-card">
-        <div>
-          <div class="indicator-version">Pro · v2.3.2</div>
-          <h3 class="indicator-name">ORB/ORF v2.3.2 [ORBAlpha] — Pro</h3>
-        </div>
-        <p class="indicator-desc">Full ORB and ORF feature set. Includes weekly zone filtering, monthly VWAP filtering, redemption logic, and direction filtering.</p>
-        <span class="indicator-link disabled">Coming soon</span>
-      </article>
     </div>
   </section>
 
