@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — One system. Many strategies. Any market.</title>
+<meta name="description" content="ORBAlpha — a complete trading system for CME futures. Optimizer, indicators, and tools for systematic traders.">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #E6F1FB;
+    color: #042C53;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* === TOP NAV === */
+  .nav {
+    position: sticky;
+    top: 0;
+    background: #E6F1FB;
+    border-bottom: 0.5px solid #185FA5;
+    padding: 14px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  .nav-logo { font-size: 18px; font-weight: 600; color: #042C53; letter-spacing: -0.3px; text-decoration: none; }
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+  .nav-link { font-size: 13px; color: #042C53; text-decoration: none; padding: 8px 16px; border-radius: 7px; transition: background 0.15s; }
+  .nav-link:hover { background: rgba(4, 44, 83, 0.08); }
+  .nav-cta { font-size: 13px; padding: 8px 16px; background: #042C53; color: #E6F1FB; border-radius: 7px; text-decoration: none; transition: background 0.15s; font-weight: 500; }
+  .nav-cta:hover { background: #0C447C; }
+
+  /* === HERO === */
+  .hero {
+    padding: 96px 80px 80px;
+    text-align: center;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .hero h1 { font-size: 56px; font-weight: 600; letter-spacing: -1.2px; margin: 0 0 24px; line-height: 1.1; color: #042C53; }
+  .hero p { font-size: 18px; color: #1A4D7A; margin: 0 0 36px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .hero-cta {
+    display: inline-block;
+    font-size: 15px;
+    padding: 14px 32px;
+    background: #042C53;
+    color: #E6F1FB;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .hero-cta:hover { background: #0C447C; transform: translateY(-1px); }
+
+  /* === SECTION SHARED === */
+  .section {
+    padding: 72px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-h2 { font-size: 32px; font-weight: 600; color: #042C53; margin: 0 0 12px; letter-spacing: -0.6px; }
+  .section-sub { font-size: 16px; color: #5F7B97; margin: 0 0 48px; max-width: 640px; }
+
+  /* === WHAT IS ORBALPHA === */
+  .what-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+  .what-prose { font-size: 16px; color: #1A4D7A; line-height: 1.7; }
+  .what-prose p { margin: 0 0 16px; }
+  .what-aside { background: #042C53; color: #E6F1FB; padding: 32px; border-radius: 12px; }
+  .what-aside h3 { font-size: 18px; margin: 0 0 16px; font-weight: 500; }
+  .what-aside ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.8; color: #B5D4F4; }
+
+  /* === INDICATORS === */
+  .indicators-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .indicator-card {
+    background: #042C53;
+    color: #E6F1FB;
+    padding: 32px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .indicator-name { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.3px; }
+  .indicator-version { font-size: 12px; color: #85B7EB; letter-spacing: 0.4px; text-transform: uppercase; }
+  .indicator-desc { font-size: 14px; color: #B5D4F4; line-height: 1.6; flex: 1; }
+  .indicator-link {
+    display: inline-block;
+    font-size: 13px;
+    padding: 10px 20px;
+    background: #185FA5;
+    color: #E6F1FB;
+    border-radius: 7px;
+    text-decoration: none;
+    text-align: center;
+    align-self: flex-start;
+    transition: background 0.15s;
+  }
+  .indicator-link:hover { background: #378ADD; }
+  .indicator-link.disabled {
+    background: #1A4D7A;
+    color: #5F7B97;
+    cursor: not-allowed;
+  }
+
+  /* === PRICING === */
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 880px; margin: 0 auto; }
+  .price-card {
+    background: #FFFFFF;
+    border: 1px solid #185FA5;
+    padding: 36px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .price-card.featured { background: #042C53; color: #E6F1FB; border-color: #042C53; }
+  .price-name { font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; color: #5F7B97; }
+  .price-card.featured .price-name { color: #85B7EB; }
+  .price-amount { font-size: 44px; font-weight: 600; margin: 0; letter-spacing: -1px; color: #042C53; }
+  .price-card.featured .price-amount { color: #E6F1FB; }
+  .price-period { font-size: 14px; color: #5F7B97; font-weight: 400; }
+  .price-card.featured .price-period { color: #85B7EB; }
+  .price-features { list-style: none; padding: 0; margin: 16px 0; font-size: 14px; line-height: 1.9; color: #1A4D7A; }
+  .price-card.featured .price-features { color: #B5D4F4; }
+  .price-features li::before { content: "✓ "; color: #1D9E75; font-weight: 600; }
+  .price-cta {
+    display: inline-block;
+    text-align: center;
+    font-size: 14px;
+    padding: 12px 24px;
+    background: #042C53;
+    color: #E6F1FB;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: auto;
+    transition: background 0.15s;
+  }
+  .price-cta:hover { background: #0C447C; }
+  .price-card.featured .price-cta { background: #E6F1FB; color: #042C53; }
+  .price-card.featured .price-cta:hover { background: #B5D4F4; }
+  .pricing-note { font-size: 12px; color: #5F7B97; text-align: center; margin: 24px 0 0; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+  /* === FOOTER === */
+  .site-links {
+    background: #DFEBF7;
+    padding: 14px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #5F7B97;
+    border-top: 0.5px solid rgba(24, 95, 165, 0.2);
+    flex-wrap: wrap;
+  }
+  .site-links a { color: #5F7B97; text-decoration: none; transition: color 0.15s; }
+  .site-links a:hover { color: #042C53; }
+  .site-links .sep { opacity: 0.4; }
+
+  /* === DRAFT MARKERS === */
+  .draft-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 6px;
+    background: #FAC775;
+    color: #5C3D00;
+    border-radius: 999px;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* === MOBILE RESPONSIVE (768px breakpoint) === */
+  @media (max-width: 768px) {
+    .nav { padding: 12px 20px; }
+    .hero { padding: 64px 20px 48px; }
+    .hero h1 { font-size: 36px; }
+    .hero p { font-size: 16px; }
+    .section { padding: 56px 20px; }
+    .section-h2 { font-size: 26px; }
+    .what-grid { grid-template-columns: 1fr; gap: 32px; }
+    .indicators-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .site-links { padding: 14px 20px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">ORBAlpha</a>
+    <div class="nav-actions">
+      <a href="#" class="nav-link">Sign in</a>
+      <a href="#" class="nav-cta">Get access</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>One system.<br>Many strategies. Any market.</h1>
+    <p>A complete trading system for CME futures. Optimize, validate, and deploy with confidence.</p>
+    <a href="/tools/optimizer-preview/" class="hero-cta">Try the Optimizer free</a>
+  </section>
+
+  <!-- WHAT IS ORBALPHA -->
+  <section class="section">
+    <h2 class="section-h2">What is ORBAlpha<span class="draft-tag">DRAFT COPY</span></h2>
+    <p class="section-sub">Built for CME futures traders who want a systematic, reproducible edge.</p>
+    <div class="what-grid">
+      <div class="what-prose">
+        <p>ORBAlpha is a complete trading system for opening range breakout and opening range fade strategies on CME futures. It includes Pine Script indicators, a sweep optimizer for finding configs that perform across market regimes, and tools for validating strategy decay over time.</p>
+        <p>The system was built to be profitable across all trading environments, used personally by the author and offered to retail traders who want a tested, systematic approach to futures trading.</p>
+        <p>[Steven — rewrite this section. Tell visitors who it's for, what problem it solves, and why it's worth their attention. 30 seconds of reading.]</p>
+      </div>
+      <aside class="what-aside">
+        <h3>What's included</h3>
+        <ul>
+          <li>Pine Script indicators (Free + Pro)</li>
+          <li>Settings Optimizer with parameter sweep</li>
+          <li>TradingView Strategy Tester parity</li>
+          <li>Customer support and documentation</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- INDICATORS -->
+  <section class="section">
+    <h2 class="section-h2">Indicators</h2>
+    <p class="section-sub">Pine Script indicators published on TradingView. Free version available now; Pro coming soon.</p>
+    <div class="indicators-grid">
+      <article class="indicator-card">
+        <div>
+          <div class="indicator-version">Free · v2.2</div>
+          <h3 class="indicator-name">ORB v2.2 [ORBAlpha] — Free</h3>
+        </div>
+        <p class="indicator-desc">Opening range breakout indicator. Public on TradingView. Use it free, no signup required.</p>
+        <a href="https://www.tradingview.com/script/U4GTLq7V-ORB-v2-2-ORB-Alpha-Free/" target="_blank" rel="noopener" class="indicator-link">View on TradingView</a>
+      </article>
+      <article class="indicator-card">
+        <div>
+          <div class="indicator-version">Pro · v2.3.2</div>
+          <h3 class="indicator-name">ORB/ORF v2.3.2 [ORBAlpha] — Pro</h3>
+        </div>
+        <p class="indicator-desc">Full ORB and ORF feature set. Includes weekly zone filtering, monthly VWAP filtering, redemption logic, and direction filtering.</p>
+        <span class="indicator-link disabled">Coming soon</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section">
+    <h2 class="section-h2">Pricing<span class="draft-tag">DRAFT FEATURES</span></h2>
+    <p class="section-sub">Two tiers. Cancel anytime.</p>
+    <div class="pricing-grid">
+      <article class="price-card">
+        <p class="price-name">Free</p>
+        <p class="price-amount">$0<span class="price-period"> / forever</span></p>
+        <ul class="price-features">
+          <li>ORB v2.2 indicator on TradingView</li>
+          <li>Settings Optimizer (preview access)</li>
+          <li>Community support</li>
+        </ul>
+        <a href="https://www.tradingview.com/script/U4GTLq7V-ORB-v2-2-ORB-Alpha-Free/" target="_blank" rel="noopener" class="price-cta">Get the free indicator</a>
+      </article>
+      <article class="price-card featured">
+        <p class="price-name">Pro</p>
+        <p class="price-amount">$149<span class="price-period"> / month</span></p>
+        <ul class="price-features">
+          <li>ORB/ORF v2.3.2 Pro indicator</li>
+          <li>Full Optimizer access</li>
+          <li>Direct support</li>
+          <li>Future tools (Validator, Drifter) included</li>
+        </ul>
+        <a href="#" class="price-cta">Get access</a>
+      </article>
+    </div>
+    <p class="pricing-note">Steven — confirm exact features per tier. This is placeholder copy.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-links">
+    <span>© 2026 ORBAlpha</span>
+    <span class="sep">·</span>
+    <a href="/legal/">Legal</a>
+    <span class="sep">·</span>
+    <a href="/contact/">Contact</a>
+  </footer>
+
+</body>
+</html>
