@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ORBAlpha Settings Optimizer</title>
+    <meta name="description" content="ORBAlpha Settings Optimizer — sweep thousands of parameter configurations and rank them by what holds up across market regimes.">
+    <meta property="og:description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimizer, indicators, and tools for systematic traders.">
+    <meta name="twitter:description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimizer, indicators, and tools for systematic traders.">
     <style>
       /* ===== v4 frame CSS — embedded verbatim from Phase A REDO prompt. Do not modify. ===== */
       html, body { height: 100%; }
@@ -50,7 +53,7 @@
       .pipe-row.queued .pipe-count { color: #5F7B97; }
       .pipe-row.active { background: #185FA5; }
       .pipe-row.active .pipe-name { color: #E6F1FB; font-weight: 500; }
-      .pipe-icon { width: 18px; height: 18px; border-radius: 50%; background: #1D9E75; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: #042C53; font-weight: 600; flex-shrink: 0; }
+      .pipe-icon { width: 18px; height: 18px; border-radius: 50%; background: #1D9E75; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: #042C53; font-weight: 600; flex-shrink: 0; }
       .pipe-row.queued .pipe-icon { background: #1A3A60; color: #5F7B97; }
       .pipe-row.active .pipe-icon { background: #378ADD; color: #042C53; animation: pulse 1.1s ease-in-out infinite; }
       .pipe-name { font-size: 12px; color: #B5D4F4; }
@@ -58,7 +61,7 @@
       .proc-status { display: flex; align-items: center; gap: 8px; padding: 8px 4px; font-size: 12px; }
       .pulse { width: 8px; height: 8px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; animation: pulse 1.6s ease-in-out infinite; }
       @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(1.4); } }
-      .proc-engine { font-size: 10px; color: #5F7B97; padding-top: 8px; margin-top: 8px; border-top: 0.5px solid #1A3A60; display: flex; justify-content: space-between; }
+      .proc-engine { font-size: 11px; color: #5F7B97; padding-top: 8px; margin-top: 8px; border-top: 0.5px solid #1A3A60; display: flex; justify-content: space-between; }
       .proc-engine b { color: #B5D4F4; font-weight: 500; }
       .proc-status .running-label { color: #378ADD; font-weight: 500; }
 
@@ -78,9 +81,9 @@
       .panel-body::-webkit-scrollbar-track { background: transparent; }
 
       .panel-section { margin-bottom: 14px; }
-      .panel-section-h { font-size: 9px; color: #85B7EB; letter-spacing: 0.6px; text-transform: uppercase; margin: 8px 0 8px; display: flex; align-items: center; gap: 5px; padding-bottom: 5px; border-bottom: 0.5px solid #0C447C; }
+      .panel-section-h { font-size: 11px; color: #85B7EB; letter-spacing: 0.6px; text-transform: uppercase; margin: 8px 0 8px; display: flex; align-items: center; gap: 5px; padding-bottom: 5px; border-bottom: 0.5px solid #0C447C; }
       .panel-section-h .num { color: #5F7B97; }
-      .panel-section-h .ico { font-size: 10px; color: #5F7B97; }
+      .panel-section-h .ico { font-size: 11px; color: #5F7B97; }
 
       .panel-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; padding: 4px 0; color: #E6F1FB; }
       .panel-row > span:first-child { color: #B5D4F4; flex: 1; }
@@ -108,8 +111,8 @@
       .tab:hover:not(.disabled) { color: #E6F1FB; }
       .tab.active { color: #E6F1FB; border-bottom-color: #378ADD; font-weight: 500; }
       .tab.disabled { color: #5F7B97; cursor: not-allowed; }
-      .pro-pill { font-size: 9px; padding: 1px 6px; background: rgba(186,117,23,0.18); color: #FAC775; border-radius: 999px; letter-spacing: 0.3px; font-weight: 500; }
-      .lock { font-size: 9px; color: #5F7B97; }
+      .pro-pill { font-size: 10px; padding: 1px 6px; background: rgba(186,117,23,0.18); color: #FAC775; border-radius: 999px; letter-spacing: 0.3px; font-weight: 500; }
+      .lock { font-size: 10px; color: #5F7B97; }
 
       .tab-body { padding: 9px 14px 11px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
       /* Prompt 2: Tradelist tab body */
@@ -125,13 +128,13 @@
       .tradelist-hint { font-size: 11px; color: #85B7EB; margin: 0; max-width: 480px; text-align: center; line-height: 1.5; }
       .stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 7px; flex-shrink: 0; }
       .stat-box { background: #0C447C; border-radius: 6px; padding: 5px 9px; }
-      .stat-l { font-size: 9px; color: #85B7EB; margin-bottom: 1px; }
+      .stat-l { font-size: 11px; color: #85B7EB; margin-bottom: 1px; }
       .stat-v { font-size: 13px; font-weight: 500; color: #E6F1FB; }
 
       .equity-wrap { background: #0C447C; border-radius: 7px; padding: 4px 6px 2px; flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
       .equity-svg { display: block; flex: 1; width: 100%; min-height: 0; }
       .eq-axis-row { height: 14px; position: relative; flex-shrink: 0; margin-top: 1px; }
-      .eq-tick { position: absolute; transform: translateX(-50%); top: 0; font-size: 9px; color: #5F7B97; line-height: 14px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+      .eq-tick { position: absolute; transform: translateX(-50%); top: 0; font-size: 10px; color: #5F7B97; line-height: 14px; white-space: nowrap; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
       .eq-tick.month { color: #85B7EB; font-weight: 500; }
       .eq-line { fill: none; stroke: #1D9E75; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
       .eq-fill { fill: rgba(29,158,117,0.10); stroke: none; }
@@ -147,12 +150,12 @@
       .eq-tip-dot.loss { background: #DA6850; }
       .eq-tip-row { display: flex; justify-content: space-between; gap: 14px; padding: 1px 0; color: #B5D4F4; }
       .eq-tip-row b { color: #E6F1FB; font-weight: 500; font-variant-numeric: tabular-nums; }
-      .eq-tip-date { color: #85B7EB; font-size: 10px; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid #185FA5; }
+      .eq-tip-date { color: #85B7EB; font-size: 11px; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid #185FA5; }
 
       .footer-empty { padding: 28px 20px; text-align: center; color: #5F7B97; font-size: 13px; flex: 1; display: flex; align-items: center; justify-content: center; }
 
       /* === B1: v4 card list (replaces old .card / .stats-grid / etc.) === */
-      .card-list-h { display: grid; grid-template-columns: 36px 1fr 1fr 28px; gap: 8px; align-items: center; padding: 0 10px 5px; font-size: 9px; color: #5F7B97; letter-spacing: 0.4px; text-transform: uppercase; flex-shrink: 0; border-bottom: 0.5px solid #0C447C; margin-bottom: 4px; }
+      .card-list-h { display: grid; grid-template-columns: 36px 1fr 1fr 28px; gap: 8px; align-items: center; padding: 0 10px 5px; font-size: 11px; color: #5F7B97; letter-spacing: 0.4px; text-transform: uppercase; flex-shrink: 0; border-bottom: 0.5px solid #0C447C; margin-bottom: 4px; }
       .cl-h-pnl, .cl-h-score { text-align: left; }
       .cl-h-set { text-align: center; }
       .card-list { flex: 1; overflow-y: auto; min-height: 0; }
@@ -661,7 +664,7 @@
         <div class="topbar">
           <div class="topbar-l">
             <div class="topbar-logo">ORBAlpha</div>
-            <span style="font-size:10px;color:#5F7B97;letter-spacing:0.4px;">ORB/ORF · Pine <span data-engine-version>v2.3.2</span></span>
+            <span style="font-size:11px;color:#5F7B97;letter-spacing:0.4px;">ORB/ORF · Pine <span data-engine-version>v2.3.2</span></span>
           </div>
           <div class="topbar-r">
             <span id="rev-counter" style="font-size:11px;color:#5F7B97;margin-right:6px;">rev —</span>
@@ -671,7 +674,7 @@
         </div>
 
         <div class="hero">
-          <h1>One system. Many strategies. Any market.</h1>
+          <h1>Tune. Validate. Trade.</h1>
         </div>
 
         <div class="body">
