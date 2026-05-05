@@ -497,50 +497,66 @@
         padding: 5px 10px;
       }
 
-      /* === MOBILE BANNER === */
-      .mobile-banner {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: #042C53;
-        color: #E6F1FB;
-        padding: 14px 16px;
-        border-left: 4px solid #FAC775;
-        font-size: 13px;
-        line-height: 1.4;
-        z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      }
-      .mobile-banner.visible { display: flex; align-items: center; gap: 12px; }
-      .mobile-banner-text { flex: 1; }
-      .mobile-banner-close {
-        background: none;
-        border: none;
-        color: #E6F1FB;
-        font-size: 20px;
-        line-height: 1;
-        padding: 8px;
-        cursor: pointer;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-      .mobile-banner-close:hover { color: #FAC775; }
+      /* === MOBILE TAKEOVER === */
+      /* On desktop: takeover is hidden, normal Optimizer renders */
+      .mobile-takeover { display: none; }
 
-      /* Body padding when banner active */
-      body.mobile-banner-active { padding-top: 56px; }
-
-      /* Only show banner below 768px viewport */
       @media (max-width: 768px) {
-        .mobile-banner { display: flex; align-items: center; gap: 12px; }
-        body { padding-top: 56px; }
-        body.mobile-banner-dismissed { padding-top: 0; }
-        body.mobile-banner-dismissed .mobile-banner { display: none; }
+        /* On mobile: takeover takes over the entire page */
+        .mobile-takeover {
+          display: flex;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #E6F1FB;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 0 16px;
+        }
+        .mobile-takeover-card {
+          background: #042C53;
+          color: #E6F1FB;
+          border-left: 4px solid #FAC775;
+          border-radius: 12px;
+          padding: 32px 24px;
+          max-width: 320px;
+          width: 100%;
+          text-align: center;
+          box-shadow: 0 4px 20px rgba(4, 44, 83, 0.15);
+        }
+        .mobile-takeover-title {
+          font-size: 20px;
+          font-weight: 600;
+          margin: 0 0 16px;
+          letter-spacing: -0.3px;
+        }
+        .mobile-takeover-body {
+          font-size: 14px;
+          line-height: 1.6;
+          color: #B5D4F4;
+          margin: 0 0 24px;
+        }
+        .mobile-takeover-link {
+          display: inline-block;
+          font-size: 14px;
+          color: #E6F1FB;
+          text-decoration: none;
+          padding: 10px 20px;
+          background: #185FA5;
+          border-radius: 7px;
+          transition: background 0.15s;
+        }
+        .mobile-takeover-link:hover {
+          background: #378ADD;
+        }
+
+        /* Hide the Optimizer UI completely on mobile */
+        body > *:not(.mobile-takeover) {
+          display: none !important;
+        }
       }
 
       /* Disclosure banner — at top of body, above frame. Compacted to fit
@@ -596,12 +612,15 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-CrJw6-QM.js"></script>
+    <script type="module" crossorigin src="./assets/index-DN2RHQkf.js"></script>
   </head>
   <body>
-    <div class="mobile-banner" id="mobile-banner">
-      <span class="mobile-banner-text">This tool works best on desktop. Bookmark this page and revisit on a computer.</span>
-      <button class="mobile-banner-close" id="mobile-banner-close" aria-label="Dismiss banner">×</button>
+    <div class="mobile-takeover">
+      <div class="mobile-takeover-card">
+        <h2 class="mobile-takeover-title">ORBAlpha Optimizer</h2>
+        <p class="mobile-takeover-body">This tool is built for desktop. Bookmark this page and revisit on a computer.</p>
+        <a href="/homepage-preview/" class="mobile-takeover-link">← Back to ORBAlpha</a>
+      </div>
     </div>
 
     <div id="disclosure-banner" class="disclosure-banner">
