@@ -615,7 +615,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-w8dcq1ZC.js"></script>
+    <script type="module" crossorigin src="./assets/index-bdFF2C-T.js"></script>
   </head>
   <body>
     <div class="mobile-takeover">
@@ -664,7 +664,7 @@
         <div class="topbar">
           <div class="topbar-l">
             <div class="topbar-logo">ORBAlpha</div>
-            <span style="font-size:11px;color:#5F7B97;letter-spacing:0.4px;">ORB/ORF · Pine <span data-engine-version>v2.4</span></span>
+            <span style="font-size:11px;color:#5F7B97;letter-spacing:0.4px;">ORB/ORF <span data-public-version>v2.4 - Pro</span></span>
           </div>
           <div class="topbar-r">
             <span id="rev-counter" style="font-size:11px;color:#5F7B97;margin-right:6px;">rev —</span>
@@ -831,7 +831,7 @@
               <div style="flex:1;"></div>
 
               <div class="proc-engine">
-                <span>Engine</span><b data-engine-version>v—</b>
+                <span>ORB/ORF</span><b data-public-version>v2.4 - Pro</b>
               </div>
 
               <!-- B2 KEEPS legacy progress-area + processor-default as hidden no-op stubs
@@ -957,8 +957,12 @@
       <a href="/contact/">Contact</a>
     </footer>
 
-    <!-- existing 3 [data-engine-version] placeholders preserved.
-         ENGINE_VERSION DOM injection still works via main.ts. -->
+    <!-- 4 placeholders split into two groups: topbar (line 666) and
+         Processor footer (line 833) use [data-public-version] and
+         render PUBLIC_VERSION. Settings panel (line 870) and
+         methodology (line 934) use [data-engine-version] and render
+         ENGINE_VERSION long-form. See main.ts injectPublicVersion
+         and injectEngineVersion. -->
 
   </body>
 </html>
