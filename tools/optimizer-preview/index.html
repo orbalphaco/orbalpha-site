@@ -17,7 +17,7 @@
       .site-links a { color: #5F7B97; text-decoration: none; }
       .site-links a:hover { color: #042C53; }
       .site-links .sep { color: #C5D9EC; }
-      .sb { width: 56px; background: #DFEBF7; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 14px; flex-shrink: 0; border-right: 0.5px solid #C5D9EC; }
+      .sb { width: 56px; min-height: 100vh; background: #DFEBF7; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 14px; flex-shrink: 0; border-right: 0.5px solid #C5D9EC; }
       .sb-icon { width: 30px; height: 30px; cursor: pointer; color: #042C53; display: flex; align-items: center; justify-content: center; border-radius: 6px; position: relative; }
       .sb-icon:hover { background: #C5D9EC; }
       .sb-icon svg { width: 20px; height: 20px; stroke: #042C53; fill: none; stroke-width: 1.6; }
@@ -204,7 +204,7 @@
 
       /* ===== Inner col layout helpers (Phase A only — Phase B will redo) ===== */
       .col-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-right: 12px; }
-      #col-inputs .col-scroll { flex: 0 1 auto; }
+      #col-inputs .col-scroll { flex: 1; }
       .col-scroll::-webkit-scrollbar { width: 5px; }
       .col-scroll::-webkit-scrollbar-thumb { background: #185FA5; border-radius: 3px; }
       .col-scroll::-webkit-scrollbar-track { background: transparent; }
