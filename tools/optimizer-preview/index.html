@@ -74,8 +74,7 @@
       .panel-head .col-h { margin: 0; padding: 0; border: 0; }
       .panel-x { position: absolute; top: 10px; right: 12px; width: 22px; height: 22px; border-radius: 50%; border: 0.5px solid #185FA5; color: #B5D4F4; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; background: transparent; font-family: inherit; }
       .panel-x:hover { color: #E6F1FB; border-color: #378ADD; }
-      .panel-version { position: absolute; top: 14px; right: 42px; max-width: calc(100% - 220px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: #85B7EB; letter-spacing: 0.3px; pointer-events: none; }
-      .panel-version [data-engine-version] { pointer-events: auto; }
+      .panel-version { position: absolute; top: 14px; right: 42px; font-size: 11px; color: #85B7EB; letter-spacing: 0.3px; pointer-events: none; }
       .panel-body { flex: 1; overflow-y: auto; padding: 10px 14px 18px; }
       .panel-body::-webkit-scrollbar { width: 6px; }
       .panel-body::-webkit-scrollbar-thumb { background: #185FA5; border-radius: 3px; }
@@ -611,14 +610,11 @@
       }
       details.methodology[open] summary { margin-bottom: 10px; }
       .methodology-body p { margin: 0 0 10px 0; }
-      /* ENGINE_VERSION slug is long — constrain inline span to prevent overflow */
-      #section-methodology [data-engine-version] { display: inline-block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
-
       /* Utilities */
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-bdFF2C-T.js"></script>
+    <script type="module" crossorigin src="./assets/index-80W1Oezs.js"></script>
   </head>
   <body>
     <div class="mobile-takeover">
@@ -871,7 +867,7 @@
               <div class="panel" id="settings-panel" aria-hidden="true">
                 <div class="panel-head">
                   <div class="col-h" id="panel-title">Card # — Indicator settings</div>
-                  <span class="panel-version">ORB/ORF <span data-engine-version title="vowen-sobol-v1/floor-map-v1/row-major-filter-v1/owen-1995-scipy-port-v1">v—</span></span>
+                  <span class="panel-version">ORB/ORF <span data-public-version>v2.4 - Pro</span></span>
                   <button class="panel-x" id="panel-close" aria-label="Close settings">×</button>
                 </div>
                 <div class="panel-body" id="panel-body">
@@ -935,7 +931,7 @@
         <div id="methodology-content" hidden>
           <section id="section-methodology">
             <h2>5. Methodology</h2>
-            <p style="font-size:11px;color:#5F6368;">ORB/ORF · Pine <span data-engine-version title="vowen-sobol-v1/floor-map-v1/row-major-filter-v1/owen-1995-scipy-port-v1">v2.4</span></p>
+            <p style="font-size:11px;color:#5F6368;">ORB/ORF · Pine <span data-public-version>v2.4 - Pro</span></p>
             <details class="methodology">
               <summary>How the hybrid search works</summary>
               <div class="methodology-body">
@@ -960,12 +956,12 @@
       <a href="/contact/">Contact</a>
     </footer>
 
-    <!-- 4 placeholders split into two groups: topbar (line 666) and
-         Processor footer (line 833) use [data-public-version] and
-         render PUBLIC_VERSION. Settings panel (line 870) and
-         methodology (line 934) use [data-engine-version] and render
-         ENGINE_VERSION long-form. See main.ts injectPublicVersion
-         and injectEngineVersion. -->
+    <!-- 4 [data-public-version] placeholders: topbar (line 666),
+         Processor footer (line 833), settings panel (line 870),
+         methodology (line 934). All inject PUBLIC_VERSION via
+         injectPublicVersion (main.ts). ENGINE_VERSION lives in
+         export-json.ts for audit-trail JSON only — not rendered
+         on any UI surface. -->
 
   </body>
 </html>
