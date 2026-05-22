@@ -10,14 +10,14 @@
     <style>
       /* ===== v4 frame CSS — embedded verbatim from Phase A REDO prompt. Do not modify. ===== */
       html, body { height: 100%; }
-      body { margin: 0; padding: 0; background: #E6F1FB; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2C2C2A; overflow: hidden; box-sizing: border-box; display: flex; flex-direction: column; }
+      body { margin: 0; padding: 0 0 0 56px; background: #E6F1FB; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2C2C2A; overflow: hidden; box-sizing: border-box; display: flex; flex-direction: column; }
 
       .frame { max-width: none; flex: 1; min-height: 0; margin: 0; background: #E6F1FB; border-radius: 0; overflow: hidden; display: flex; }
       .site-links { height: 36px; flex-shrink: 0; background: #E6F1FB; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; font-size: 11px; color: #5F7B97; letter-spacing: 0.2px; }
       .site-links a { color: #5F7B97; text-decoration: none; }
       .site-links a:hover { color: #042C53; }
       .site-links .sep { color: #C5D9EC; }
-      .sb { width: 56px; min-height: 100vh; background: #DFEBF7; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 14px; flex-shrink: 0; border-right: 0.5px solid #C5D9EC; }
+      .sb { position: fixed; top: 0; left: 0; bottom: 0; width: 56px; background: #DFEBF7; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 14px; flex-shrink: 0; border-right: 0.5px solid #C5D9EC; z-index: 10; }
       .sb-icon { width: 30px; height: 30px; cursor: pointer; color: #042C53; display: flex; align-items: center; justify-content: center; border-radius: 6px; position: relative; }
       .sb-icon:hover { background: #C5D9EC; }
       .sb-icon svg { width: 20px; height: 20px; stroke: #042C53; fill: none; stroke-width: 1.6; }
