@@ -449,6 +449,72 @@
         outline: 2px solid #1A73E8;
         outline-offset: 2px;
       }
+      /* ===== Advanced Stats — tier sub-panel ===== */
+      .advanced-stats-body {
+        padding: 4px 0 0;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .tier-cal-label {
+        font-size: 11px;
+        color: #5F7B97;
+        letter-spacing: 0.3px;
+      }
+      .tier-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .tier-box { background: #0C447C; border-radius: 6px; padding: 5px 9px; }
+      .tier-l {
+        font-size: 11px;
+        color: #85B7EB;
+        margin-bottom: 1px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .tier-v {
+        font-size: 13px;
+        font-weight: 500;
+        color: #E6F1FB;
+        font-variant-numeric: tabular-nums;
+      }
+      .pairing-info-btn {
+        font-family: inherit;
+        font-size: 10px;
+        line-height: 1;
+        color: #5F7B97;
+        background: transparent;
+        border: 1px solid #5F7B97;
+        padding: 0 4px;
+        cursor: pointer;
+        border-radius: 0;
+      }
+      .pairing-info-btn:hover,
+      .pairing-info-btn:focus-visible {
+        background: #D1E3FD;
+        color: #202124;
+        border-color: #202124;
+        outline: none;
+      }
+      .pairing-table {
+        border-collapse: collapse;
+        font-size: 12px;
+        color: #202124;
+      }
+      .pairing-table th,
+      .pairing-table td {
+        padding: 4px 8px;
+        text-align: left;
+        border-bottom: 1px solid #D1E3FD;
+      }
+      .pairing-table th { font-weight: 600; color: #5F6368; }
+      .pairing-table tr:last-child td { border-bottom: 0; }
       /* Weights */
       .weights-grid {
         display: grid;
@@ -614,7 +680,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/index-C-iV1YV-.js"></script>
+    <script type="module" crossorigin src="./assets/index-CMT0gAj2.js"></script>
   </head>
   <body>
     <div class="mobile-takeover">
@@ -890,7 +956,7 @@
 
             <div class="tabs" id="footer-tabs">
               <button class="tab active" type="button" data-tab="stats">Stats</button>
-              <button class="tab disabled" type="button" data-tab="advanced" aria-disabled="true" tabindex="-1">Advanced stats <span class="lock">&#x1F512;</span></button>
+              <button class="tab" type="button" data-tab="advanced">Advanced stats</button>
               <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
               <button class="tab disabled" type="button" data-tab="compare" aria-disabled="true" tabindex="-1">Compare <span class="lock">&#x1F512;</span></button>
             </div>
@@ -923,6 +989,30 @@
                   </button>
                 </div>
                 <p class="tradelist-hint">CSV opens in Excel directly. JSON preserves data types and includes card metadata for analyst consumption.</p>
+              </div>
+              <div class="advanced-stats-body" id="advanced-stats-body" style="display:none;">
+                <div class="tier-cal-label" id="ts-calibration-label">Calibration —</div>
+                <div class="tier-grid">
+                  <div class="tier-box">
+                    <div class="tier-l">Trend</div>
+                    <div class="tier-v" id="ts-trend">—</div>
+                  </div>
+                  <div class="tier-box">
+                    <div class="tier-l">Steadiness</div>
+                    <div class="tier-v" id="ts-steadiness">—</div>
+                  </div>
+                  <div class="tier-box">
+                    <div class="tier-l">Pullback</div>
+                    <div class="tier-v" id="ts-pullback">—</div>
+                  </div>
+                  <div class="tier-box">
+                    <div class="tier-l">
+                      Direction Lean
+                      <button class="pairing-info-btn" type="button" aria-label="Pairing reference">?</button>
+                    </div>
+                    <div class="tier-v" id="ts-direction">—</div>
+                  </div>
+                </div>
               </div>
             </div>
 
