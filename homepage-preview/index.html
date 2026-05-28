@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBAlpha — One system. Many strategies. Any market.</title>
-<meta name="description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimizer, indicators, and tools for systematic traders.">
-<meta property="og:description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimizer, indicators, and tools for systematic traders.">
-<meta name="twitter:description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimizer, indicators, and tools for systematic traders.">
+<title>ORBAlpha — One system. Many strategies. Zero guesswork.</title>
+<meta name="description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimize, validate, and deploy by rules, not by feelings.">
+<meta property="og:description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimize, validate, and deploy by rules, not by feelings.">
+<meta name="twitter:description" content="ORBAlpha — a rules-based algorithmic trading system for futures. Optimize, validate, and deploy by rules, not by feelings.">
 <style>
   * { box-sizing: border-box; }
   body {
@@ -108,6 +108,13 @@
   .price-card.featured .price-tagline {
     color: #85B7EB;
   }
+  .price-annual {
+    font-size: 13px;
+    font-weight: 600;
+    color: #85B7EB;
+    margin: 0 0 8px;
+    line-height: 1.4;
+  }
   .price-cta {
     display: inline-block;
     text-align: center;
@@ -141,6 +148,19 @@
   .site-links a { color: #5F7B97; text-decoration: none; transition: color 0.15s; }
   .site-links a:hover { color: #042C53; }
   .site-links .sep { opacity: 0.4; }
+  .footer-disclaimer {
+    flex-basis: 100%;
+    text-align: center;
+    font-size: 11px;
+    color: #5F7B97;
+    line-height: 1.5;
+    margin: 0 0 8px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .footer-disclaimer a { color: #5F7B97; text-decoration: underline; }
+  .footer-disclaimer a:hover { color: #042C53; }
 
   /* === MOBILE RESPONSIVE (768px breakpoint) === */
   @media (max-width: 768px) {
@@ -169,8 +189,8 @@
 
   <!-- HERO -->
   <section class="hero">
-    <h1>One system.<br>Many strategies. Any market.</h1>
-    <p>A rules-based algorithmic trading system for futures. Optimize, validate, and deploy with confidence.</p>
+    <h1>One system.<br>Many strategies.<br>Zero guesswork.</h1>
+    <p>A rules-based algorithmic trading system for futures. Optimize, validate, and deploy — by rules, not by feelings.</p>
     <a href="/tools/optimizer-preview/" class="hero-cta">Try the Optimizer free</a>
   </section>
 
@@ -179,9 +199,9 @@
     <h2 class="section-h2">What is ORBAlpha</h2>
     <div class="what-grid">
       <div class="what-prose">
-        <p>ORBAlpha is a rules-based algorithmic trading system for futures. An optimizer that does the analytical work, and a Pine Script indicator that handles execution on TradingView.</p>
-        <p>The optimizer tests thousands of configurations against your data, ranks them by what holds up across market regimes, and surfaces the best fits in seconds. The indicator turns those configurations into trades you can actually take.</p>
-        <p>Two powerful tools, one system. Adaptable to any market. The last setup you'll need to learn.</p>
+        <p>ORBAlpha is a rules-based algorithmic trading system for futures. An optimizer that does the analytical work, and a Pine Script indicator that signals rule-based entries and exits on TradingView.</p>
+        <p>The optimizer tests thousands of configurations against historical data and ranks them by composite score — by what held up across the tested market regimes (hypothetical, based on past data). The indicator turns those configurations into trades you can actually take.</p>
+        <p>Two tools at the center, one system.</p>
       </div>
       <aside class="what-aside">
         <h3>What's included</h3>
@@ -204,22 +224,23 @@
         <p class="price-name">Free</p>
         <p class="price-amount">$0<span class="price-period"> / forever</span></p>
         <ul class="price-features">
-          <li>ORB v2.2 indicator on TradingView</li>
+          <li>ORB indicator on TradingView</li>
           <li>Free tools and resources on the site</li>
         </ul>
-        <p class="price-tagline">Enough to develop and execute strategies. Slow but real.</p>
+        <p class="price-tagline">Enough to learn the method and trade it. Real, but manual.</p>
         <a href="https://www.tradingview.com/script/U4GTLq7V-ORB-v2-2-ORB-Alpha-Free/" target="_blank" rel="noopener" class="price-cta">Get the free indicator</a>
       </article>
       <article class="price-card featured">
         <p class="price-name">Pro</p>
-        <p class="price-amount">$149<span class="price-period"> / month</span></p>
+        <p class="price-amount">$70<span class="price-period"> / month</span></p>
         <ul class="price-features">
-          <li>ORB/ORF v2.4 Pro indicator</li>
+          <li>ORB/ORF Pro indicator</li>
           <li>Settings Optimizer</li>
-          <li>All future Pro tools</li>
+          <li>New Pro tools as they ship</li>
           <li>Everything in Free</li>
         </ul>
-        <p class="price-tagline">Accelerated. Find what works in seconds, not weeks.</p>
+        <p class="price-tagline">The Optimizer plus the ORB/ORF Pro indicator. Test and rank configurations in seconds, not weeks.</p>
+        <p class="price-annual">$630 / year — that's 3 months free. $52.50/mo, billed annually.</p>
         <a href="#" class="price-cta">Get access</a>
       </article>
     </div>
@@ -227,6 +248,7 @@
 
   <!-- FOOTER -->
   <footer class="site-links">
+    <p class="footer-disclaimer">Futures trading involves substantial risk of loss and is not suitable for all investors. ORBAlpha provides educational tools, not advice. See <a href="/legal/">full disclaimer</a>.</p>
     <span>© 2026 ORBAlpha</span>
     <span class="sep">·</span>
     <a href="/legal/">Legal</a>
