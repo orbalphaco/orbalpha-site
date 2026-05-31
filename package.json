@@ -1,0 +1,11 @@
+{
+  "name": "orbalpha-site",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@whop/sdk": "latest",
+    "@upstash/redis": "latest",
+    "@vercel/edge-config": "latest",
+    "jose": "^4.15.9"
+  }
+}
