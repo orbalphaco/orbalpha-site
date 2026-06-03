@@ -10,7 +10,7 @@ function requireEnv(name: string): string {
 }
 
 const redis = new Redis({
-  url: requireEnv('KV_URL'),
+  url: requireEnv('KV_REST_API_URL'),
   token: requireEnv('KV_REST_API_TOKEN'),
 });
 
