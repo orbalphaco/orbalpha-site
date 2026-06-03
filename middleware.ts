@@ -2,7 +2,7 @@
 // Vercel Routing Middleware (framework-agnostic). Web API only — no next/server.
 import { verifyToken } from './lib/jwt';
 
-export const config = { runtime: 'edge' };
+export const config = { runtime: 'nodejs' };
 
 const GATED_PREFIX = '/tools/optimizer-preview';
 const LOGIN_PATH = '/api/auth/login';
