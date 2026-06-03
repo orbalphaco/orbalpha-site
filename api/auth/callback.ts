@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
-import { issueToken } from '../../lib/jwt';
-import { checkEntitlement } from '../../lib/entitlement';
+import { issueToken } from '../../lib/jwt.js';
+import { checkEntitlement } from '../../lib/entitlement.js';
 
 const TOKEN_URL = 'https://api.whop.com/oauth/token';
 const USERINFO_URL = 'https://api.whop.com/oauth/userinfo';

@@ -1,6 +1,6 @@
 // middleware.ts — Pro-access gate for the optimizer preview.
 // Vercel Routing Middleware (framework-agnostic). Web API only — no next/server.
-import { verifyToken } from './lib/jwt';
+import { verifyToken } from './lib/jwt.js';
 
 export const config = { runtime: 'nodejs' };
 
