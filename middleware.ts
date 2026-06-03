@@ -2,7 +2,11 @@
 // Vercel Routing Middleware (framework-agnostic). Web API only — no next/server.
 import { verifyToken } from './lib/jwt.js';
 
-export const config = { runtime: 'nodejs' };
+// Scope invocation to the gated route ONLY. Unscoped middleware = site-wide blast radius (S36).
+// Runs on the Edge runtime (default); lib/jwt.ts is Edge-safe by design.
+export const config = {
+  matcher: ['/tools/optimizer-preview', '/tools/optimizer-preview/:path*'],
+};
 
 const GATED_PREFIX = '/tools/optimizer-preview';
 const LOGIN_PATH = '/api/auth/login';

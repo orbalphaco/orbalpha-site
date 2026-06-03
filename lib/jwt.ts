@@ -1,7 +1,6 @@
-import { SignJWT, jwtVerify, importPKCS8, importJWK, type JWK } from 'jose';
+import { SignJWT, jwtVerify, importPKCS8, importJWK, decodeProtectedHeader, type JWK } from 'jose';
 import { get } from '@vercel/edge-config';
 import { Redis } from '@upstash/redis';
-import { randomUUID } from 'node:crypto';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -9,10 +8,16 @@ function requireEnv(name: string): string {
   return value;
 }
 
-const redis = new Redis({
-  url: requireEnv('KV_REST_API_URL'),
-  token: requireEnv('KV_REST_API_TOKEN'),
-});
+let _redis: Redis | null = null;
+function getRedis(): Redis {
+  if (!_redis) {
+    _redis = new Redis({
+      url: requireEnv('KV_REST_API_URL'),
+      token: requireEnv('KV_REST_API_TOKEN'),
+    });
+  }
+  return _redis;
+}
 
 export async function issueToken(payload: { sub: string }): Promise<string> {
   const privateKey = await importPKCS8(
@@ -20,6 +25,8 @@ export async function issueToken(payload: { sub: string }): Promise<string> {
     'EdDSA',
   );
   const kid = requireEnv('JWT_SIGNING_KEY_KID');
+  // Node.js runtime only — issueToken runs in the OAuth callback function, never on Edge.
+  const { randomUUID } = await import('node:crypto');
   const jti = randomUUID();
 
   return await new SignJWT({ ...payload, jti })
@@ -42,10 +49,8 @@ export async function verifyToken(token: string): Promise<{ sub: string; jti: st
 
   // Peek at the token header to find which kid to use for verification.
   // This selects the key BEFORE cryptographic verification (AT-2 fix).
-  const tokenHeader = JSON.parse(
-    Buffer.from(token.split('.')[0], 'base64url').toString('utf8'),
-  );
-  const tokenKid = tokenHeader.kid as string | undefined;
+  const tokenHeader = decodeProtectedHeader(token);
+  const tokenKid: string | undefined = tokenHeader.kid;
   if (!tokenKid) throw new Error('missing kid in token header');
 
   const jwk = jwksData.keys.find(k => k.kid === tokenKid);
@@ -66,7 +71,7 @@ export async function verifyToken(token: string): Promise<{ sub: string; jti: st
   // Not single-use enforcement. Narrow TOCTOU window is accepted for this
   // use case — two concurrent logout requests for the same token is not
   // a realistic attack scenario.
-  if (await redis.get(`denylist:${jti}`)) throw new Error('token revoked');
+  if (await getRedis().get(`denylist:${jti}`)) throw new Error('token revoked');
 
   const sub = payload.sub;
   if (typeof sub !== 'string' || sub.length === 0) throw new Error('missing sub');
