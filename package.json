@@ -2,6 +2,7 @@
   "name": "orbalpha-site",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@upstash/redis": "latest",
     "@vercel/edge-config": "latest",
