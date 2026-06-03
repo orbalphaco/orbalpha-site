@@ -25,9 +25,7 @@ export async function issueToken(payload: { sub: string }): Promise<string> {
     'EdDSA',
   );
   const kid = requireEnv('JWT_SIGNING_KEY_KID');
-  // Node.js runtime only — issueToken runs in the OAuth callback function, never on Edge.
-  const { randomUUID } = await import('node:crypto');
-  const jti = randomUUID();
+  const jti = globalThis.crypto.randomUUID();
 
   return await new SignJWT({ ...payload, jti })
     .setProtectedHeader({ alg: 'EdDSA', kid })
