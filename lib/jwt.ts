@@ -31,30 +31,45 @@ export async function issueToken(payload: { sub: string }): Promise<string> {
 }
 
 export async function verifyToken(token: string): Promise<{ sub: string; jti: string }> {
-  let jwks: (JWK & { kid?: string }) | null | undefined;
+  // Read JWKS array from Edge Config. Fail closed on any error.
+  let jwksData: { keys: (JWK & { kid?: string })[] } | null | undefined;
   try {
-    jwks = await get<JWK & { kid?: string }>('jwks');
+    jwksData = await get<{ keys: (JWK & { kid?: string })[] }>('jwks');
   } catch {
     throw new Error('Edge Config unavailable');
   }
-  if (!jwks) throw new Error('Edge Config unavailable');
+  if (!jwksData?.keys?.length) throw new Error('Edge Config unavailable');
 
-  const publicKey = await importJWK(jwks, 'EdDSA');
+  // Peek at the token header to find which kid to use for verification.
+  // This selects the key BEFORE cryptographic verification (AT-2 fix).
+  const tokenHeader = JSON.parse(
+    Buffer.from(token.split('.')[0], 'base64url').toString('utf8'),
+  );
+  const tokenKid = tokenHeader.kid as string | undefined;
+  if (!tokenKid) throw new Error('missing kid in token header');
 
-  const { payload, protectedHeader } = await jwtVerify(token, publicKey, {
+  const jwk = jwksData.keys.find(k => k.kid === tokenKid);
+  if (!jwk) throw new Error('kid not found in JWKS');
+
+  const publicKey = await importJWK(jwk, 'EdDSA');
+
+  const { payload } = await jwtVerify(token, publicKey, {
     algorithms: ['EdDSA'],
     issuer: 'orbalpha',
     audience: 'orbalpha',
   });
 
-  if (protectedHeader.kid !== jwks.kid) throw new Error('kid mismatch');
-
   const jti = payload.jti;
   if (!jti) throw new Error('missing jti');
+
+  // Denylist is revocation-only (explicit logout/invalidation at Stage 5).
+  // Not single-use enforcement. Narrow TOCTOU window is accepted for this
+  // use case — two concurrent logout requests for the same token is not
+  // a realistic attack scenario.
   if (await redis.get(`denylist:${jti}`)) throw new Error('token revoked');
 
   const sub = payload.sub;
-  if (!sub) throw new Error('missing sub');
+  if (typeof sub !== 'string' || sub.length === 0) throw new Error('missing sub');
 
   return { sub, jti };
 }
