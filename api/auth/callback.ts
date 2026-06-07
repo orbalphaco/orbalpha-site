@@ -1,4 +1,4 @@
-import { timingSafeEqual } from 'node:crypto';
+import { timingSafeEqual, createHmac } from 'node:crypto';
 import { issueToken } from '../../lib/jwt.js';
 import { checkEntitlement } from '../../lib/entitlement.js';
 
@@ -10,7 +10,8 @@ const OPTIMIZER_PATH = '/tools/optimizer-preview/';
 const NOT_SUBSCRIBED_PATH = '/not-subscribed/';
 const ERROR_PATH = '/login-error/';
 
-const CLEAR_OAUTH_TX = 'oauth_tx=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0';
+const CLEAR_OAUTH_TX =
+  '__Host-oauth_tx=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -54,27 +55,43 @@ export async function GET(request: Request): Promise<Response> {
     const stateParam = url.searchParams.get('state');
     if (!code || !stateParam) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
 
-    const tx = parseCookies(request.headers.get('cookie'))['oauth_tx'];
+    const tx = parseCookies(request.headers.get('cookie'))['__Host-oauth_tx'];
     if (!tx) return redirect(ERROR_PATH);
 
+    // --- HMAC verify FIRST, before decoding/parsing untrusted bytes ---
+    const lastDot = tx.lastIndexOf('.');
+    // reject missing separator, empty payload (leading dot), empty sig (trailing dot)
+    if (lastDot <= 0 || lastDot === tx.length - 1) {
+      return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    }
+    const payloadPart = tx.slice(0, lastDot);
+    const sigPart = tx.slice(lastDot + 1);
+    const expectedSig = createHmac('sha256', requireEnv('OAUTH_TX_SIGNING_KEY'))
+      .update(payloadPart)
+      .digest()
+      .toString('base64url');
+    if (!safeEqual(sigPart, expectedSig)) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+
+    // --- signature valid → now safe to decode + parse ---
     let verifier: string;
     let stateCookie: string;
     try {
-      const parsed = JSON.parse(Buffer.from(tx, 'base64url').toString('utf8')) as {
-        v?: string;
-        s?: string;
-      };
+      const parsed = JSON.parse(
+        Buffer.from(payloadPart, 'base64url').toString('utf8'),
+      ) as { v?: string; s?: string; n?: string };
       verifier = parsed.v ?? '';
       stateCookie = parsed.s ?? '';
+      // WARNING: parsed.n is the OIDC nonce. It is NOT verified here because this
+      // flow consumes NO id_token (identity comes from /userinfo). If you ever add
+      // id_token consumption, you MUST verify the id_token nonce against parsed.n.
     } catch {
       return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
     }
     if (!verifier || !stateCookie) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
 
-    // T3a CSRF: query state must equal cookie state (constant-time).
+    // T3a CSRF (defense-in-depth): query state must equal authenticated cookie state.
     if (!safeEqual(stateParam, stateCookie)) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
 
-    // Confidential client → authenticate at the token endpoint with client_secret (client_secret_post).
     const tokenRes = await fetch(TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -93,7 +110,6 @@ export async function GET(request: Request): Promise<Response> {
     const accessToken = tokenJson.access_token;
     if (!accessToken) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
 
-    // Access token is used server-side only, once, then discarded. Never sent to the browser.
     const userRes = await fetch(USERINFO_URL, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -103,14 +119,11 @@ export async function GET(request: Request): Promise<Response> {
     const sub = userJson.sub;
     if (!sub) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
 
-    // C3: gate on active Pro entitlement, not on successful login alone.
     if (!(await checkEntitlement(sub))) return redirect(NOT_SUBSCRIBED_PATH, [CLEAR_OAUTH_TX]);
 
-    // Issue our own session JWT (lib/jwt is the only key boundary).
     const sessionJwt = await issueToken({ sub });
     const sessionCookie = `orbalpha_session=${sessionJwt}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=3540`;
 
-    // T3a redirect pin: hardcoded internal path, never derived from query/cookie.
     return redirect(OPTIMIZER_PATH, [sessionCookie, CLEAR_OAUTH_TX]);
   } catch (error) {
     console.error('oauth callback failed; denying', error);

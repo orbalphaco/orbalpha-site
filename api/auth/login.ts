@@ -1,4 +1,4 @@
-import { randomBytes, createHash } from 'node:crypto';
+import { randomBytes, createHash, createHmac } from 'node:crypto';
 
 const AUTHORIZE_URL = 'https://api.whop.com/oauth/authorize';
 const REDIRECT_URI = 'https://orbalpha.com/api/auth/callback';
@@ -19,8 +19,15 @@ export async function GET(): Promise<Response> {
     const codeVerifier = base64url(randomBytes(32));
     const codeChallenge = base64url(createHash('sha256').update(codeVerifier).digest());
     const state = base64url(randomBytes(32));
+    const nonce = base64url(randomBytes(32));
 
-    const tx = base64url(Buffer.from(JSON.stringify({ v: codeVerifier, s: state })));
+    const payload = base64url(
+      Buffer.from(JSON.stringify({ v: codeVerifier, s: state, n: nonce })),
+    );
+    const sig = base64url(
+      createHmac('sha256', requireEnv('OAUTH_TX_SIGNING_KEY')).update(payload).digest(),
+    );
+    const tx = `${payload}.${sig}`; // both base64url; '.' is unambiguous separator
 
     const authorizeUrl = new URL(AUTHORIZE_URL);
     authorizeUrl.searchParams.set('client_id', requireEnv('WHOP_CLIENT_ID'));
@@ -28,6 +35,7 @@ export async function GET(): Promise<Response> {
     authorizeUrl.searchParams.set('response_type', 'code');
     authorizeUrl.searchParams.set('scope', 'openid');
     authorizeUrl.searchParams.set('state', state);
+    authorizeUrl.searchParams.set('nonce', nonce);
     authorizeUrl.searchParams.set('code_challenge', codeChallenge);
     authorizeUrl.searchParams.set('code_challenge_method', 'S256');
 
@@ -35,7 +43,7 @@ export async function GET(): Promise<Response> {
     headers.append('Location', authorizeUrl.toString());
     headers.append(
       'Set-Cookie',
-      `oauth_tx=${tx}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=600`,
+      `__Host-oauth_tx=${tx}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=600`,
     );
     return new Response(null, { status: 302, headers });
   } catch (error) {
