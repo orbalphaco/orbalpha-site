@@ -1,3 +1,16 @@
 {
-  "framework": null
+  "framework": null,
+  "routes": [
+    { "src": "/lib/(.*)", "status": 404 },
+    { "src": "/(.*)\\.ts$", "status": 404 },
+    { "src": "/(.*)\\.mts$", "status": 404 },
+    { "src": "/(.*)\\.map$", "status": 404 },
+    { "src": "/package\\.json$", "status": 404 },
+    { "src": "/package-lock\\.json$", "status": 404 },
+    { "src": "/pnpm-lock\\.yaml$", "status": 404 },
+    { "src": "/yarn\\.lock$", "status": 404 },
+    { "src": "/tsconfig(.*)\\.json$", "status": 404 },
+    { "src": "/vercel\\.json$", "status": 404 },
+    { "handle": "filesystem" }
+  ]
 }
