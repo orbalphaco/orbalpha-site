@@ -1,148 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ORBAlpha — Pro Access Required</title>
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background: #E6F1FB;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        color: #2C2C2A;
-      }
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 11px 24px;
-        background: #E6F1FB;
-      }
-      .topbar-logo {
-        font-size: 17px;
-        font-weight: 500;
-        color: #042C53;
-        letter-spacing: -0.2px;
-        text-decoration: none;
-      }
-      .topbar-r {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-      .op-btn {
-        padding: 6px 14px;
-        font-size: 13px;
-        background: transparent;
-        color: #042C53;
-        border: 0.5px solid #042C53;
-        border-radius: 8px;
-        cursor: pointer;
-        font-family: inherit;
-        text-decoration: none;
-        display: inline-block;
-      }
-      .op-btn.op-primary {
-        background: #042C53;
-        color: #E6F1FB;
-      }
-      .op-btn:hover { opacity: 0.85; }
-      .center {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: calc(100vh - 120px);
-        padding: 24px;
-      }
-      .card {
-        background: #042C53;
-        color: #E6F1FB;
-        border-radius: 12px;
-        padding: 40px 36px;
-        max-width: 420px;
-        width: 100%;
-        text-align: center;
-      }
-      .card-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #E6F1FB;
-        margin: 0 0 12px;
-        letter-spacing: -0.3px;
-      }
-      .card-body {
-        font-size: 14px;
-        line-height: 1.6;
-        color: #B5D4F4;
-        margin: 0 0 28px;
-      }
-      .btn-primary {
-        display: inline-block;
-        background: #378ADD;
-        color: #E6F1FB;
-        font-family: inherit;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 11px 28px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        transition: background 0.15s;
-        margin-bottom: 12px;
-      }
-      .btn-primary:hover { background: #185FA5; }
-      .btn-secondary {
-        display: block;
-        font-size: 12px;
-        color: #85B7EB;
-        text-decoration: none;
-        margin-top: 8px;
-      }
-      .btn-secondary:hover { color: #E6F1FB; }
-      .site-links {
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-size: 11px;
-        color: #5F7B97;
-      }
-      .site-links a { color: #5F7B97; text-decoration: none; }
-      .site-links a:hover { color: #042C53; }
-      .site-links .sep { color: #C5D9EC; }
-    </style>
-  </head>
-  <body>
-    <div class="topbar">
-      <a class="topbar-logo" href="/">ORBAlpha</a>
-      <div class="topbar-r">
-        <a class="op-btn" href="/api/auth/login">Sign in</a>
-        <a class="op-btn op-primary" href="https://whop.com/orbalpha">Get access</a>
-      </div>
-    </div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBAlpha — Pro required</title>
+<meta name="robots" content="noindex">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #E6F1FB;
+    color: #042C53;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-    <div class="center">
-      <div class="card">
-        <h1 class="card-title">Pro access required</h1>
-        <p class="card-body">
-          The ORBAlpha Optimizer is available to Pro members only.
-          Get access to unlock the Optimizer, indicators, and tools.
-        </p>
-        <a class="btn-primary" href="https://whop.com/orbalpha">Get access</a>
-        <a class="btn-secondary" href="/api/auth/login">Already a member? Sign in →</a>
-      </div>
-    </div>
+  /* === TOP NAV (cloned from homepage-preview) === */
+  .nav {
+    position: sticky;
+    top: 0;
+    background: #E6F1FB;
+    border-bottom: 0.5px solid #185FA5;
+    padding: 14px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  .nav-logo { font-size: 18px; font-weight: 600; color: #042C53; letter-spacing: -0.3px; text-decoration: none; }
 
-    <footer class="site-links">
-      <span>&copy; 2026 ORBAlpha</span>
-      <span class="sep">&middot;</span>
-      <a href="/legal/">Legal</a>
-      <span class="sep">&middot;</span>
-      <a href="/contact/">Contact</a>
-    </footer>
-  </body>
+  /* === STATUS CONTENT === */
+  .status {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 56px 24px 64px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .status h1 {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+    margin: 0 0 24px;
+    color: #042C53;
+  }
+  .status p { font-size: 17px; color: #1A4D7A; margin: 0 0 14px; max-width: 520px; }
+  .status .spacer { height: 16px; }
+
+  /* === NAVY PRIMARY BUTTON (cloned from homepage-preview .hero-cta) === */
+  .cta-primary {
+    display: inline-block;
+    font-size: 15px;
+    padding: 14px 32px;
+    background: #042C53;
+    color: #E6F1FB;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 8px;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .cta-primary:hover { background: #0C447C; transform: translateY(-1px); }
+  .cta-subtext { font-size: 13px; color: #5F7B97; margin: 12px 0 0; max-width: 440px; }
+
+  /* === SECONDARY TEXT LINK === */
+  .text-link { font-size: 14px; color: #185FA5; text-decoration: underline; }
+  .text-link:hover { color: #042C53; }
+
+  /* === FOOTER (cloned from homepage-preview .site-links) === */
+  .site-links {
+    background: #DFEBF7;
+    padding: 14px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #5F7B97;
+    border-top: 0.5px solid rgba(24, 95, 165, 0.2);
+    flex-wrap: wrap;
+  }
+  .site-links a { color: #5F7B97; text-decoration: none; transition: color 0.15s; }
+  .site-links a:hover { color: #042C53; }
+  .site-links .sep { opacity: 0.4; }
+
+  @media (max-width: 768px) {
+    .nav { padding: 12px 20px; }
+    .status { padding: 40px 20px 48px; }
+    .status h1 { font-size: 30px; }
+    .status p { font-size: 16px; }
+    .site-links { padding: 14px 20px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">ORBAlpha</a>
+  </nav>
+
+  <!-- STATUS -->
+  <main class="status">
+    <h1>ORBAlpha Pro required</h1>
+    <p>This area is for ORBAlpha Pro members.</p>
+    <p>Your account doesn't have an active Pro subscription.</p>
+    <a href="https://whop.com/checkout/plan_N1TNRxkymAuD8" class="cta-primary">Subscribe to ORBAlpha Pro →</a>
+    <p class="cta-subtext">Paid monthly subscription — price and billing terms shown at checkout.</p>
+    <div class="spacer"></div>
+    <p>Already subscribed? Make sure you're logged in with the same account.</p>
+    <a href="/api/auth/login" class="text-link">Log in again</a>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-links">
+    <a href="/contact/">Contact us</a>
+    <span class="sep">·</span>
+    <a href="/legal/">Legal</a>
+  </footer>
+
+</body>
 </html>
