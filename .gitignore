@@ -1,1 +1,7 @@
 node_modules/
+
+# Secrets / local-only — never commit (repo is public, main auto-promotes to prod)
+.env
+.env.local
+.env*.local
+.vercel
