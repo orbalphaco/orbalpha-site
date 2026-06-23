@@ -25,6 +25,10 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
     const codeVerifier = base64url(randomBytes(32));
     const codeChallenge = base64url(createHash('sha256').update(codeVerifier).digest());
     const state = base64url(randomBytes(32));
+    // Whop's OIDC rejects `scope=openid` without a nonce ("nonce is required for
+    // openid scope"). This flow authenticates via access_token + userinfo (no ID
+    // token is parsed), so the nonce only needs to be present, not round-trip-validated.
+    const nonce = base64url(randomBytes(32));
 
     const tx = base64url(Buffer.from(JSON.stringify({ v: codeVerifier, s: state })));
 
@@ -33,6 +37,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
     authorizeUrl.searchParams.set('redirect_uri', REDIRECT_URI);
     authorizeUrl.searchParams.set('response_type', 'code');
     authorizeUrl.searchParams.set('scope', 'openid');
+    authorizeUrl.searchParams.set('nonce', nonce);
     authorizeUrl.searchParams.set('state', state);
     authorizeUrl.searchParams.set('code_challenge', codeChallenge);
     authorizeUrl.searchParams.set('code_challenge_method', 'S256');
