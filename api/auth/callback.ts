@@ -1,4 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { issueToken } from '../../lib/jwt.js';
 import { checkEntitlement } from '../../lib/entitlement.js';
 
@@ -18,14 +19,16 @@ function requireEnv(name: string): string {
   return value;
 }
 
-function redirect(path: string, setCookies: string[] = []): Response {
-  const headers = new Headers();
-  headers.append('Location', path);
-  for (const cookie of setCookies) headers.append('Set-Cookie', cookie);
-  return new Response(null, { status: 302, headers });
+// Node serverless I/O: write the 302 + cookies to `res` (was `new Response(...)`).
+// Multiple Set-Cookie values go as an array (Node res.setHeader supports it).
+function sendRedirect(res: ServerResponse, path: string, setCookies: string[] = []): void {
+  if (setCookies.length) res.setHeader('Set-Cookie', setCookies);
+  res.setHeader('Location', path);
+  res.statusCode = 302;
+  res.end();
 }
 
-function parseCookies(header: string | null): Record<string, string> {
+function parseCookies(header: string | undefined): Record<string, string> {
   const out: Record<string, string> = {};
   if (!header) return out;
   for (const part of header.split(';')) {
@@ -44,18 +47,23 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(ab, bb);
 }
 
-export async function GET(request: Request): Promise<Response> {
+// Default-export (req, res) Node handler (was `export function GET(request): Promise<Response>`).
+// All OAuth logic — CSRF state check, token exchange, userinfo, entitlement gate, session
+// JWT — is unchanged; only request-reading (req.url / req.headers.cookie) and response-writing
+// (sendRedirect → res) were translated out of the Web Request/Response world.
+export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
-    const url = new URL(request.url);
+    // req.url is the relative path+query in Node; give URL a base to parse it.
+    const url = new URL(req.url ?? '/', 'https://orbalpha.com');
 
-    if (url.searchParams.get('error')) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (url.searchParams.get('error')) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     const code = url.searchParams.get('code');
     const stateParam = url.searchParams.get('state');
-    if (!code || !stateParam) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!code || !stateParam) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
-    const tx = parseCookies(request.headers.get('cookie'))['oauth_tx'];
-    if (!tx) return redirect(ERROR_PATH);
+    const tx = parseCookies(req.headers.cookie)['oauth_tx'];
+    if (!tx) return sendRedirect(res, ERROR_PATH);
 
     let verifier: string;
     let stateCookie: string;
@@ -67,12 +75,12 @@ export async function GET(request: Request): Promise<Response> {
       verifier = parsed.v ?? '';
       stateCookie = parsed.s ?? '';
     } catch {
-      return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+      return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
     }
-    if (!verifier || !stateCookie) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!verifier || !stateCookie) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     // T3a CSRF: query state must equal cookie state (constant-time).
-    if (!safeEqual(stateParam, stateCookie)) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!safeEqual(stateParam, stateCookie)) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     // Confidential client → authenticate at the token endpoint with client_secret (client_secret_post).
     const tokenRes = await fetch(TOKEN_URL, {
@@ -87,33 +95,33 @@ export async function GET(request: Request): Promise<Response> {
         code_verifier: verifier,
       }),
     });
-    if (!tokenRes.ok) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!tokenRes.ok) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     const tokenJson = (await tokenRes.json()) as { access_token?: string };
     const accessToken = tokenJson.access_token;
-    if (!accessToken) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!accessToken) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     // Access token is used server-side only, once, then discarded. Never sent to the browser.
     const userRes = await fetch(USERINFO_URL, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    if (!userRes.ok) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!userRes.ok) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     const userJson = (await userRes.json()) as { sub?: string };
     const sub = userJson.sub;
-    if (!sub) return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    if (!sub) return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
 
     // C3: gate on active Pro entitlement, not on successful login alone.
-    if (!(await checkEntitlement(sub))) return redirect(NOT_SUBSCRIBED_PATH, [CLEAR_OAUTH_TX]);
+    if (!(await checkEntitlement(sub))) return sendRedirect(res, NOT_SUBSCRIBED_PATH, [CLEAR_OAUTH_TX]);
 
     // Issue our own session JWT (lib/jwt is the only key boundary).
     const sessionJwt = await issueToken({ sub });
     const sessionCookie = `orbalpha_session=${sessionJwt}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=3540`;
 
     // T3a redirect pin: hardcoded internal path, never derived from query/cookie.
-    return redirect(OPTIMIZER_PATH, [sessionCookie, CLEAR_OAUTH_TX]);
+    return sendRedirect(res, OPTIMIZER_PATH, [sessionCookie, CLEAR_OAUTH_TX]);
   } catch (error) {
     console.error('oauth callback failed; denying', error);
-    return redirect(ERROR_PATH, [CLEAR_OAUTH_TX]);
+    return sendRedirect(res, ERROR_PATH, [CLEAR_OAUTH_TX]);
   }
 }

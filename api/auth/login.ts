@@ -1,4 +1,5 @@
 import { randomBytes, createHash } from 'node:crypto';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 const AUTHORIZE_URL = 'https://api.whop.com/oauth/authorize';
 const REDIRECT_URI = 'https://orbalpha.com/api/auth/callback';
@@ -14,7 +15,12 @@ function base64url(input: Buffer): string {
   return input.toString('base64url');
 }
 
-export async function GET(): Promise<Response> {
+// Vercel Node serverless function — default-export (req, res) handler, the
+// signature THIS project's runtime invokes (proven by api/ping.ts). The prior
+// `export function GET(): Promise<Response>` Web/Route-Handler form was never
+// called by the Node runtime → empty 200 / no redirect. Only the I/O boundary
+// changed below; the PKCE + state + Whop-authorize-redirect logic is unchanged.
+export default async function handler(_req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
     const codeVerifier = base64url(randomBytes(32));
     const codeChallenge = base64url(createHash('sha256').update(codeVerifier).digest());
@@ -31,17 +37,17 @@ export async function GET(): Promise<Response> {
     authorizeUrl.searchParams.set('code_challenge', codeChallenge);
     authorizeUrl.searchParams.set('code_challenge_method', 'S256');
 
-    const headers = new Headers();
-    headers.append('Location', authorizeUrl.toString());
-    headers.append(
+    res.setHeader(
       'Set-Cookie',
       `oauth_tx=${tx}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=600`,
     );
-    return new Response(null, { status: 302, headers });
+    res.setHeader('Location', authorizeUrl.toString());
+    res.statusCode = 302;
+    res.end();
   } catch (error) {
     console.error('oauth login failed; denying', error);
-    const headers = new Headers();
-    headers.append('Location', ERROR_PATH);
-    return new Response(null, { status: 302, headers });
+    res.setHeader('Location', ERROR_PATH);
+    res.statusCode = 302;
+    res.end();
   }
 }
