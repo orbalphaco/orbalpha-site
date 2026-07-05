@@ -123,6 +123,16 @@
       .tradelist-btn:active { background: #042C53; }
       .tradelist-btn:disabled { opacity: 0.4; cursor: not-allowed; }
       .tradelist-btn .dl-ico { font-size: 14px; }
+      /* (Steven, C1) WINDOW EXPORT block — per-window scoped downloads inside the Tradelist tab */
+      .window-export { display: flex; flex-direction: column; gap: 8px; align-items: center; border-top: 0.5px solid #123A5F; padding-top: 12px; margin-top: 2px; width: min(560px, 100%); }
+      .window-export-h { font-size: 10px; color: #85B7EB; letter-spacing: 0.4px; text-transform: uppercase; text-align: center; }
+      .window-export-hint { color: #5F7B97; text-transform: none; letter-spacing: 0; }
+      .window-export-rows { display: flex; flex-direction: column; gap: 6px; }
+      .wx-row { display: flex; align-items: center; gap: 10px; }
+      .wx-label { font-size: 11px; color: #B5D4F4; font-variant-numeric: tabular-nums; min-width: 220px; }
+      .wx-btn { padding: 4px 12px; background: #0C447C; color: #E6F1FB; border: 0.5px solid #185FA5; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 11px; transition: background 0.15s, border-color 0.15s; }
+      .wx-btn:hover { background: #185FA5; border-color: #378ADD; }
+      .wx-btn:active { background: #042C53; }
       .tradelist-btn .dl-label { font-weight: 500; }
       .tradelist-btn .dl-sub { color: #85B7EB; font-size: 11px; }
       .tradelist-hint { font-size: 11px; color: #85B7EB; margin: 0; max-width: 480px; text-align: center; line-height: 1.5; }
@@ -153,6 +163,18 @@
       .eq-tip-date { color: #85B7EB; font-size: 11px; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid #185FA5; }
 
       .footer-empty { padding: 28px 20px; text-align: center; color: #5F7B97; font-size: 13px; flex: 1; display: flex; align-items: center; justify-content: center; }
+
+      /* Robustness TAB pane (sandbox) — card-linked, sibling of #tab-body. .rf is the pane
+         box; .rf-filter styles the "Hide non-ROBUST" checkbox in the Selection Filter. The
+         pane's inner content (leg selector + report) is styled by render-legs-frss-sandbox. */
+      .rf { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 14px 11px; }
+      .rf-filter { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #B5D4F4; cursor: pointer; }
+      .rf-filter input { width: auto; margin: 0; padding: 0; border: 0; background: transparent; accent-color: #378ADD; cursor: pointer; }
+      /* Robustness-tab MODE: while the Robustness tab is active, force the shared stats body
+         (#tab-body) hidden with !important so render-cards-frss's inline `display:flex` on
+         card-select can NEVER win — only #robustness-pane shows. Immune to the card-select
+         show/hide race; correct across repeated card clicks, not just the first tab switch. */
+      .footer.rf-mode #tab-body { display: none !important; }
 
       /* === B1: v4 card list (replaces old .card / .stats-grid / etc.) === */
       .card-list-h { display: grid; grid-template-columns: 36px 1fr 1fr 28px; gap: 8px; align-items: center; padding: 0 10px 5px; font-size: 11px; color: #5F7B97; letter-spacing: 0.4px; text-transform: uppercase; flex-shrink: 0; border-bottom: 0.5px solid #0C447C; margin-bottom: 4px; }
@@ -294,6 +316,34 @@
       }
       .muted, .hint { color: #94A3B8; }
       .hint { font-size: 12px; margin: 0 0 12px 0; }
+
+      /* Selection Filter (sandbox · Part 2) — compact levers above the cards */
+      .filter-section { flex-shrink: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 0.5px solid #185FA5; }
+      .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 8px 10px; }
+      .filter-grid label {
+        display: flex; flex-direction: column; gap: 4px;
+        font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+      }
+      .filter-grid input, .filter-grid select { width: 100%; }
+      .filter-multi { margin-top: 8px; }
+      .filter-multi-label {
+        display: block; margin-bottom: 4px;
+        font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+      }
+      .filter-chips { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+      .filter-chips .chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text); cursor: pointer; }
+      .filter-chips .chk input[type="checkbox"] {
+        width: auto; padding: 0; margin: 0; border: 0; background: transparent; accent-color: var(--accent); cursor: pointer;
+      }
+      .filter-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+      /* Filtering status always on its OWN line below the buttons, so it stays static and
+         does not jump when the CANCEL button appears/disappears. */
+      .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
+      /* Filter + cards now share .col-scroll, so the levers no longer need their own height cap. */
+      /* FIX 2: drop the duplicate divider above SELECTION FILTER — the col-h border already separates it */
+      .filter-section > details.collapsible { border-top: 0; padding-top: 0; }
+
+      /* (Part 3 results-table CSS removed — Part 4 reworks the filter to hide/show cards in place) */
 
       /* Upload cells */
       .upload-row { display: flex; flex-direction: row; gap: 10px; align-items: stretch; }
@@ -680,8 +730,9 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frb-BWrzot10.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/popover-DvMmRAQk.js">
+    <script type="module" crossorigin src="./assets/frbFilter-B6CI7W_E.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/popover-LVipPU20.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-C-UmwIi-.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -757,8 +808,8 @@
                   <div class="upload-row">
                     <!-- FRB: Daily upload slot REMOVED — the FRB engine consumes only the 5-min
                          series and ignores daily bars, so a daily override has no effect. -->
-                    <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="5-Min OHLCV Data — drop CSV or click to browse">
-                      <label for="file-ohlcv">5-Min OHLCV Data (raw TV or DXT v1.7)</label>
+                    <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="Preferred Strategy Timeframe OHLCV Data — drop CSV or click to browse">
+                      <label for="file-ohlcv">Preferred Strategy Timeframe OHLCV Data (TradingView's Chart Data CSV)</label>
                       <input type="file" id="file-ohlcv" accept=".csv" />
                       <div class="drop-zone-prompt">Drop CSV or click</div>
                       <div class="upload-meta" id="meta-ohlcv">No file selected</div>
@@ -815,8 +866,7 @@
                       <input type="date" id="input-trade-to" />
                     </label>
                   </div>
-                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Test Window bounds are NY wall-clock dates, inclusive; bars outside the window are used for warmup but don't generate trades.</p>
-                  <p class="hint" style="margin-top: 6px; margin-bottom: 0;">Matching this window to a Pine Strategy Tester range does not guarantee bit-exact parity in the first ~3 weeks of the window. Pine's indicators get their warmup depth from whatever chart history is loaded, while Optimizer warms from the full Daily Override. The difference is warmup-depth asymmetry, not engine drift.</p>
+                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Test Window bounds are NY wall-clock dates, inclusive; bars before the window are used for warmup but don't enter trades. To reproduce a card in TradingView, set the Strategy Tester to the same date range — parity is entry-exact within the shared window; small residual differences come from exit-fill modeling, not entry logic.</p>
                 </details>
 
                 <details class="collapsible">
@@ -852,7 +902,7 @@
               <div class="col-foot" id="section-run">
                 <button id="run-btn" disabled>RUN OPTIMIZER</button>
                 <button id="cancel-btn" class="hidden">CANCEL</button>
-                <span id="run-status">Upload the 5-min OHLCV CSV to enable.</span>
+                <span id="run-status">Upload your preferred trading timeframe's OHLCV CSV to enable</span>
               </div>
             </div>
 
@@ -919,6 +969,81 @@
             <div class="col" id="col-outputs">
               <div class="col-h">Outputs / Cards</div>
               <div class="col-scroll">
+              <!-- FILTER (sandbox) — filter + cards share one scroll so the cards stay reachable when the filter is open -->
+              <div class="filter-section" id="section-filter">
+                <details class="collapsible">
+                  <summary>Selection Filter</summary>
+                  <div class="filter-body">
+                <div class="filter-grid">
+                  <!-- (Steven) Selection Filter starts BLANK — matches RESET. Blank APPLY
+                       falls back to the canonical defaults (readFilterLevers). -->
+                  <label>Min Profit Factor
+                    <input type="number" id="input-filter-pf" min="1.00" max="3.00" step="0.05" />
+                  </label>
+                  <label>Max DD MC-95th ($)
+                    <input type="number" id="input-filter-dd" min="0" max="3000" step="50" />
+                  </label>
+                  <label>Min Win Rate (%)
+                    <input type="number" id="input-filter-wr" min="0" max="100" step="1" />
+                  </label>
+                  <label>Min Window Trades
+                    <input type="number" id="input-filter-min-trades" min="1" step="1" />
+                  </label>
+                  <label>Time Spread
+                    <select id="input-filter-spread">
+                      <option value="off" selected>off</option>
+                      <option value="soft">soft</option>
+                      <option value="strict">strict</option>
+                    </select>
+                  </label>
+                  <label>Rank By
+                    <select id="input-filter-rank">
+                      <option value="deploy-net" selected>deploy-net</option>
+                      <option value="margin">margin</option>
+                      <option value="pf">pf</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="filter-multi" id="input-filter-k">
+                  <span class="filter-multi-label">k (min_range_k)</span>
+                  <div class="filter-chips">
+                    <label class="chk"><input type="checkbox" value="0" />0</label>
+                    <label class="chk"><input type="checkbox" value="1" />1</label>
+                    <label class="chk"><input type="checkbox" value="1.25" />1.25</label>
+                    <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
+                    <label class="chk"><input type="checkbox" value="1.75" />1.75</label>
+                    <label class="chk"><input type="checkbox" value="2" />2</label>
+                    <label class="chk"><input type="checkbox" value="2.25" />2.25</label>
+                    <label class="chk"><input type="checkbox" value="2.5" />2.5</label>
+                    <label class="chk"><input type="checkbox" value="2.75" />2.75</label>
+                    <label class="chk"><input type="checkbox" value="3" />3</label>
+                    <label class="chk"><input type="checkbox" value="3.25" />3.25</label>
+                    <label class="chk"><input type="checkbox" value="3.5" />3.5</label>
+                  </div>
+                </div>
+                <div class="filter-multi" id="input-filter-rr">
+                  <span class="filter-multi-label">R:R ratio</span>
+                  <div class="filter-chips">
+                    <label class="chk"><input type="checkbox" value="0.5" />0.5</label>
+                    <label class="chk"><input type="checkbox" value="1" />1</label>
+                    <label class="chk"><input type="checkbox" value="1.2" />1.2</label>
+                    <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
+                    <label class="chk"><input type="checkbox" value="2" />2</label>
+                  </div>
+                </div>
+                <label class="rf-filter" id="input-filter-hide-nonrobust-row" style="margin-top: 8px;"
+                  title="At APPLY, run the neighborhood robustness test on every deployable window and remove any card whose deployable windows are ALL non-ROBUST. A card survives if it has ≥1 ROBUST deployable window. Eager: tests run in the background with a progress readout and a Cancel button; the final list renders once when the whole filter completes.">
+                  <input type="checkbox" id="input-filter-hide-nonrobust" /> Hide non-ROBUST cards (eager)
+                </label>
+                  </div>
+                  <div class="filter-foot">
+                    <button id="btn-run-filter" disabled title="Apply the selection filter to the live sweep results">APPLY</button>
+                    <button id="btn-reset-filter" type="button" title="Reset filter levers and show all cards">RESET</button>
+                    <button id="btn-cancel-filter" type="button" class="hidden" title="Cancel the in-progress filtering (keeps results already computed)">CANCEL</button>
+                    <span id="filter-status" class="footer-placeholder"></span>
+                  </div>
+                </details>
+              </div>
                 <section id="section-results" class="hidden">
                   <div class="results-summary" id="results-summary"></div>
                   <div class="cards-grid" id="cards-grid"></div>
@@ -953,8 +1078,11 @@
             <div class="tabs" id="footer-tabs">
               <button class="tab active" type="button" data-tab="stats">Stats</button>
               <!-- FRB: Advanced-stats tab OMITTED (tier is ORB/ORF-calibrated). -->
+              <!-- Robustness tab (sandbox) — card-linked like Stats; managed by main-frss-filter.ts
+                   (a delegated #footer-tabs listener shows #robustness-pane vs #tab-body).
+                   (Steven) Ordered BEFORE Tradelist. -->
+              <button class="tab" type="button" data-tab="robustness">Robustness</button>
               <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
-              <button class="tab disabled" type="button" data-tab="compare" aria-disabled="true" tabindex="-1">Compare <span class="lock">&#x1F512;</span></button>
             </div>
 
             <div class="tab-body" id="tab-body" style="display:none;">
@@ -985,11 +1113,28 @@
                   </button>
                 </div>
                 <p class="tradelist-hint">CSV opens in Excel directly. JSON preserves data types and includes card metadata for analyst consumption.</p>
+                <!-- (Steven, C1) WINDOW EXPORT — per-window SCOPED tradelist downloads, card-linked.
+                     Sandbox-owned: rows populated by main-frss-filter.ts (renderWindowExportControls);
+                     the shared render-cards-frss.ts never touches this block. The whole-card
+                     Download CSV/JSON buttons above are UNCHANGED. -->
+                <div class="window-export" id="window-export" style="display:none;">
+                  <div class="window-export-h">WINDOW EXPORT
+                    <span class="window-export-hint">— one window's trades with that window's own stats (self-consistent for parity checks)</span>
+                  </div>
+                  <div class="window-export-rows" id="window-export-rows"></div>
+                </div>
               </div>
               <!-- FRB: advanced-stats-body OMITTED (tier ORB/ORF-calibrated; pairing retired). -->
             </div>
 
             <div class="footer-empty" id="footer-empty-state">Run a sweep to see results.</div>
+
+            <!-- Robustness TAB pane (sandbox) — CARD-LINKED, a sibling of #tab-body. Shown
+                 when the Robustness footer tab is active (a delegated #footer-tabs listener
+                 in main-frss-filter.ts swaps #tab-body ⇄ #robustness-pane). Content = the
+                 3-slot leg selector + the selected leg's report, rendered by
+                 render-legs-frss-sandbox.ts for the currently-selected card. -->
+            <div id="robustness-pane" class="rf hidden"></div>
           </div>
 
         </div>
