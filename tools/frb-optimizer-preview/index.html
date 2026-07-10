@@ -730,7 +730,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CJr_lo6n.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-DpyEFc-y.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-B6SoZ2Vu.js">
   </head>
@@ -840,6 +840,14 @@
                     <label>
                       Initial Capital ($)
                       <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
+                    </label>
+                    <label>
+                      Max Drawdown %
+                      <!-- Default 2.4% reproduces the legacy $1,200 gate at a $50,000 account
+                           (50000 × 0.024 = 1200). A starting default users override — NOT a universal
+                           rule. 2.4% is % of CAPITAL; it only equals ~60% of the $2,000 room at $50k.
+                           Room and capital don't scale together across account tiers. -->
+                      <input type="number" id="input-max-dd-pct" min="0.1" max="100" step="0.1" value="2.4" />
                     </label>
                     <label>
                       Max Contracts
@@ -987,9 +995,9 @@
                   <label>Min Profit Factor
                     <input type="number" id="input-filter-pf" min="1.00" max="3.00" step="0.05" />
                   </label>
-                  <label>Max DD MC-95th ($)
-                    <input type="number" id="input-filter-dd" min="0" max="3000" step="50" />
-                  </label>
+                  <!-- Max DD MC-95th ($) box REMOVED (ddBudget migration): the MC survival
+                       budget is now initialCapital × Max Drawdown % — run inputs (Configuration
+                       panel), one value/run, shared verbatim with the neighborhood G3 gate. -->
                   <label>Min Win Rate (%)
                     <input type="number" id="input-filter-wr" min="0" max="100" step="1" />
                   </label>
