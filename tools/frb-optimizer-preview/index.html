@@ -777,7 +777,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CEjM--we.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-jtpEHgF0.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-JmK_e1J2.js">
   </head>
@@ -1153,6 +1153,7 @@
                    (a delegated #footer-tabs listener shows #robustness-pane vs #tab-body).
                    (Steven) Ordered BEFORE Tradelist. -->
               <button class="tab" type="button" data-tab="robustness">Robustness</button>
+              <button class="tab" type="button" data-tab="durability">Durability</button>
               <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
             </div>
 
@@ -1206,6 +1207,11 @@
                  3-slot leg selector + the selected leg's report, rendered by
                  render-legs-frss-sandbox.ts for the currently-selected card. -->
             <div id="robustness-pane" class="rf hidden"></div>
+            <!-- (#15) Durability pane — card-linked sibling of the Robustness pane; same
+                 .rf layout + rf-mode suppression of #tab-body; content rendered by
+                 render-durability-frss-sandbox (MC DD distribution / 2d OOS split / 2e
+                 MDD stability, computed in selection/durability.ts). -->
+            <div id="durability-pane" class="rf hidden"></div>
           </div>
 
         </div>
