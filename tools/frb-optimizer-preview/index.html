@@ -366,7 +366,10 @@
 
       /* Selection Filter (sandbox · Part 2) — compact levers above the cards */
       .filter-section { flex-shrink: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 0.5px solid #185FA5; }
-      .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 8px 10px; }
+      /* (#20) fixed 3-column grid → the 5 controls flow as two tidy rows:
+         Min PF | Min Win Rate % | Min Window Trades / Time Spread | Rank By.
+         Layout only — no field renames, no id changes. */
+      .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 10px; }
       .filter-grid label {
         display: flex; flex-direction: column; gap: 4px;
         font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
@@ -777,7 +780,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-jtpEHgF0.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-2UJNxx5k.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-JmK_e1J2.js">
   </head>
@@ -1209,8 +1212,9 @@
             <div id="robustness-pane" class="rf hidden"></div>
             <!-- (#15) Durability pane — card-linked sibling of the Robustness pane; same
                  .rf layout + rf-mode suppression of #tab-body; content rendered by
-                 render-durability-frss-sandbox (MC DD distribution / 2d OOS split / 2e
-                 MDD stability, computed in selection/durability.ts). -->
+                 render-durability-frss-sandbox (Monte Carlo Drawdown / Out-of-Sample
+                 Split / Drawdown Stability, computed in selection/durability.ts —
+                 RAW figures only per #21). -->
             <div id="durability-pane" class="rf hidden"></div>
           </div>
 
