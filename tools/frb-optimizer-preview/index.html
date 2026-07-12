@@ -279,6 +279,53 @@
       }
       details.collapsible[open] > summary::after { content: "−"; }
 
+      /* Panel header info tooltips — mirrors the sidebar .sb-icon[data-tip] pattern.
+         The tooltip anchors to the SUMMARY's left edge (summary is the positioned
+         ancestor; the .panel-info span stays static) so it can't clip on the column's
+         right edge; width caps at the panel width and wraps. */
+      details.collapsible > summary { position: relative; }
+      .panel-info {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 13px;
+        height: 13px;
+        margin-left: 6px;
+        border: 1px solid #5F7B97;
+        border-radius: 50%;
+        font-size: 9px;
+        font-weight: 400;
+        letter-spacing: 0;
+        color: #85B7EB;
+        cursor: help;
+        vertical-align: 1px;
+      }
+      .panel-info[data-tip]::after {
+        content: attr(data-tip);
+        position: absolute;
+        left: 0;
+        top: calc(100% + 6px);
+        background: #0C447C;
+        color: #E6F1FB;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.45;
+        letter-spacing: 0.3px;
+        text-transform: none;
+        width: max-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        white-space: normal;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s;
+        z-index: 100;
+      }
+      .panel-info[data-tip]:hover::after,
+      .panel-info[data-tip]:focus::after { opacity: 1; }
+
       /* Form controls (dark theme inside dark navy col) */
       button {
         font-family: inherit;
@@ -730,9 +777,9 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-DpyEFc-y.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-CEjM--we.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-B6SoZ2Vu.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-JmK_e1J2.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -818,7 +865,7 @@
                 </div>
 
                 <details class="collapsible" id="section-config">
-                  <summary>Configuration</summary>
+                  <summary>Configuration <span class="panel-info" tabindex="0" data-tip="Set up your test: market, money, dates, and risk limits.">i</span></summary>
                   <div class="config-grid">
                     <label class="full">
                       Asset
@@ -829,17 +876,34 @@
                         <div class="manual-tick-meta">ES=12.50 | NQ=5.00 | CL=10.00 | ZN=15.625 | 6E=12.50 | ZC=12.50</div>
                       </div>
                     </label>
+                    <!-- Row order per 2026-07-10 reorg. Relabels are DISPLAY TEXT ONLY —
+                         every input id / export key is unchanged. -->
+                    <label class="full">
+                      Account Size ($)
+                      <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
+                    </label>
                     <label>
-                      Max Risk Per Trade ($)
-                      <input type="number" id="input-max-risk" min="1" step="10" value="350" />
+                      Backtest From
+                      <input type="date" id="input-trade-from" />
+                    </label>
+                    <label>
+                      Backtest To
+                      <input type="date" id="input-trade-to" />
                     </label>
                     <label>
                       Target Risk ($)
                       <input type="number" id="input-target-risk" min="1" step="10" value="250" />
                     </label>
                     <label>
-                      Initial Capital ($)
-                      <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
+                      Max Risk / Trade ($)
+                      <input type="number" id="input-max-risk" min="1" step="10" value="350" />
+                    </label>
+                    <label>
+                      Max Trades / Day (0 = off)
+                      <!-- Wishlist #12 (2026-07-10): live — the engine's Step 9 per-session-day
+                           cap (parity with Pine FRSS_v2_0 ADDITION 1). One value/run, not swept.
+                           0 = off = certified path. -->
+                      <input type="number" id="input-max-trades-day" min="0" step="1" value="0" />
                     </label>
                     <label>
                       Max Drawdown %
@@ -850,35 +914,27 @@
                       <input type="number" id="input-max-dd-pct" min="0.1" max="100" step="0.1" value="2.4" />
                     </label>
                     <label>
+                      Min Trades to Qualify
+                      <input type="number" id="input-min-trades" min="1" step="1" value="25" />
+                    </label>
+                    <label>
                       Max Contracts
                       <input type="number" id="input-max-contracts" min="1" step="1" value="40" />
                     </label>
                     <label>
-                      Min Trades
-                      <input type="number" id="input-min-trades" min="1" step="1" value="25" />
-                    </label>
-                    <label>
-                      Phase 1 Samples
+                      Configs to Test
                       <input type="number" id="input-phase1" min="100" step="100" value="2000" />
                     </label>
                     <label>
-                      Export Top-N Cards
+                      Top Results to Keep
                       <input type="number" id="input-top-n" min="1" max="1000" step="1" value="10" />
                     </label>
-                    <label>
-                      Test Window From
-                      <input type="date" id="input-trade-from" />
-                    </label>
-                    <label>
-                      Test Window To
-                      <input type="date" id="input-trade-to" />
-                    </label>
                   </div>
-                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Test Window bounds are NY wall-clock dates, inclusive; bars before the window are used for warmup but don't enter trades. To reproduce a card in TradingView, set the Strategy Tester to the same date range — parity is entry-exact within the shared window; small residual differences come from exit-fill modeling, not entry logic.</p>
+                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Backtest From/To bounds are NY wall-clock dates, inclusive; bars before the window are used for warmup but don't enter trades. To reproduce a card in TradingView, set the Strategy Tester to the same date range — parity is entry-exact within the shared window; small residual differences come from exit-fill modeling, not entry logic.</p>
                 </details>
 
                 <details class="collapsible">
-                  <summary>Scoring Weights (Advanced)</summary>
+                  <summary>Scoring Weights (Advanced) <span class="panel-info" tabindex="0" data-tip="Tell the optimizer what matters most. Higher = weighs more when ranking.">i</span></summary>
                   <div class="weights-grid">
                     <label>PnL Weight
                       <input type="number" id="input-weight-pnl" min="0" max="1" step="0.05" value="0.40" />
@@ -987,7 +1043,7 @@
               <!-- FILTER (sandbox) — filter + cards share one scroll so the cards stay reachable when the filter is open -->
               <div class="filter-section" id="section-filter">
                 <details class="collapsible">
-                  <summary>Selection Filter</summary>
+                  <summary>Selection Filter <span class="panel-info" tabindex="0" data-tip="Show only cards that pass your rules. Tighter = fewer, stronger results.">i</span></summary>
                   <div class="filter-body">
                 <div class="filter-grid">
                   <!-- (Steven) Selection Filter starts BLANK — matches RESET. Blank APPLY
