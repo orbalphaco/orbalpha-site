@@ -492,6 +492,26 @@
       #cancel-btn:hover:not(:disabled) {
         background: rgba(239, 68, 68, 0.10);
       }
+      /* (Steven, 2026-07-16 layout) ⓘ beside NEW SAMPLE — title-tooltip rollover
+         explaining the seed-based unlock. Mirrors .info-icon-btn geometry, theme-dim. */
+      .ns-info {
+        font-size: 11px;
+        line-height: 1;
+        color: var(--text-dim);
+        border: 1px solid var(--border);
+        padding: 2px 6px;
+        cursor: help;
+        user-select: none;
+      }
+      .ns-info:hover, .ns-info:focus-visible {
+        color: var(--text);
+        border-color: var(--text-dim);
+        outline: none;
+      }
+      /* (Steven, 2026-07-16 layout) Outputs footer: preset strip far left (its
+         margin-right:auto pushes the next sibling), EXPORT SWEEP pinned far right —
+         also holds when the strip wraps on narrow viewports. */
+      #outputs-foot #btn-export-sweep { margin-left: auto; }
       #run-status {
         flex: 1 1 100%;
         font-size: 11px;
@@ -780,7 +800,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CLtIemhr.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-B4j-vbOn.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
   </head>
@@ -966,8 +986,14 @@
                 </details>
 
               </div>
+              <!-- (Steven, 2026-07-16 layout) Run controls left→right: RUN / NEW SAMPLE / CANCEL.
+                   NEW SAMPLE lives HERE (moved from the Outputs footer) and stays greyed until
+                   the first RUN — RUN establishes the reproducible baseline seed (42); NEW SAMPLE
+                   then re-samples with a fresh seed. The ⓘ explains that to the user. -->
               <div class="col-foot" id="section-run">
                 <button id="run-btn" disabled>RUN OPTIMIZER</button>
+                <button id="btn-new-sample" disabled title="Re-run the sweep with a fresh Phase-1 sampling seed. Unlocks after the first RUN.">NEW SAMPLE</button>
+                <span class="ns-info" tabindex="0" aria-label="About NEW SAMPLE" title="Why greyed out? RUN OPTIMIZER always samples with the baseline seed (42) so results are reproducible. NEW SAMPLE re-runs the same inputs with a fresh random seed to test selection stability — so it needs a first run to compare against. Whichever seed ran is stamped into every export (scanInputs.phase1Seed).">i</span>
                 <button id="cancel-btn" class="hidden">CANCEL</button>
                 <span id="run-status">Upload your preferred trading timeframe's OHLCV CSV to enable</span>
               </div>
@@ -1123,8 +1149,10 @@
                   <div class="cards-grid" id="cards-grid"></div>
                 </section>
               </div>
-              <div class="col-foot">
-                <button id="btn-new-sample" disabled title="Re-run the sweep with a new RNG seed for Phase 1 sampling">NEW SAMPLE</button>
+              <!-- (Steven, 2026-07-16 layout) Outputs footer: preset strip (Set 1 / Set 2 / Save /
+                   Clear / Export / Import) mounts FAR LEFT (frb-presets.ts inserts it as first
+                   child); EXPORT SWEEP sits FAR RIGHT. NEW SAMPLE moved to the run controls. -->
+              <div class="col-foot" id="outputs-foot">
                 <button id="btn-export-sweep" disabled title="Download all top-N cards as one JSON file (selection-stability snapshot)">EXPORT SWEEP</button>
               </div>
 
