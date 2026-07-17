@@ -165,11 +165,10 @@
       .footer-empty { padding: 28px 20px; text-align: center; color: #5F7B97; font-size: 13px; flex: 1; display: flex; align-items: center; justify-content: center; }
 
       /* Robustness TAB pane (sandbox) — card-linked, sibling of #tab-body. .rf is the pane
-         box; .rf-filter styles the "Hide non-ROBUST" checkbox in the Selection Filter. The
-         pane's inner content (leg selector + report) is styled by render-legs-frss-sandbox. */
+         box; the "Hide non-ROBUST" control is a native .filter-multi member beside R:R
+         (Steven, 2026-07-17 — .rf-filter retired). The pane's inner content (leg selector +
+         report) is styled by render-legs-frss-sandbox. */
       .rf { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 14px 11px; }
-      .rf-filter { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #B5D4F4; cursor: pointer; }
-      .rf-filter input { width: auto; margin: 0; padding: 0; border: 0; background: transparent; accent-color: #378ADD; cursor: pointer; }
       /* Robustness-tab MODE: while the Robustness tab is active, force the shared stats body
          (#tab-body) hidden with !important so render-cards-frss's inline `display:flex` on
          card-select can NEVER win — only #robustness-pane shows. Immune to the card-select
@@ -385,6 +384,9 @@
       .filter-chips .chk input[type="checkbox"] {
         width: auto; padding: 0; margin: 0; border: 0; background: transparent; accent-color: var(--accent); cursor: pointer;
       }
+      /* (Steven, 2026-07-17 layout) R:R + Robustness (HNRC) side by side — both are plain
+         .filter-multi members, so label/chip treatment matches the rest of the section. */
+      .filter-multi-row { display: flex; flex-wrap: wrap; gap: 0 28px; align-items: flex-start; }
       .filter-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
       /* Filtering status always on its OWN line below the buttons, so it stays static and
          does not jump when the CANCEL button appears/disappears. */
@@ -800,7 +802,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-B4j-vbOn.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-DVcr00hX.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
   </head>
@@ -1121,20 +1123,28 @@
                     <label class="chk"><input type="checkbox" value="3.5" />3.5</label>
                   </div>
                 </div>
-                <div class="filter-multi" id="input-filter-rr">
-                  <span class="filter-multi-label">R:R ratio</span>
-                  <div class="filter-chips">
-                    <label class="chk"><input type="checkbox" value="0.5" />0.5</label>
-                    <label class="chk"><input type="checkbox" value="1" />1</label>
-                    <label class="chk"><input type="checkbox" value="1.2" />1.2</label>
-                    <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
-                    <label class="chk"><input type="checkbox" value="2" />2</label>
+                <!-- (Steven, 2026-07-17 layout) HNRC sits NEXT TO the R:R block, styled as a
+                     native Selection Filter control (same filter-multi label + chip treatment).
+                     Same input id — wiring untouched. -->
+                <div class="filter-multi-row">
+                  <div class="filter-multi" id="input-filter-rr">
+                    <span class="filter-multi-label">R:R ratio</span>
+                    <div class="filter-chips">
+                      <label class="chk"><input type="checkbox" value="0.5" />0.5</label>
+                      <label class="chk"><input type="checkbox" value="1" />1</label>
+                      <label class="chk"><input type="checkbox" value="1.2" />1.2</label>
+                      <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
+                      <label class="chk"><input type="checkbox" value="2" />2</label>
+                    </div>
+                  </div>
+                  <div class="filter-multi" id="input-filter-hide-nonrobust-row"
+                    title="At APPLY, hide every window whose verdict is not in the ROBUST pool (FRAGILE / INCONCLUSIVE / zero-loss / untested); a card hides ONLY when ALL its enabled windows are non-ROBUST — a mixed card stays, showing just its ROBUST windows (leg-level, 2026-07-17). Budget-fit is NOT consulted here: an over-budget-but-ROBUST window still shows (budget lives in the Selection Filter's survival gate). Display-only — exports keep every window + verdict. Eager: verdicts come from the sweep's Stressed stage; misses compute at APPLY with progress + Cancel.">
+                    <span class="filter-multi-label">Robustness</span>
+                    <div class="filter-chips">
+                      <label class="chk"><input type="checkbox" id="input-filter-hide-nonrobust" /> Hide non-ROBUST (eager)</label>
+                    </div>
                   </div>
                 </div>
-                <label class="rf-filter" id="input-filter-hide-nonrobust-row" style="margin-top: 8px;"
-                  title="At APPLY, run the neighborhood robustness test on every deployable window and remove any card whose deployable windows are ALL non-ROBUST. A card survives if it has ≥1 ROBUST deployable window. Eager: tests run in the background with a progress readout and a Cancel button; the final list renders once when the whole filter completes.">
-                  <input type="checkbox" id="input-filter-hide-nonrobust" /> Hide non-ROBUST cards (eager)
-                </label>
                   </div>
                   <div class="filter-foot">
                     <button id="btn-run-filter" disabled title="Apply the selection filter to the live sweep results">APPLY</button>
