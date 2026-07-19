@@ -388,6 +388,12 @@
          .filter-multi members, so label/chip treatment matches the rest of the section. */
       .filter-multi-row { display: flex; flex-wrap: wrap; gap: 0 28px; align-items: flex-start; }
       .filter-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+      /* (Steven, 2026-07-17) APPLY / RESET (+ CANCEL, same row) sized to match the preset
+         "Set" buttons (font 11px · padding 6px 8px · letter-spacing 0.5px) so the Outputs
+         footer controls read as one consistent cluster. */
+      .filter-foot #btn-run-filter,
+      .filter-foot #btn-reset-filter,
+      .filter-foot #btn-cancel-filter { font-size: 11px; padding: 6px 8px; letter-spacing: 0.5px; }
       /* Filtering status always on its OWN line below the buttons, so it stays static and
          does not jump when the CANCEL button appears/disappears. */
       .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
