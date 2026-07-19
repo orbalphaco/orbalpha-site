@@ -394,6 +394,13 @@
       .filter-foot #btn-run-filter,
       .filter-foot #btn-reset-filter,
       .filter-foot #btn-cancel-filter { font-size: 11px; padding: 6px 8px; letter-spacing: 0.5px; }
+      /* (GO 2026-07-18) APPLY PENDING = panel settings not engaged against the current sample —
+         true after EVERY sweep and after RESET, until the user presses APPLY. Accent treatment
+         + dot so "the filter has not been applied to what you're looking at" is always visible. */
+      .filter-foot #btn-run-filter.pending { border-color: var(--accent); color: var(--accent); }
+      .filter-foot #btn-run-filter.pending::after { content: " \25CF"; font-size: 8px; vertical-align: 1px; }
+      /* (GO 2026-07-18) the Showing-X-of-Y state line sits tight under the sweep summary */
+      .card-count { margin-top: 2px; }
       /* Filtering status always on its OWN line below the buttons, so it stays static and
          does not jump when the CANCEL button appears/disappears. */
       .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
@@ -808,7 +815,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-DVcr00hX.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-DdN9cNhB.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
   </head>
@@ -1162,6 +1169,11 @@
               </div>
                 <section id="section-results" class="hidden">
                   <div class="results-summary" id="results-summary"></div>
+                  <!-- (GO 2026-07-18) ALWAYS states what the list shows. (unfiltered) = the full
+                       Top-N from the last sweep — saved filter settings load but never engage on
+                       their own; (filtered) = survivors of the last explicit APPLY. -->
+                  <div class="results-summary card-count" id="card-count"
+                    title="What the card list currently shows. Every sweep (RUN OPTIMIZER / NEW SAMPLE / new CSV) resets to the full unfiltered Top-N — saved filter settings load into the panel but only engage when you press APPLY."></div>
                   <div class="cards-grid" id="cards-grid"></div>
                 </section>
               </div>
