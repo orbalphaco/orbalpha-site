@@ -815,7 +815,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-aYH5EWsT.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-CH4MGel6.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
   </head>
@@ -1151,7 +1151,7 @@
                     </div>
                   </div>
                   <div class="filter-multi" id="input-filter-hide-nonrobust-row"
-                    title="At APPLY, hide every window whose verdict is not in the ROBUST pool (FRAGILE / INCONCLUSIVE / zero-loss / untested); a card hides ONLY when ALL its enabled windows are non-ROBUST — a mixed card stays, showing just its ROBUST windows (leg-level, 2026-07-17). Budget-fit is NOT consulted here: an over-budget-but-ROBUST window still shows (budget lives in the Selection Filter's survival gate). Display-only — exports keep every window + verdict. Eager: verdicts come from the sweep's Stressed stage; misses compute at APPLY with progress + Cancel.">
+                    title="At APPLY, hide every window that is not in the ROBUST pool (FRAGILE / INCONCLUSIVE / zero-loss / untested) OR that fails the filter panel's own gates (min trades / k / R:R / PF / win rate / time-spread — 2026-07-21); a card hides ONLY when ALL its enabled windows are out — a mixed card stays, showing just its passing ROBUST windows (leg-level, 2026-07-17). Budget-fit is NOT consulted here: an over-budget-but-ROBUST window still shows (budget lives in the Selection Filter's survival gate). Display-only — exports keep every window + verdict. Eager: verdicts come from the sweep's Stressed stage; misses compute at APPLY with progress + Cancel.">
                     <span class="filter-multi-label">Robustness</span>
                     <div class="filter-chips">
                       <label class="chk"><input type="checkbox" id="input-filter-hide-nonrobust" /> Hide non-ROBUST (eager)</label>
