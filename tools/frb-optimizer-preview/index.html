@@ -405,6 +405,18 @@
          does not jump when the CANCEL button appears/disappears. */
       .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
       /* Filter + cards now share .col-scroll, so the levers no longer need their own height cap. */
+      /* (REGIME A, 2026-07-26) sweep-level regime block — same text treatment as
+         .results-summary; the ranking table stays collapsed behind a <details>. */
+      .regime-summary .rg-details summary { cursor: pointer; user-select: none; }
+      .regime-summary .rg-table { border-collapse: collapse; margin: 8px 0 4px; }
+      .regime-summary .rg-table th, .regime-summary .rg-table td {
+        padding: 2px 14px 2px 0; text-align: left; font-size: 12px;
+      }
+      .regime-summary .rg-table th { opacity: 0.7; font-weight: 600; }
+      .regime-summary .rg-num { text-align: right; }
+      .regime-summary .rg-unranked { opacity: 0.55; }
+      .regime-summary .rg-dim { opacity: 0.55; }
+      .regime-summary .rg-note { font-size: 11px; opacity: 0.7; max-width: 720px; margin-top: 2px; }
       /* FIX 2: drop the duplicate divider above SELECTION FILTER — the col-h border already separates it */
       .filter-section > details.collapsible { border-top: 0; padding-top: 0; }
 
@@ -815,7 +827,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CH4MGel6.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-BN4tQpG2.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
   </head>
@@ -1136,6 +1148,28 @@
                     <label class="chk"><input type="checkbox" value="3.5" />3.5</label>
                   </div>
                 </div>
+                <!-- (REGIME D, 2026-07-26) Entry-block include-list: 11 chips = the sweep's
+                     own 2h session grid (18:00 open → 16:00 close; the 16-18 halt has no
+                     block). A window passes only if its ENTIRE entry span sits inside the
+                     checked blocks — partial overlap fails. None checked = no restriction
+                     (same blank-panel convention as k / R:R). -->
+                <div class="filter-multi" id="input-filter-blocks"
+                  title="Restrict windows by entry block (ET). A window passes only if its whole entry span fits inside the checked 2h blocks — partial overlap fails. Checks nothing else: budget, robustness and the other gates still apply. None checked = all blocks allowed.">
+                  <span class="filter-multi-label">Entry blocks (ET)</span>
+                  <div class="filter-chips">
+                    <label class="chk"><input type="checkbox" value="18-20" />18-20</label>
+                    <label class="chk"><input type="checkbox" value="20-22" />20-22</label>
+                    <label class="chk"><input type="checkbox" value="22-00" />22-00</label>
+                    <label class="chk"><input type="checkbox" value="00-02" />00-02</label>
+                    <label class="chk"><input type="checkbox" value="02-04" />02-04</label>
+                    <label class="chk"><input type="checkbox" value="04-06" />04-06</label>
+                    <label class="chk"><input type="checkbox" value="06-08" />06-08</label>
+                    <label class="chk"><input type="checkbox" value="08-10" />08-10</label>
+                    <label class="chk"><input type="checkbox" value="10-12" />10-12</label>
+                    <label class="chk"><input type="checkbox" value="12-14" />12-14</label>
+                    <label class="chk"><input type="checkbox" value="14-16" />14-16</label>
+                  </div>
+                </div>
                 <!-- (Steven, 2026-07-17 layout) HNRC sits NEXT TO the R:R block, styled as a
                      native Selection Filter control (same filter-multi label + chip treatment).
                      Same input id — wiring untouched. -->
@@ -1169,6 +1203,11 @@
               </div>
                 <section id="section-results" class="hidden">
                   <div class="results-summary" id="results-summary"></div>
+                  <!-- (REGIME A, 2026-07-26) sweep-level regime summary — raw figures only
+                       (breadth of the full scored pool / trade-attributed block ranking /
+                       modal-block concentration). Collapsed table; populated at the same
+                       single-reveal seam as the cards; identical block ships in exports. -->
+                  <div class="results-summary regime-summary hidden" id="regime-summary"></div>
                   <!-- (GO 2026-07-18) ALWAYS states what the list shows. (unfiltered) = the full
                        Top-N from the last sweep — saved filter settings load but never engage on
                        their own; (filtered) = survivors of the last explicit APPLY. -->
