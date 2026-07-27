@@ -405,21 +405,20 @@
          does not jump when the CANCEL button appears/disappears. */
       .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
       /* Filter + cards now share .col-scroll, so the levers no longer need their own height cap. */
-      /* (REGIME per-card, Steven CR 2026-07-26) footer Regime block — sits under the
-         Stats grid; label/value rhythm matches .stat-box without being one (it is a
-         3-row list, not a metric tile). */
-      .ft-regime { margin-top: 10px; display: none; }
-      .ft-regime.on { display: block; }
-      .ft-regime .fr-h {
+      /* (REGIME tab, Steven 2026-07-26) Per-card Regime pane — its OWN footer tab
+         (regime is card context, not a stat). Rows are a label/value list, not metric
+         tiles; the pane itself inherits .rf layout from the robustness/durability panes. */
+      #regime-pane .fr-h {
         font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-        opacity: 0.7; margin-bottom: 4px;
+        opacity: 0.7; margin-bottom: 6px;
       }
-      .ft-regime .fr-row { font-size: 12px; line-height: 1.6; }
-      .ft-regime .fr-k { display: inline-block; min-width: 78px; opacity: 0.7; }
-      .ft-regime .fr-v { font-weight: 600; }
-      .ft-regime .fr-dim { opacity: 0.55; font-weight: 400; }
-      .ft-regime .fr-pending {
-        font-size: 11px; opacity: 0.6; font-style: italic;
+      #regime-pane .fr-row { font-size: 12px; line-height: 1.75; }
+      #regime-pane .fr-k { display: inline-block; min-width: 84px; opacity: 0.7; }
+      #regime-pane .fr-v { font-weight: 600; }
+      #regime-pane .fr-dim { opacity: 0.55; font-weight: 400; }
+      #regime-pane .fr-pending { font-size: 11px; opacity: 0.6; font-style: italic; }
+      #regime-pane .fr-note {
+        font-size: 11px; opacity: 0.65; margin-top: 8px; max-width: 640px; line-height: 1.5;
       }
       /* (REGIME A, 2026-07-26) sweep-level regime block — same text treatment as
          .results-summary; the ranking table stays collapsed behind a <details>. */
@@ -843,7 +842,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-De03pL-V.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-CnjGClFa.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
   </head>
@@ -1256,6 +1255,9 @@
               <!-- Robustness tab (sandbox) — card-linked like Stats; managed by main-frss-filter.ts
                    (a delegated #footer-tabs listener shows #robustness-pane vs #tab-body).
                    (Steven) Ordered BEFORE Tradelist. -->
+              <!-- (Steven 2026-07-26) Regime is card CONTEXT, not a stat — its own tab,
+                   sited right after Stats and before the analysis tabs. -->
+              <button class="tab" type="button" data-tab="regime">Regime</button>
               <button class="tab" type="button" data-tab="robustness">Robustness</button>
               <button class="tab" type="button" data-tab="durability">Durability</button>
               <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
@@ -1270,12 +1272,6 @@
                 <div class="stat-box"><div class="stat-l">Expectancy</div><div class="stat-v" id="ft-exp">—</div></div>
                 <div class="stat-box" title="Close-to-close max drawdown of the closed-trade equity curve — matches the Equity tab's curve (CR 2026-07-16). The engine's intra-trade MDD (TV Strategy Tester parity; feeds scoring) is unchanged and exports as cardStats.maxDrawdown; this figure exports as cardStatsClose."><div class="stat-l">Max DD</div><div class="stat-v" id="ft-mdd">—</div></div>
               </div>
-              <!-- (REGIME per-card block, Steven CR 2026-07-26) Territory / Rank / Grade for
-                   the selected card. Trade-attributed: the card's MODAL entry block, that
-                   block's rank in the sweep's regime ranking (n>=5 floor), and the grade
-                   line — displayed PENDING while B/C/E stay parked on breadth calibration.
-                   Everything here also ships per-card in both exports (regime{}). -->
-              <div class="ft-regime" id="ft-regime"></div>
               <div class="equity-wrap" id="equity-wrap">
                 <svg class="equity-svg" id="ft-equity" viewBox="0 0 600 80" preserveAspectRatio="none"></svg>
                 <div class="eq-axis-row" id="eq-axis-row"></div>
@@ -1323,6 +1319,13 @@
                  Split / Drawdown Stability, computed in selection/durability.ts —
                  RAW figures only per #21). -->
             <div id="durability-pane" class="rf hidden"></div>
+            <!-- (Steven 2026-07-26) REGIME pane — card-linked sibling of the Robustness /
+                 Durability panes, same .rf layout + rf-mode suppression of #tab-body.
+                 Content = Territory (the card's modal entry block + share), Rank (that
+                 block's rank of 11 in the sweep ranking, n>=5 floor), and the Grade line
+                 (PENDING while B/C/E stay parked on breadth calibration). Everything here
+                 also ships per-card in both exports as cards[].regime. -->
+            <div id="regime-pane" class="rf hidden"></div>
           </div>
 
         </div>
