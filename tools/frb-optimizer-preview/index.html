@@ -842,9 +842,9 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CnjGClFa.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/popover-CHfczO81.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CplP-bzW.js">
+    <script type="module" crossorigin src="./assets/frbFilter-ByG0gy9m.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/popover-C5n756a7.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-dlTnRCQn.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -1179,14 +1179,21 @@
                      native Selection Filter control (same filter-multi label + chip treatment).
                      Same input id — wiring untouched. -->
                 <div class="filter-multi-row">
+                  <!-- (R:R grid CR 2026-07-29) chips = the RECOGNIZED vocabulary: the 7 swept
+                       values (1/1.25/1.5/2/2.25/2.5/3) PLUS sweep-retired 0.5 + 1.2, kept so
+                       legs from pre-CR exports can still be selected/excluded here. -->
                   <div class="filter-multi" id="input-filter-rr">
                     <span class="filter-multi-label">R:R ratio</span>
                     <div class="filter-chips">
                       <label class="chk"><input type="checkbox" value="0.5" />0.5</label>
                       <label class="chk"><input type="checkbox" value="1" />1</label>
                       <label class="chk"><input type="checkbox" value="1.2" />1.2</label>
+                      <label class="chk"><input type="checkbox" value="1.25" />1.25</label>
                       <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
                       <label class="chk"><input type="checkbox" value="2" />2</label>
+                      <label class="chk"><input type="checkbox" value="2.25" />2.25</label>
+                      <label class="chk"><input type="checkbox" value="2.5" />2.5</label>
+                      <label class="chk"><input type="checkbox" value="3" />3</label>
                     </div>
                   </div>
                   <div class="filter-multi" id="input-filter-hide-nonrobust-row"
