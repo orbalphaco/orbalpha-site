@@ -946,11 +946,20 @@
                      ARB_v1_0.pine compiled and A/B-matched live on TradingView). It claimed the
                      parity was still open and that cards were not tradeable; both are now
                      false, so it was deleted rather than reworded. Do not reinstate that
-                     framing. NOTE these are HTML comments and they SHIP in the page bytes, so
-                     the retired phrasing must not be quoted here either — the acceptance gate
-                     greps this file and will fail if it reappears in any form. The two models
-                     are equals in PROVENANCE; the hint below states plainly that they are NOT
-                     equals in RESULT, which is the part that remains true. -->
+                     framing.
+
+                     2026-08-02 (later) — the descriptive hint paragraph was ALSO removed at
+                     Steven's request: the panel is now the control and nothing else. The model
+                     descriptions and the ARB-vs-FRB comparison figures are RETAINED for Steven
+                     and Aly, but deliberately NOT here — see the ENTRY-MODEL REFERENCE block in
+                     ui/src/main-frss-filter.ts.
+
+                     ⚠ WHY NOT IN THIS FILE: HTML *and* CSS comments SURVIVE the Vite build and
+                     ship in the page bytes. This page is served unauthenticated, so internal
+                     performance figures must not be parked in a comment here — they would be
+                     one view-source away. TypeScript comments ARE stripped from the bundle,
+                     which is why the reference lives there. The acceptance gate greps this file
+                     and will fail if those figures reappear in any form, rendered or not. -->
                 <details class="collapsible" id="section-entry-model" open>
                   <summary>Entry Model <span class="panel-info" tabindex="0" data-tip="Which entry logic the sweep runs. Both models are parity-proven against their TradingView scripts. They produce different trade sets — changing this clears the results on screen.">i</span></summary>
                   <div class="config-grid">
@@ -962,7 +971,6 @@
                       </select>
                     </label>
                   </div>
-                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">FRB v2.1 (sliding) re-anchors the 3-candle range every bar. ARB v1.0 (Anchored Range Breakout, lock/re-arm) locks the range on a swept-lead 4-candle pattern and holds it until it resolves. Both are parity-proven against their TradingView scripts, but they are not interchangeable: on canonical MNQ, ARB v1.0 produced 482 trades / +$9,001 against FRB v2.1's 697 / +$18,635. Changing this changes the trade set; results on screen are cleared and the sweep must be re-run.</p>
                 </details>
 
                 <details class="collapsible" id="section-config">
