@@ -508,6 +508,29 @@
         letter-spacing: 0;
       }
 
+      /* Entry Model panel (ARB toggle CR 2026-07-31). Chrome is the shared
+         details.collapsible + .config-grid + .hint idiom — the panel is deliberately
+         indistinguishable from Configuration / Scoring Weights. The only bespoke rule
+         is the unproven-model warning, which must NOT look like ordinary hint text:
+         ARB is not a peer of the certified path and the panel has to say so. */
+      #entry-model-warning {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        margin-top: 10px;
+        padding: 8px 10px;
+        border: 1px solid var(--warning);
+        border-left-width: 3px;
+        background: rgba(245, 158, 11, 0.08);
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--warning);
+        letter-spacing: 0.3px;
+      }
+      #entry-model-warning.hidden { display: none; }
+      #entry-model-warning strong { letter-spacing: 1px; text-transform: uppercase; }
+      #entry-model-warning .em-body { color: var(--text-dim); }
+
       /* Run controls */
       #run-btn {
         font-size: 13px;
@@ -842,9 +865,9 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CQd5HX5A.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-ButXUL5w.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-C5n756a7.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-hr31Wuuh.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-DWzbTI79.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -928,6 +951,36 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- ENTRY MODEL (ARB toggle CR 2026-07-31, Steven). Sits between Data and
+                     Configuration by spec. Replaces the build-time PERSONAL_LANE_ENTRY_MECHANICS
+                     constant that used to force lock_rearm on every deployed sweep.
+                     `open` by default: a collapsed panel would hide which strategy is running,
+                     which is the whole thing this control exists to make visible. -->
+                <details class="collapsible" id="section-entry-model" open>
+                  <summary>Entry Model <span class="panel-info" tabindex="0" data-tip="Which entry logic the sweep runs. FRB v2.1 is the certified path. ARB v1.0 is experimental and unproven — cards from it are for inspection only.">i</span></summary>
+                  <div class="config-grid">
+                    <label class="full">
+                      Entry Model
+                      <select id="input-entry-mechanics">
+                        <option value="sliding" selected>FRB v2.1</option>
+                        <option value="lock_rearm">ARB v1.0</option>
+                      </select>
+                    </label>
+                  </div>
+                  <!-- Shown only while ARB v1.0 is selected. Wired in main-frss-filter.ts. -->
+                  <div id="entry-model-warning" class="hidden" role="status">
+                    <span aria-hidden="true">⚠</span>
+                    <span>
+                      <strong>ARB v1.0 — experimental</strong><br />
+                      <span class="em-body">Parity against <code>FRSS_v2_2_rc1.pine</code> is unproven (one card).
+                      On canonical MNQ this model produced 482 trades / +$9,001 against FRB v2.1's
+                      697 / +$18,635 — a materially different, and on that sample worse, strategy.
+                      <strong>Cards from this model are for inspection only — do not trade off them.</strong></span>
+                    </span>
+                  </div>
+                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">FRB v2.1 (sliding) re-anchors the 3-candle range every bar — the certified, penny-exact path. ARB v1.0 (Anchored Range Breakout, lock/re-arm) locks the range on a swept-lead 4-candle pattern and holds it until it resolves. Changing this changes the trade set; results on screen are cleared and the sweep must be re-run.</p>
+                </details>
 
                 <details class="collapsible" id="section-config">
                   <summary>Configuration <span class="panel-info" tabindex="0" data-tip="Set up your test: market, money, dates, and risk limits.">i</span></summary>
