@@ -508,28 +508,11 @@
         letter-spacing: 0;
       }
 
-      /* Entry Model panel (ARB toggle CR 2026-07-31). Chrome is the shared
-         details.collapsible + .config-grid + .hint idiom — the panel is deliberately
-         indistinguishable from Configuration / Scoring Weights. The only bespoke rule
-         is the unproven-model warning, which must NOT look like ordinary hint text:
-         ARB is not a peer of the certified path and the panel has to say so. */
-      #entry-model-warning {
-        display: flex;
-        gap: 8px;
-        align-items: flex-start;
-        margin-top: 10px;
-        padding: 8px 10px;
-        border: 1px solid var(--warning);
-        border-left-width: 3px;
-        background: rgba(245, 158, 11, 0.08);
-        font-size: 11px;
-        line-height: 1.5;
-        color: var(--warning);
-        letter-spacing: 0.3px;
-      }
-      #entry-model-warning.hidden { display: none; }
-      #entry-model-warning strong { letter-spacing: 1px; text-transform: uppercase; }
-      #entry-model-warning .em-body { color: var(--text-dim); }
+      /* Entry Model panel (ARB toggle CR 2026-07-31). Chrome is entirely the shared
+         details.collapsible + .config-grid + .hint idiom, so the panel needs no rules
+         of its own. It once carried a bespoke amber caution block; that was retired on
+         2026-08-02 when ARB parity was proven, and the panel now looks exactly like
+         Configuration / Scoring Weights. */
 
       /* Run controls */
       #run-btn {
@@ -865,7 +848,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-DkDfq-O7.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-CI1PyXpv.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-C5n756a7.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-DWzbTI79.js">
   </head>
@@ -956,9 +939,20 @@
                      Configuration by spec. Replaces the build-time PERSONAL_LANE_ENTRY_MECHANICS
                      constant that used to force lock_rearm on every deployed sweep.
                      `open` by default: a collapsed panel would hide which strategy is running,
-                     which is the whole thing this control exists to make visible. -->
+                     which is the whole thing this control exists to make visible.
+
+                     2026-08-02 — the in-panel caution block was REMOVED once ARB parity was
+                     proven (engine == FRSS_v2_2_rc1.pine, 66/66 trades exact, card 935b4ce4b8;
+                     ARB_v1_0.pine compiled and A/B-matched live on TradingView). It claimed the
+                     parity was still open and that cards were not tradeable; both are now
+                     false, so it was deleted rather than reworded. Do not reinstate that
+                     framing. NOTE these are HTML comments and they SHIP in the page bytes, so
+                     the retired phrasing must not be quoted here either — the acceptance gate
+                     greps this file and will fail if it reappears in any form. The two models
+                     are equals in PROVENANCE; the hint below states plainly that they are NOT
+                     equals in RESULT, which is the part that remains true. -->
                 <details class="collapsible" id="section-entry-model" open>
-                  <summary>Entry Model <span class="panel-info" tabindex="0" data-tip="Which entry logic the sweep runs. FRB v2.1 is the certified path. ARB v1.0 is experimental and unproven — cards from it are for inspection only.">i</span></summary>
+                  <summary>Entry Model <span class="panel-info" tabindex="0" data-tip="Which entry logic the sweep runs. Both models are parity-proven against their TradingView scripts. They produce different trade sets — changing this clears the results on screen.">i</span></summary>
                   <div class="config-grid">
                     <label class="full">
                       Entry Model
@@ -968,18 +962,7 @@
                       </select>
                     </label>
                   </div>
-                  <!-- Shown only while ARB v1.0 is selected. Wired in main-frss-filter.ts. -->
-                  <div id="entry-model-warning" class="hidden" role="status">
-                    <span aria-hidden="true">⚠</span>
-                    <span>
-                      <strong>ARB v1.0 — experimental</strong><br />
-                      <span class="em-body">Parity against <code>FRSS_v2_2_rc1.pine</code> is unproven (one card).
-                      On canonical MNQ this model produced 482 trades / +$9,001 against FRB v2.1's
-                      697 / +$18,635 — a materially different, and on that sample worse, strategy.
-                      <strong>Cards from this model are for inspection only — do not trade off them.</strong></span>
-                    </span>
-                  </div>
-                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">FRB v2.1 (sliding) re-anchors the 3-candle range every bar — the certified, penny-exact path. ARB v1.0 (Anchored Range Breakout, lock/re-arm) locks the range on a swept-lead 4-candle pattern and holds it until it resolves. Changing this changes the trade set; results on screen are cleared and the sweep must be re-run.</p>
+                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">FRB v2.1 (sliding) re-anchors the 3-candle range every bar. ARB v1.0 (Anchored Range Breakout, lock/re-arm) locks the range on a swept-lead 4-candle pattern and holds it until it resolves. Both are parity-proven against their TradingView scripts, but they are not interchangeable: on canonical MNQ, ARB v1.0 produced 482 trades / +$9,001 against FRB v2.1's 697 / +$18,635. Changing this changes the trade set; results on screen are cleared and the sweep must be re-run.</p>
                 </details>
 
                 <details class="collapsible" id="section-config">
