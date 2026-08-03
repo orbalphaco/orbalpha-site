@@ -432,6 +432,26 @@
       .regime-summary .rg-unranked { opacity: 0.55; }
       .regime-summary .rg-dim { opacity: 0.55; }
       .regime-summary .rg-note { font-size: 11px; opacity: 0.7; max-width: 720px; margin-top: 2px; }
+
+      /* Hold-past-session-close notice (CR 2026-08-02, Steven). Sits directly UNDER the
+         regime block and uses the SAME native <details> disclosure, so it reads as a peer
+         of the regime drop rather than a separate alarm.
+         DELIBERATELY QUIET: collapsed by default, no panel, no background, no border —
+         one orange caution line the user chooses to open. The earlier always-expanded
+         amber block was too loud for something informational that clips nothing. */
+      .eod-warning { margin: 4px 0 0; }
+      .eod-warning .eodw-details > summary {
+        cursor: pointer; user-select: none;
+        color: var(--warning); font-size: 12px; letter-spacing: 0.3px;
+      }
+      .eod-warning .eodw-details > summary:hover { text-decoration: underline; }
+      .eod-warning .eodw-body {
+        margin-top: 6px; padding-left: 14px;
+        font-size: 11px; line-height: 1.55; color: var(--text-dim);
+        border-left: 2px solid var(--warning);
+      }
+      .eod-warning .eodw-card { opacity: 0.9; }
+      .eod-warning .eodw-more { opacity: 0.7; }
       /* FIX 2: drop the duplicate divider above SELECTION FILTER — the col-h border already separates it */
       .filter-section > details.collapsible { border-top: 0; padding-top: 0; }
 
@@ -848,7 +868,7 @@
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
     </style>
-    <script type="module" crossorigin src="./assets/frbFilter-BRJ7FmRa.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-BgWhEiqz.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-C5n756a7.js">
     <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CrnfrCXH.js">
   </head>
