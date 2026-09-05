@@ -123,7 +123,7 @@
       .tradelist-btn:active { background: #042C53; }
       .tradelist-btn:disabled { opacity: 0.4; cursor: not-allowed; }
       .tradelist-btn .dl-ico { font-size: 14px; }
-      /* (Steven, C1) WINDOW EXPORT block — per-window scoped downloads inside the Tradelist tab */
+      /* ( C1) WINDOW EXPORT block — per-window scoped downloads inside the Tradelist tab */
       .window-export { display: flex; flex-direction: column; gap: 8px; align-items: center; border-top: 0.5px solid #123A5F; padding-top: 12px; margin-top: 2px; width: min(560px, 100%); }
       .window-export-h { font-size: 10px; color: #85B7EB; letter-spacing: 0.4px; text-transform: uppercase; text-align: center; }
       .window-export-hint { color: #5F7B97; text-transform: none; letter-spacing: 0; }
@@ -165,14 +165,14 @@
       .footer-empty { padding: 28px 20px; text-align: center; color: #5F7B97; font-size: 13px; flex: 1; display: flex; align-items: center; justify-content: center; }
 
       /* Robustness TAB pane (sandbox) — card-linked, sibling of #tab-body. .rf is the pane
-         box; the "Hide non-ROBUST" control is a native .filter-multi member beside R:R
-         (Steven, 2026-07-17 — .rf-filter retired). The pane's inner content (leg selector +
-         report) is styled by render-legs-frss-sandbox. */
+ box; the "Hide non-ROBUST" control is a native .filter-multi member beside R:R
+ . The pane's inner content (leg selector +
+ report) is styled by render-legs-frss-sandbox. */
       .rf { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 14px 11px; }
       /* Robustness-tab MODE: while the Robustness tab is active, force the shared stats body
-         (#tab-body) hidden with !important so render-cards-frss's inline `display:flex` on
-         card-select can NEVER win — only #robustness-pane shows. Immune to the card-select
-         show/hide race; correct across repeated card clicks, not just the first tab switch. */
+ (#tab-body) hidden with !important so render-cards-frss's inline `display:flex` on
+ card-select can NEVER win — only #robustness-pane shows. Immune to the card-select
+ show/hide race; correct across repeated card clicks, not just the first tab switch. */
       .footer.rf-mode #tab-body { display: none !important; }
 
       /* === B1: v4 card list (replaces old .card / .stats-grid / etc.) === */
@@ -279,9 +279,9 @@
       details.collapsible[open] > summary::after { content: "−"; }
 
       /* Panel header info tooltips — mirrors the sidebar .sb-icon[data-tip] pattern.
-         The tooltip anchors to the SUMMARY's left edge (summary is the positioned
-         ancestor; the .panel-info span stays static) so it can't clip on the column's
-         right edge; width caps at the panel width and wraps. */
+ The tooltip anchors to the SUMMARY's left edge (summary is the positioned
+ ancestor; the .panel-info span stays static) so it can't clip on the column's
+ right edge; width caps at the panel width and wraps. */
       details.collapsible > summary { position: relative; }
       .panel-info {
         display: inline-flex;
@@ -366,8 +366,8 @@
       /* Selection Filter (sandbox · Part 2) — compact levers above the cards */
       .filter-section { flex-shrink: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 0.5px solid #185FA5; }
       /* (#20) fixed 3-column grid → the 5 controls flow as two tidy rows:
-         Min PF | Min Win Rate % | Min Window Trades / Time Spread | Rank By.
-         Layout only — no field renames, no id changes. */
+ Min PF | Min Win Rate % | Min Window Trades / Time Spread | Rank By.
+ Layout only — no field renames, no id changes. */
       .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 10px; }
       .filter-grid label {
         display: flex; flex-direction: column; gap: 4px;
@@ -384,30 +384,30 @@
       .filter-chips .chk input[type="checkbox"] {
         width: auto; padding: 0; margin: 0; border: 0; background: transparent; accent-color: var(--accent); cursor: pointer;
       }
-      /* (Steven, 2026-07-17 layout) R:R + Robustness (HNRC) side by side — both are plain
-         .filter-multi members, so label/chip treatment matches the rest of the section. */
+      /* R:R + Robustness (HNRC) side by side — both are plain
+ .filter-multi members, so label/chip treatment matches the rest of the section. */
       .filter-multi-row { display: flex; flex-wrap: wrap; gap: 0 28px; align-items: flex-start; }
       .filter-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
-      /* (Steven, 2026-07-17) APPLY / RESET (+ CANCEL, same row) sized to match the preset
-         "Set" buttons (font 11px · padding 6px 8px · letter-spacing 0.5px) so the Outputs
-         footer controls read as one consistent cluster. */
+      /* APPLY / RESET (+ CANCEL, same row) sized to match the preset
+ "Set" buttons (font 11px · padding 6px 8px · letter-spacing 0.5px) so the Outputs
+ footer controls read as one consistent cluster. */
       .filter-foot #btn-run-filter,
       .filter-foot #btn-reset-filter,
       .filter-foot #btn-cancel-filter { font-size: 11px; padding: 6px 8px; letter-spacing: 0.5px; }
       /* (GO 2026-07-18) APPLY PENDING = panel settings not engaged against the current sample —
-         true after EVERY sweep and after RESET, until the user presses APPLY. Accent treatment
-         + dot so "the filter has not been applied to what you're looking at" is always visible. */
+ true after EVERY sweep and after RESET, until the user presses APPLY. Accent treatment
+ + dot so "the filter has not been applied to what you're looking at" is always visible. */
       .filter-foot #btn-run-filter.pending { border-color: var(--accent); color: var(--accent); }
       .filter-foot #btn-run-filter.pending::after { content: " \25CF"; font-size: 8px; vertical-align: 1px; }
       /* (GO 2026-07-18) the Showing-X-of-Y state line sits tight under the sweep summary */
       .card-count { margin-top: 2px; }
       /* Filtering status always on its OWN line below the buttons, so it stays static and
-         does not jump when the CANCEL button appears/disappears. */
+ does not jump when the CANCEL button appears/disappears. */
       .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
       /* Filter + cards now share .col-scroll, so the levers no longer need their own height cap. */
-      /* (REGIME tab, Steven 2026-07-26) Per-card Regime pane — its OWN footer tab
-         (regime is card context, not a stat). Rows are a label/value list, not metric
-         tiles; the pane itself inherits .rf layout from the robustness/durability panes. */
+      /* (REGIME tab) Per-card Regime pane — its OWN footer tab
+ (regime is card context, not a stat). Rows are a label/value list, not metric
+ tiles; the pane itself inherits .rf layout from the robustness/durability panes. */
       #regime-pane .fr-h {
         font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
         opacity: 0.7; margin-bottom: 6px;
@@ -421,7 +421,7 @@
         font-size: 11px; opacity: 0.65; margin-top: 8px; max-width: 640px; line-height: 1.5;
       }
       /* (REGIME A, 2026-07-26) sweep-level regime block — same text treatment as
-         .results-summary; the ranking table stays collapsed behind a <details>. */
+ .results-summary; the ranking table stays collapsed behind a <details>. */
       .regime-summary .rg-details summary { cursor: pointer; user-select: none; }
       .regime-summary .rg-table { border-collapse: collapse; margin: 8px 0 4px; }
       .regime-summary .rg-table th, .regime-summary .rg-table td {
@@ -433,12 +433,12 @@
       .regime-summary .rg-dim { opacity: 0.55; }
       .regime-summary .rg-note { font-size: 11px; opacity: 0.7; max-width: 720px; margin-top: 2px; }
 
-      /* Hold-past-session-close notice (CR 2026-08-02, Steven). Sits directly UNDER the
-         regime block and uses the SAME native <details> disclosure, so it reads as a peer
-         of the regime drop rather than a separate alarm.
-         DELIBERATELY QUIET: collapsed by default, no panel, no background, no border —
-         one orange caution line the user chooses to open. The earlier always-expanded
-         amber block was too loud for something informational that clips nothing. */
+      /* Hold-past-session-close notice . Sits directly UNDER the
+ regime block and uses the SAME native <details> disclosure, so it reads as a peer
+ of the regime drop rather than a separate alarm.
+ DELIBERATELY QUIET: collapsed by default, no panel, no background, no border —
+ one orange caution line the user chooses to open. The earlier always-expanded
+ amber block was too loud for something informational that clips nothing. */
       .eod-warning { margin: 4px 0 0; }
       .eod-warning .eodw-details > summary {
         cursor: pointer; user-select: none;
@@ -528,11 +528,11 @@
         letter-spacing: 0;
       }
 
-      /* Entry Model panel (ARB toggle CR 2026-07-31). Chrome is entirely the shared
-         details.collapsible + .config-grid + .hint idiom, so the panel needs no rules
-         of its own. It once carried a bespoke amber caution block; that was retired on
-         2026-08-02 when ARB parity was proven, and the panel now looks exactly like
-         Configuration / Scoring Weights. */
+      /* Entry Model panel (ARB toggle ). Chrome is entirely the shared
+ details.collapsible + .config-grid + .hint idiom, so the panel needs no rules
+ of its own. It once carried a bespoke amber caution block; that was retired on
+ 2026-08-02 when ARB parity was proven, and the panel now looks exactly like
+ Configuration / Scoring Weights. */
 
       /* Run controls */
       #run-btn {
@@ -560,8 +560,8 @@
       #cancel-btn:hover:not(:disabled) {
         background: rgba(239, 68, 68, 0.10);
       }
-      /* (Steven, 2026-07-16 layout) ⓘ beside NEW SAMPLE — title-tooltip rollover
-         explaining the seed-based unlock. Mirrors .info-icon-btn geometry, theme-dim. */
+      /* ⓘ beside NEW SAMPLE — title-tooltip rollover
+ explaining the seed-based unlock. Mirrors .info-icon-btn geometry, theme-dim. */
       .ns-info {
         font-size: 11px;
         line-height: 1;
@@ -576,9 +576,9 @@
         border-color: var(--text-dim);
         outline: none;
       }
-      /* (Steven, 2026-07-16 layout) Outputs footer: preset strip far left (its
-         margin-right:auto pushes the next sibling), EXPORT SWEEP pinned far right —
-         also holds when the strip wraps on narrow viewports. */
+      /* Outputs footer: preset strip far left (its
+ margin-right:auto pushes the next sibling), EXPORT SWEEP pinned far right —
+ also holds when the strip wraps on narrow viewports. */
       #outputs-foot #btn-export-sweep { margin-left: auto; }
       #run-status {
         flex: 1 1 100%;
@@ -817,7 +817,7 @@
       }
 
       /* Disclosure banner — at top of body, above frame. Compacted to fit
-         within v4 frame's 70px allowance (body padding 26px + banner ~36px). */
+ within v4 frame's 70px allowance (body padding 26px + banner ~36px). */
       .disclosure-banner {
         background: rgba(245, 158, 11, 0.12);
         border: 1px solid rgba(245, 158, 11, 0.55);
@@ -867,10 +867,23 @@
       /* Utilities */
       .hidden { display: none !important; }
       [hidden] { display: none !important; }
-    </style>
-    <script type="module" crossorigin src="./assets/frbFilter-DbjIyuHY.js"></script>
+    
+    /* footer view control */
+    #footer-id { display: flex; align-items: center; gap: 12px; }
+    .footer-lens { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+    .footer-lens-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-right: 2px; }
+    .lens-btn { font: inherit; font-size: 11px; line-height: 1; padding: 4px 9px; cursor: pointer;
+                border: 1px solid currentColor; background: transparent; color: inherit;
+                opacity: .55; border-radius: 2px; }
+    .lens-btn:hover { opacity: .85; }
+    .lens-btn.active { opacity: 1; font-weight: 700; }
+    .lens-btn:disabled { opacity: .25; cursor: not-allowed; }
+    #ft-lens-note { font-size: 11px; opacity: .75; margin: 6px 0 2px; }
+    .basis-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin-left: 6px; }
+  </style>
+    <script type="module" crossorigin src="./assets/frbFilter-CwBlee4R.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-C5n756a7.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CrnfrCXH.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-7N3V_mgN.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -945,7 +958,7 @@
                   <h3 class="input-section-title">Data</h3>
                   <div class="upload-row">
                     <!-- FRB: Daily upload slot REMOVED — the FRB engine consumes only the 5-min
-                         series and ignores daily bars, so a daily override has no effect. -->
+ series and ignores daily bars, so a daily override has no effect. -->
                     <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="Preferred Strategy Timeframe OHLCV Data — drop CSV or click to browse">
                       <label for="file-ohlcv">Preferred Strategy Timeframe OHLCV Data (TradingView's Chart Data CSV)</label>
                       <input type="file" id="file-ohlcv" accept=".csv" />
@@ -956,15 +969,15 @@
                 </div>
 
                 <!-- Entry Model control. Open by default so the active strategy is never
-                     hidden behind a collapsed panel.
+ hidden behind a collapsed panel.
 
-                     ⚠ KEEP THIS COMMENT MINIMAL. HTML and CSS comments SURVIVE the build and
-                     ship in the page bytes, and this page is served unauthenticated — anything
-                     written here is public. No performance figures, card ids, script names,
-                     source paths, or rationale. The design notes and the retained model
-                     reference live in the optimizer's TypeScript source, which is stripped
-                     from the bundle. The acceptance gate greps this file and will fail if
-                     internal detail reappears, rendered or commented. -->
+ ⚠ KEEP THIS COMMENT MINIMAL. HTML and CSS comments SURVIVE the build and
+ ship in the page bytes, and this page is served unauthenticated — anything
+ written here is public. No performance figures, card ids, script names,
+ source paths, or rationale. The design notes and the retained model
+ reference live in the optimizer's TypeScript source, which is stripped
+ from the bundle. The acceptance gate greps this file and will fail if
+ internal detail reappears, rendered or commented. -->
                 <details class="collapsible" id="section-entry-model" open>
                   <summary>Entry Model <span class="panel-info" tabindex="0" data-tip="Which entry logic the sweep runs. Both models are parity-proven against their TradingView scripts. They produce different trade sets — changing this clears the results on screen.">i</span></summary>
                   <div class="config-grid">
@@ -991,7 +1004,7 @@
                       </div>
                     </label>
                     <!-- Row order per 2026-07-10 reorg. Relabels are DISPLAY TEXT ONLY —
-                         every input id / export key is unchanged. -->
+ every input id / export key is unchanged. -->
                     <label class="full">
                       Account Size ($)
                       <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
@@ -1015,16 +1028,16 @@
                     <label>
                       Max Trades / Day (0 = off)
                       <!-- Wishlist #12 (2026-07-10): live — the engine's Step 9 per-session-day
-                           cap (parity with Pine FRSS_v2_0 ADDITION 1). One value/run, not swept.
-                           0 = off = certified path. -->
+ cap (parity with Pine FRSS_v2_0 ADDITION 1). One value/run, not swept.
+ 0 = off = certified path. -->
                       <input type="number" id="input-max-trades-day" min="0" step="1" value="0" />
                     </label>
                     <label>
                       Max Drawdown %
                       <!-- Default 2.4% reproduces the legacy $1,200 gate at a $50,000 account
-                           (50000 × 0.024 = 1200). A starting default users override — NOT a universal
-                           rule. 2.4% is % of CAPITAL; it only equals ~60% of the $2,000 room at $50k.
-                           Room and capital don't scale together across account tiers. -->
+ (50000 × 0.024 = 1200). A starting default users override — NOT a universal
+ rule. 2.4% is % of CAPITAL; it only equals ~60% of the $2,000 room at $50k.
+ Room and capital don't scale together across account tiers. -->
                       <input type="number" id="input-max-dd-pct" min="0.1" max="100" step="0.1" value="2.4" />
                     </label>
                     <label>
@@ -1077,10 +1090,10 @@
                 </details>
 
               </div>
-              <!-- (Steven, 2026-07-16 layout) Run controls left→right: RUN / NEW SAMPLE / CANCEL.
-                   NEW SAMPLE lives HERE (moved from the Outputs footer) and stays greyed until
-                   the first RUN — RUN establishes the reproducible baseline seed (42); NEW SAMPLE
-                   then re-samples with a fresh seed. The ⓘ explains that to the user. -->
+              <!-- Run controls left→right: RUN / NEW SAMPLE / CANCEL.
+ NEW SAMPLE lives HERE (moved from the Outputs footer) and stays greyed until
+ the first RUN — RUN establishes the reproducible baseline seed (42); NEW SAMPLE
+ then re-samples with a fresh seed. The ⓘ explains that to the user. -->
               <div class="col-foot" id="section-run">
                 <button id="run-btn" disabled>RUN OPTIMIZER</button>
                 <button id="btn-new-sample" disabled title="Re-run the sweep with a fresh Phase-1 sampling seed. Unlocks after the first RUN.">NEW SAMPLE</button>
@@ -1119,8 +1132,8 @@
                   <span class="pipe-name">Ranked</span>
                   <span class="pipe-count" id="pipe-count-4">—</span>
                 </div>
-                <!-- (Steven) Stage 5: eager robustness — every deployable window of the
-                     ranked cards gets its neighborhood stress test BEFORE results render. -->
+                <!-- Stage 5: eager robustness — every deployable window of the
+ ranked cards gets its neighborhood stress test BEFORE results render. -->
                 <div class="pipe-row queued" id="pipe-row-5">
                   <span class="pipe-icon" id="pipe-icon-5">&check;</span>
                   <span class="pipe-name">Stressed</span>
@@ -1141,8 +1154,8 @@
               </div>
 
               <!-- B2 KEEPS legacy progress-area + processor-default as hidden no-op stubs
-                   so any unforeseen main.ts reference doesn't crash. Cleanup pass
-                   can drop them later. -->
+ so any unforeseen main.ts reference doesn't crash. Cleanup pass
+ can drop them later. -->
               <div id="progress-area" class="hidden" hidden>
                 <span id="progress-phase"></span>
                 <span id="progress-percent"></span>
@@ -1166,14 +1179,14 @@
                   <summary>Selection Filter <span class="panel-info" tabindex="0" data-tip="Show only cards that pass your rules. Tighter = fewer, stronger results.">i</span></summary>
                   <div class="filter-body">
                 <div class="filter-grid">
-                  <!-- (Steven) Selection Filter starts BLANK — matches RESET. Blank APPLY
-                       falls back to the canonical defaults (readFilterLevers). -->
+                  <!-- Selection Filter starts BLANK — matches RESET. Blank APPLY
+ falls back to the canonical defaults (readFilterLevers). -->
                   <label>Min Profit Factor
                     <input type="number" id="input-filter-pf" min="1.00" max="3.00" step="0.05" />
                   </label>
-                  <!-- Max DD MC-95th ($) box REMOVED (ddBudget migration): the MC survival
-                       budget is now initialCapital × Max Drawdown % — run inputs (Configuration
-                       panel), one value/run, shared verbatim with the neighborhood G3 gate. -->
+                  <!-- Max DD MC-95th ($) box REMOVED (the drawdown budget migration): the MC survival
+ budget is now initialCapital × Max Drawdown % — run inputs (Configuration
+ panel), one value/run, shared verbatim with the neighborhood G3 gate. -->
                   <label>Min Win Rate (%)
                     <input type="number" id="input-filter-wr" min="0" max="100" step="1" />
                   </label>
@@ -1194,10 +1207,10 @@
                       <option value="pf">pf</option>
                     </select>
                   </label>
-                  <!-- (REGIME Territory-Rank filter, Steven CR 2026-07-26) CARD-level:
-                       keeps cards whose MODAL entry block ranks at/above the selection in
-                       the sweep's regime ranking. Blank = off. Ties at the cutoff are all
-                       kept. No breadth dependency — the grade stays parked. -->
+                  <!-- (REGIME Territory-Rank filter ) CARD-level:
+ keeps cards whose MODAL entry block ranks at/above the selection in
+ the sweep's regime ranking. Blank = off. Ties at the cutoff are all
+ kept. No breadth dependency — the grade stays parked. -->
                   <label title="Keep only cards whose Territory (modal entry block) ranks this high in the sweep's regime ranking. Blank = no rank filter. Blocks under the n>=5 membership floor are unranked and never pass. Blocks tied on median block-net at the cutoff are all kept.">Territory Rank
                     <select id="input-filter-block-rank">
                       <option value="" selected></option>
@@ -1224,13 +1237,13 @@
                     <label class="chk"><input type="checkbox" value="3.5" />3.5</label>
                   </div>
                 </div>
-                <!-- (Steven, 2026-07-17 layout) HNRC sits NEXT TO the R:R block, styled as a
-                     native Selection Filter control (same filter-multi label + chip treatment).
-                     Same input id — wiring untouched. -->
+                <!-- HNRC sits NEXT TO the R:R block, styled as a
+ native Selection Filter control (same filter-multi label + chip treatment).
+ Same input id — wiring untouched. -->
                 <div class="filter-multi-row">
-                  <!-- (R:R grid CR 2026-07-29) chips = the RECOGNIZED vocabulary: the 7 swept
-                       values (1/1.25/1.5/2/2.25/2.5/3) PLUS sweep-retired 0.5 + 1.2, kept so
-                       legs from pre-CR exports can still be selected/excluded here. -->
+                  <!-- (R:R grid ) chips = the RECOGNIZED vocabulary: the 7 swept
+ values (1/1.25/1.5/2/2.25/2.5/3) PLUS sweep-retired 0.5 + 1.2, kept so
+ legs from pre-CR exports can still be selected/excluded here. -->
                   <div class="filter-multi" id="input-filter-rr">
                     <span class="filter-multi-label">R:R ratio</span>
                     <div class="filter-chips">
@@ -1265,21 +1278,21 @@
                 <section id="section-results" class="hidden">
                   <div class="results-summary" id="results-summary"></div>
                   <!-- (REGIME A, 2026-07-26) sweep-level regime summary — raw figures only
-                       (breadth of the full scored pool / trade-attributed block ranking /
-                       modal-block concentration). Collapsed table; populated at the same
-                       single-reveal seam as the cards; identical block ships in exports. -->
+ (breadth of the full scored pool / trade-attributed block ranking /
+ modal-block concentration). Collapsed table; populated at the same
+ single-reveal seam as the cards; identical block ships in exports. -->
                   <div class="results-summary regime-summary hidden" id="regime-summary"></div>
                   <!-- (GO 2026-07-18) ALWAYS states what the list shows. (unfiltered) = the full
-                       Top-N from the last sweep — saved filter settings load but never engage on
-                       their own; (filtered) = survivors of the last explicit APPLY. -->
+ Top-N from the last sweep — saved filter settings load but never engage on
+ their own; (filtered) = survivors of the last explicit APPLY. -->
                   <div class="results-summary card-count" id="card-count"
                     title="What the card list currently shows. Every sweep (RUN OPTIMIZER / NEW SAMPLE / new CSV) resets to the full unfiltered Top-N — saved filter settings load into the panel but only engage when you press APPLY."></div>
                   <div class="cards-grid" id="cards-grid"></div>
                 </section>
               </div>
-              <!-- (Steven, 2026-07-16 layout) Outputs footer: preset strip (Set 1 / Set 2 / Save /
-                   Clear / Export / Import) mounts FAR LEFT (frb-presets.ts inserts it as first
-                   child); EXPORT SWEEP sits FAR RIGHT. NEW SAMPLE moved to the run controls. -->
+              <!-- Outputs footer: preset strip (Set 1 / Set 2 / Save /
+ Clear / Export / Import) mounts FAR LEFT (frb-presets.ts inserts it as first
+ child); EXPORT SWEEP sits FAR RIGHT. NEW SAMPLE moved to the run controls. -->
               <div class="col-foot" id="outputs-foot">
                 <button id="btn-export-sweep" disabled title="Download all top-N cards as one JSON file (selection-stability snapshot)">EXPORT SWEEP</button>
               </div>
@@ -1303,16 +1316,22 @@
             <div class="footer-id" id="footer-id">
               <div class="footer-id-card muted" id="ft-card">No card selected</div>
               <div class="footer-id-score">Score <b id="ft-score">—</b></div>
+              <div class="footer-lens" id="ft-lens" role="group" aria-label="Session view">
+                <span class="footer-lens-label">View</span>
+                <button class="lens-btn active" type="button" id="ft-lens-off" data-lens="off">OFF</button>
+                <button class="lens-btn" type="button" id="ft-lens-nr7" data-lens="nr7">NR7</button>
+              </div>
             </div>
+            <div id="ft-lens-note" style="display:none"></div>
 
             <div class="tabs" id="footer-tabs">
               <button class="tab active" type="button" data-tab="stats">Stats</button>
               <!-- FRB: Advanced-stats tab OMITTED (tier is ORB/ORF-calibrated). -->
               <!-- Robustness tab (sandbox) — card-linked like Stats; managed by main-frss-filter.ts
-                   (a delegated #footer-tabs listener shows #robustness-pane vs #tab-body).
-                   (Steven) Ordered BEFORE Tradelist. -->
-              <!-- (Steven 2026-07-26) Regime is card CONTEXT, not a stat — its own tab,
-                   sited right after Stats and before the analysis tabs. -->
+ (a delegated #footer-tabs listener shows #robustness-pane vs #tab-body).
+ Ordered BEFORE Tradelist. -->
+              <!-- Regime is card CONTEXT, not a stat — its own tab,
+ sited right after Stats and before the analysis tabs. -->
               <button class="tab" type="button" data-tab="regime">Regime</button>
               <button class="tab" type="button" data-tab="robustness">Robustness</button>
               <button class="tab" type="button" data-tab="durability">Durability</button>
@@ -1347,10 +1366,10 @@
                   </button>
                 </div>
                 <p class="tradelist-hint">CSV opens in Excel directly. JSON preserves data types and includes card metadata for analyst consumption.</p>
-                <!-- (Steven, C1) WINDOW EXPORT — per-window SCOPED tradelist downloads, card-linked.
-                     Sandbox-owned: rows populated by main-frss-filter.ts (renderWindowExportControls);
-                     the shared render-cards-frss.ts never touches this block. The whole-card
-                     Download CSV/JSON buttons above are UNCHANGED. -->
+                <!-- ( C1) WINDOW EXPORT — per-window SCOPED tradelist downloads, card-linked.
+ Sandbox-owned: rows populated by main-frss-filter.ts (renderWindowExportControls);
+ the shared render-cards-frss.ts never touches this block. The whole-card
+ Download CSV/JSON buttons above are UNCHANGED. -->
                 <div class="window-export" id="window-export" style="display:none;">
                   <div class="window-export-h">WINDOW EXPORT
                     <span class="window-export-hint">— one window's trades with that window's own stats (self-consistent for parity checks)</span>
@@ -1364,23 +1383,23 @@
             <div class="footer-empty" id="footer-empty-state">Run a sweep to see results.</div>
 
             <!-- Robustness TAB pane (sandbox) — CARD-LINKED, a sibling of #tab-body. Shown
-                 when the Robustness footer tab is active (a delegated #footer-tabs listener
-                 in main-frss-filter.ts swaps #tab-body ⇄ #robustness-pane). Content = the
-                 3-slot leg selector + the selected leg's report, rendered by
-                 render-legs-frss-sandbox.ts for the currently-selected card. -->
+ when the Robustness footer tab is active (a delegated #footer-tabs listener
+ in main-frss-filter.ts swaps #tab-body ⇄ #robustness-pane). Content = the
+ 3-slot leg selector + the selected leg's report, rendered by
+ render-legs-frss-sandbox.ts for the currently-selected card. -->
             <div id="robustness-pane" class="rf hidden"></div>
             <!-- (#15) Durability pane — card-linked sibling of the Robustness pane; same
-                 .rf layout + rf-mode suppression of #tab-body; content rendered by
-                 render-durability-frss-sandbox (Monte Carlo Drawdown / Out-of-Sample
-                 Split / Drawdown Stability, computed in selection/durability.ts —
-                 RAW figures only per #21). -->
+ .rf layout + rf-mode suppression of #tab-body; content rendered by
+ render-durability-frss-sandbox (Monte Carlo Drawdown / Out-of-Sample
+ Split / Drawdown Stability, computed in selection/durability.ts —
+ RAW figures only per #21). -->
             <div id="durability-pane" class="rf hidden"></div>
-            <!-- (Steven 2026-07-26) REGIME pane — card-linked sibling of the Robustness /
-                 Durability panes, same .rf layout + rf-mode suppression of #tab-body.
-                 Content = Territory (the card's modal entry block + share), Rank (that
-                 block's rank of 11 in the sweep ranking, n>=5 floor), and the Grade line
-                 (PENDING while B/C/E stay parked on breadth calibration). Everything here
-                 also ships per-card in both exports as cards[].regime. -->
+            <!-- REGIME pane — card-linked sibling of the Robustness /
+ Durability panes, same .rf layout + rf-mode suppression of #tab-body.
+ Content = Territory (the card's modal entry block + share), Rank (that
+ block's rank of 11 in the sweep ranking, n>=5 floor), and the Grade line
+ (PENDING while B/C/E stay parked on breadth calibration). Everything here
+ also ships per-card in both exports as cards[].regime. -->
             <div id="regime-pane" class="rf hidden"></div>
           </div>
 
@@ -1416,11 +1435,11 @@
     </footer>
 
     <!-- 4 [data-public-version] placeholders: topbar (line 666),
-         Processor footer (line 833), settings panel (line 870),
-         methodology (line 934). All inject PUBLIC_VERSION via
-         injectPublicVersion (main.ts). ENGINE_VERSION lives in
-         export-json.ts for audit-trail JSON only — not rendered
-         on any UI surface. -->
+ Processor footer (line 833), settings panel (line 870),
+ methodology (line 934). All inject PUBLIC_VERSION via
+ injectPublicVersion (main.ts). ENGINE_VERSION lives in
+ export-json.ts for audit-trail JSON only — not rendered
+ on any UI surface. -->
 
   </body>
 </html>
