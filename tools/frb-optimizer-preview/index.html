@@ -881,9 +881,9 @@
     #ft-lens-note { font-size: 11px; opacity: .75; margin: 6px 0 2px; }
     .basis-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin-left: 6px; }
   </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CwBlee4R.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-B_8XCZGD.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-C5n756a7.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-7N3V_mgN.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CJ6yM83Y.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -1318,8 +1318,8 @@
               <div class="footer-id-score">Score <b id="ft-score">—</b></div>
               <div class="footer-lens" id="ft-lens" role="group" aria-label="Session view">
                 <span class="footer-lens-label">View</span>
-                <button class="lens-btn active" type="button" id="ft-lens-off" data-lens="off">OFF</button>
-                <button class="lens-btn" type="button" id="ft-lens-nr7" data-lens="nr7">NR7</button>
+                <button class="lens-btn active" type="button" id="ft-lens-off" data-lens="off" aria-pressed="true">OFF</button>
+                <button class="lens-btn" type="button" id="ft-lens-nr7" data-lens="nr7" aria-pressed="false">NR7</button>
               </div>
             </div>
             <div id="ft-lens-note" style="display:none"></div>
@@ -1333,8 +1333,8 @@
               <!-- Regime is card CONTEXT, not a stat — its own tab,
  sited right after Stats and before the analysis tabs. -->
               <button class="tab" type="button" data-tab="regime">Regime</button>
-              <button class="tab" type="button" data-tab="robustness">Robustness</button>
-              <button class="tab" type="button" data-tab="durability">Durability</button>
+              <button class="tab" type="button" data-tab="robustness">Robustness<span class="basis-tag" id="ft-robustness-basis" style="display:none"></span></button>
+              <button class="tab" type="button" data-tab="durability">Durability<span class="basis-tag" id="ft-durability-basis" style="display:none"></span></button>
               <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
             </div>
 
@@ -1345,7 +1345,8 @@
                 <div class="stat-box"><div class="stat-l">Trades</div><div class="stat-v" id="ft-trades">—</div></div>
                 <div class="stat-box"><div class="stat-l">Profit factor</div><div class="stat-v" id="ft-pf">—</div></div>
                 <div class="stat-box"><div class="stat-l">Expectancy</div><div class="stat-v" id="ft-exp">—</div></div>
-                <div class="stat-box" title="Close-to-close max drawdown of the closed-trade equity curve — matches the Equity tab's curve (CR 2026-07-16). The engine's intra-trade MDD (TV Strategy Tester parity; feeds scoring) is unchanged and exports as cardStats.maxDrawdown; this figure exports as cardStatsClose."><div class="stat-l">Max DD</div><div class="stat-v" id="ft-mdd">—</div></div>
+                <div class="stat-box" title="Share of trades that exited at target rather than at the stop."><div class="stat-l">TP-hit share</div><div class="stat-v" id="ft-tp">—</div></div>
+                <div class="stat-box" title="Close-to-close max drawdown of the closed-trade equity curve — matches the Equity tab's curve. The engine's intra-trade max drawdown is unchanged and exports separately."><div class="stat-l">Max DD</div><div class="stat-v" id="ft-mdd">—</div></div>
               </div>
               <div class="equity-wrap" id="equity-wrap">
                 <svg class="equity-svg" id="ft-equity" viewBox="0 0 600 80" preserveAspectRatio="none"></svg>
