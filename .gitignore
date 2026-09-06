@@ -5,3 +5,13 @@ node_modules/
 .env.local
 .env*.local
 .vercel
+
+# Research / private workspace — never belongs in this repo (see CLAUDE.md).
+# Belt-and-braces: the rule is in CLAUDE.md, these patterns catch the common shapes.
+scripts/research/
+research/
+notes/
+handoffs/
+*.local.md
+data/
+*.csv
