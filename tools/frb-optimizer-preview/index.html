@@ -879,11 +879,14 @@
     .lens-btn.active { opacity: 1; font-weight: 700; }
     .lens-btn:disabled { opacity: .25; cursor: not-allowed; }
     #ft-lens-note { font-size: 11px; opacity: .75; margin: 6px 0 2px; }
+    #ft-card.lens-on::after { content: attr(data-lens); margin-left: 6px; padding: 1px 5px;
+      border-radius: 3px; font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+      border: 1px solid currentColor; opacity: .8; vertical-align: middle; }
     .basis-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin-left: 6px; }
   </style>
-    <script type="module" crossorigin src="./assets/frbFilter-PKFRi4t9.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-zPfcXQkF.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-Yk1AKyJT.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-kp42UQTK.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CprtRYnv.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -1320,6 +1323,7 @@
                 <span class="footer-lens-label">View</span>
                 <button class="lens-btn active" type="button" id="ft-lens-off" data-lens="off" aria-pressed="true">OFF</button>
                 <button class="lens-btn" type="button" id="ft-lens-nr7" data-lens="nr7" aria-pressed="false">NR7</button>
+                <button class="lens-btn" type="button" id="ft-lens-volconc" data-lens="volconc" aria-pressed="false">VOL</button>
               </div>
             </div>
             <div id="ft-lens-note" style="display:none"></div>
@@ -1441,6 +1445,6 @@
  injectPublicVersion (main.ts). ENGINE_VERSION lives in
  export-json.ts for audit-trail JSON only — not rendered
  on any UI surface. -->
-
+
   </body>
 </html>
