@@ -114,7 +114,7 @@
       .pro-pill { font-size: 10px; padding: 1px 6px; background: rgba(186,117,23,0.18); color: #FAC775; border-radius: 999px; letter-spacing: 0.3px; font-weight: 500; }
       .lock { font-size: 10px; color: #5F7B97; }
 
-      .tab-body { padding: 9px 14px 11px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+      .tab-body { padding: 9px 14px 11px; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-x: hidden; overflow-y: auto; }
       /* Prompt 2: Tradelist tab body */
       .tradelist-body { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
       .tradelist-actions { display: flex; gap: 12px; }
@@ -882,15 +882,15 @@
     .lens-btn:hover { opacity: .85; }
     .lens-btn.active { opacity: 1; font-weight: 700; }
     .lens-btn:disabled { opacity: .25; cursor: not-allowed; }
-    #ft-lens-note { font-size: 11px; opacity: .75; margin: 6px 0 2px; padding: 0 16px; }
-    #ft-card.lens-on::after { content: attr(data-lens); margin-left: 6px; padding: 1px 5px;
+    #ft-lens-note { font-size: 11px; opacity: .75; margin: 6px 0 2px; padding: 0 16px; max-height: 75px; overflow-y: auto; }
+    #ft-card.lens-on::after { content: attr(data-lens-label); margin-left: 6px; padding: 1px 5px;
       border-radius: 3px; font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
       border: 1px solid currentColor; opacity: .8; vertical-align: middle; }
     .basis-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin-left: 6px; }
   </style>
-    <script type="module" crossorigin src="./assets/frbFilter-CP7gMLgE.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/popover-CWCUA2Zz.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-s4bQlhKk.js">
+    <script type="module" crossorigin src="./assets/frbFilter-B95SmmGZ.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/popover-BZJayBLI.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-BU2mUyPC.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -1327,7 +1327,9 @@
                 <span class="footer-lens-label">View</span>
                 <button class="lens-btn active" type="button" id="ft-lens-off" data-lens="off" aria-pressed="true">OFF</button>
                 <button class="lens-btn" type="button" id="ft-lens-nr7" data-lens="nr7" aria-pressed="false">NR7</button>
-                <button class="lens-btn" type="button" id="ft-lens-volconc" data-lens="volconc" aria-pressed="false">VOL</button>
+                <button class="lens-btn" type="button" id="ft-lens-volconc" data-lens="volconc" aria-pressed="false">V5</button>
+                <button class="lens-btn" type="button" id="ft-lens-vm" data-lens="vm" aria-pressed="false">VM</button>
+                <button class="lens-btn" type="button" id="ft-lens-v5vm" data-lens="v5vm" aria-pressed="false">V5+VM</button>
               </div>
             </div>
             <div id="ft-lens-note" style="display:none"></div>
