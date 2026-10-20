@@ -168,10 +168,6 @@
 
       .footer-empty { padding: 28px 20px; text-align: center; color: #5F7B97; font-size: 13px; flex: 1; display: flex; align-items: center; justify-content: center; }
 
-      /* Robustness TAB pane (sandbox) — card-linked, sibling of #tab-body. .rf is the pane
- box; the "Hide non-ROBUST" control is a native .filter-multi member beside R:R
- . The pane's inner content (leg selector +
- report) is styled by render-legs-frss-sandbox. */
       .rf { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 14px 11px; }
       /* Robustness-tab MODE: while the Robustness tab is active, force the shared stats body
  (#tab-body) hidden with !important so render-cards-frss's inline `display:flex` on
@@ -227,12 +223,6 @@
       a { color: var(--accent); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
-      /* ===== Inner col layout helpers (Phase A only — Phase B will redo) ===== */
-      .col-scroll { flex: 1; overflow-y: auto; min-height: 0; padding-right: 12px; }
-      #col-inputs .col-scroll { flex: 1; }
-      .col-scroll::-webkit-scrollbar { width: 5px; }
-      .col-scroll::-webkit-scrollbar-thumb { background: #185FA5; border-radius: 3px; }
-      .col-scroll::-webkit-scrollbar-track { background: transparent; }
       .col-foot {
         margin-top: 6px;
         padding-top: 10px;
@@ -244,18 +234,6 @@
         flex-shrink: 0;
       }
 
-      /* Inputs col groups */
-      .input-section { margin-bottom: 8px; }
-      .input-section-title {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: #85B7EB;
-        margin: 0 0 5px 0;
-        padding-bottom: 3px;
-        border-bottom: 0.5px solid #185FA5;
-      }
       details.collapsible {
         margin-bottom: 6px;
         border-top: 0.5px solid #185FA5;
@@ -282,52 +260,7 @@
       }
       details.collapsible[open] > summary::after { content: "−"; }
 
-      /* Panel header info tooltips — mirrors the sidebar .sb-icon[data-tip] pattern.
- The tooltip anchors to the SUMMARY's left edge (summary is the positioned
- ancestor; the .panel-info span stays static) so it can't clip on the column's
- right edge; width caps at the panel width and wraps. */
       details.collapsible > summary { position: relative; }
-      .panel-info {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 13px;
-        height: 13px;
-        margin-left: 6px;
-        border: 1px solid #5F7B97;
-        border-radius: 50%;
-        font-size: 9px;
-        font-weight: 400;
-        letter-spacing: 0;
-        color: #85B7EB;
-        cursor: help;
-        vertical-align: 1px;
-      }
-      .panel-info[data-tip]::after {
-        content: attr(data-tip);
-        position: absolute;
-        left: 0;
-        top: calc(100% + 6px);
-        background: #0C447C;
-        color: #E6F1FB;
-        padding: 6px 10px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 400;
-        line-height: 1.45;
-        letter-spacing: 0.3px;
-        text-transform: none;
-        width: max-content;
-        max-width: 100%;
-        box-sizing: border-box;
-        white-space: normal;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.15s;
-        z-index: 100;
-      }
-      .panel-info[data-tip]:hover::after,
-      .panel-info[data-tip]:focus::after { opacity: 1; }
 
       /* Form controls (dark theme inside dark navy col) */
       button {
@@ -367,48 +300,83 @@
       .muted, .hint { color: #94A3B8; }
       .hint { font-size: 12px; margin: 0 0 12px 0; }
 
-      /* Selection Filter (sandbox · Part 2) — compact levers above the cards */
-      .filter-section { flex-shrink: 0; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 0.5px solid #185FA5; }
-      /* (#20) fixed 3-column grid → the 5 controls flow as two tidy rows:
- Min PF | Min Win Rate % | Min Window Trades / Time Spread | Rank By.
- Layout only — no field renames, no id changes. */
-      .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 10px; }
-      .filter-grid label {
-        display: flex; flex-direction: column; gap: 4px;
-        font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
-      }
-      .filter-grid input, .filter-grid select { width: 100%; }
-      .filter-multi { margin-top: 8px; }
-      .filter-multi-label {
-        display: block; margin-bottom: 4px;
-        font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
-      }
-      .filter-chips { display: flex; flex-wrap: wrap; gap: 4px 8px; }
-      .filter-chips .chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text); cursor: pointer; }
-      .filter-chips .chk input[type="checkbox"] {
-        width: auto; padding: 0; margin: 0; border: 0; background: transparent; accent-color: var(--accent); cursor: pointer;
-      }
-      /* R:R + Robustness (HNRC) side by side — both are plain
- .filter-multi members, so label/chip treatment matches the rest of the section. */
-      .filter-multi-row { display: flex; flex-wrap: wrap; gap: 0 28px; align-items: flex-start; }
-      .filter-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
-      /* APPLY / RESET (+ CANCEL, same row) sized to match the preset
- "Set" buttons (font 11px · padding 6px 8px · letter-spacing 0.5px) so the Outputs
- footer controls read as one consistent cluster. */
+      .bottom-row { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; grid-template-rows: minmax(0, 1fr); gap: 6px; height: 360px; flex-shrink: 0; min-height: 0; }
+      .bottom-row > .footer { grid-column: 3 / 6; min-width: 0; }
+      .col-tabbed > .col-h { margin-bottom: 2px; }
+      .tabs.box-tabs { padding: 0; flex-wrap: wrap; }
+      .box-tabs .tab { padding: 6px 8px 5px; font-size: 11px; letter-spacing: 0.3px; gap: 4px; white-space: nowrap; }
+      .box-tabs .tab:hover:not(:disabled) { background: transparent; border-color: transparent; color: #E6F1FB; }
+      .box-tabs .tab.active, .box-tabs .tab.active:hover:not(:disabled) { border-bottom-color: #378ADD; }
+      .box-tabs .tab.dirty { color: #FAC775; }
+      .box-tabs .tab.dirty::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #FAC775; }
+      .box-tabs .tab.done::after { content: "\2713"; color: #1D9E75; font-size: 10px; }
+      .box-tabs .tab.blocked { color: #DA6850; }
+      .box-panes { flex: 1; min-height: 0; overflow-y: auto; padding-top: 8px; }
+      .box-panes::-webkit-scrollbar { width: 5px; }
+      .box-panes::-webkit-scrollbar-thumb { background: #185FA5; border-radius: 3px; }
+      .box-banner { font-size: 10px; line-height: 1.3; color: #85B7EB; margin: 0 0 6px; }
+      .box-note { font-size: 10px; line-height: 1.35; color: #B5D4F4; }
+      .bx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 14px; }
+      .bx-full { grid-column: 1 / -1; }
+      .bx-f { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 22px; font-size: 10px; line-height: 1.15; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.35px; }
+      .bx-f > input, .bx-f > select { flex-shrink: 0; width: 84px; height: 22px; padding: 2px 5px; font-size: 11px; text-transform: none; letter-spacing: 0; }
+      .bx-f > select.wide, .bx-f > input[type="date"] { width: 118px; }
+      .bx-f > input[type="checkbox"] { width: 14px; height: 14px; padding: 0; margin: 0; accent-color: var(--accent); }
+      .bx-total { justify-content: flex-end; }
+      #section-upload .upload-cell { min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
+      .filter-multi { display: flex; align-items: center; gap: 6px; min-height: 22px; }
+      .filter-multi-label { margin: 0; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.35px; white-space: nowrap; }
+      .filter-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+      .filter-chips .chk { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+      .filter-chips .chk input[type="checkbox"] { position: absolute; opacity: 0; width: 1px; height: 1px; padding: 0; margin: 0; border: 0; }
+      .filter-chips .chk span { display: inline-block; font-size: 10px; line-height: 1.3; padding: 2px 4px; border: 1px solid #475569; color: #94A3B8; }
+      .filter-chips .chk input:checked + span { border-color: #378ADD; color: #E6F1FB; background: #0C447C; }
+      .filter-chips .chk input:focus-visible + span { outline: 1px solid #378ADD; outline-offset: 1px; }
+      .filter-foot { position: relative; margin-top: 4px; padding-top: 7px; border-top: 0.5px solid #185FA5; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; flex-shrink: 0; }
       .filter-foot #btn-run-filter,
       .filter-foot #btn-reset-filter,
-      .filter-foot #btn-cancel-filter { font-size: 11px; padding: 6px 8px; letter-spacing: 0.5px; }
-      /* (GO 2026-07-18) APPLY PENDING = panel settings not engaged against the current sample —
- true after EVERY sweep and after RESET, until the user presses APPLY. Accent treatment
- + dot so "the filter has not been applied to what you're looking at" is always visible. */
-      .filter-foot #btn-run-filter.pending { border-color: var(--accent); color: var(--accent); }
+      .filter-foot #btn-cancel-filter,
+      .filter-foot #btn-export-sweep { font-size: 11px; padding: 6px 8px; letter-spacing: 0.5px; }
+      .filter-foot #btn-run-filter.pending { border-color: #FAC775; color: #FAC775; }
       .filter-foot #btn-run-filter.pending::after { content: " \25CF"; font-size: 8px; vertical-align: 1px; }
-      /* (GO 2026-07-18) the Showing-X-of-Y state line sits tight under the sweep summary */
+      .filter-foot #btn-cancel-filter:not(.hidden) ~ #btn-run-filter { display: none; }
+      .filter-foot #btn-export-sweep { margin-left: auto; }
+      .filter-foot #btn-cancel-filter.hidden + .panel-info,
+      .filter-foot #btn-cancel-filter:not(.hidden) ~ #btn-run-filter + .panel-info,
+      #section-run #cancel-btn.hidden + .panel-info { display: none; }
+      .filter-foot #filter-status { flex-basis: 100%; margin: 0; font-size: 11px; color: #B5D4F4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 15px; }
+      .filter-foot #filter-status[data-tab-target] { cursor: pointer; text-decoration: underline dotted; }
+      .col-h-bar { display: flex; align-items: center; gap: 2px; padding-bottom: 3px; }
+      #section-run > .panel-info { margin-left: -4px; }
+      .filter-foot > .panel-info { margin-left: -1px; }
+      .col-h-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+      .col-h-actions #btn-presets { font-size: 10px; padding: 1px 7px; letter-spacing: 0.5px; line-height: 1.2; }
+      .preset-pop { position: absolute; left: 12px; right: 12px; top: 32px; z-index: 6; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px; background: var(--bg-raised); border: 1px solid var(--border-strong); }
+      .panel-info, .tip-list > summary { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 13px; height: 13px; margin-left: 4px; border: 1px solid #5F7B97; border-radius: 50%; font-size: 9px; font-weight: 400; font-style: normal; letter-spacing: 0; line-height: 1; text-transform: none; color: #85B7EB; cursor: help; user-select: none; vertical-align: 1px; }
+      .panel-info:hover, .panel-info:focus-visible, .tip-list > summary:hover, .tip-list > summary:focus-visible { color: #E6F1FB; border-color: #85B7EB; outline: none; }
+      .bx-f > .panel-info { margin-left: 3px; margin-right: auto; }
+      .bx-total > .panel-info { margin-right: 0; }
+      .upload-cell label .panel-info { pointer-events: auto; }
+      .tip-bubble { position: fixed; z-index: 200; max-width: 260px; padding: 6px 10px; background: #0C447C; color: #E6F1FB; border: 0.5px solid #378ADD; border-radius: 4px; font-size: 11px; font-weight: 400; line-height: 1.45; letter-spacing: 0.2px; text-transform: none; white-space: normal; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+      .box-tabs .tab[data-tip]::before, #footer-tabs > .tab[data-tip]::before { content: "i"; order: 1; display: inline-flex; align-items: center; justify-content: center; width: 10px; height: 10px; border: 1px solid #5F7B97; border-radius: 50%; font-size: 7px; font-weight: 400; color: #85B7EB; }
+      .box-tabs .tab::after { order: 2; }
+      .card-list-h [data-tip] { cursor: help; text-decoration: underline dotted #5F7B97; text-underline-offset: 3px; }
+      .card-count-row { display: flex; align-items: center; }
+      .bottom-row > .footer > .tip-list { position: relative; align-self: flex-end; height: 0; margin-right: 14px; z-index: 4; }
+      .tip-list > summary { position: absolute; right: 0; top: 7px; list-style: none; }
+      .tip-list > summary::-webkit-details-marker { display: none; }
+      .tip-list-body { position: absolute; right: 0; top: 26px; width: 520px; max-width: calc(100vw - 120px); max-height: 270px; overflow-y: auto; padding: 8px 12px; background: #0C447C; border: 0.5px solid #378ADD; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.35); font-size: 11px; line-height: 1.45; color: #E6F1FB; }
+      .tip-list-body p { margin: 0 0 6px; }
+      .tip-list-body p:last-child { margin-bottom: 0; }
       .card-count { margin-top: 2px; }
-      /* Filtering status always on its OWN line below the buttons, so it stays static and
- does not jump when the CANCEL button appears/disappears. */
-      .filter-foot #filter-status { flex-basis: 100%; margin: 0; }
-      /* Filter + cards now share .col-scroll, so the levers no longer need their own height cap. */
+      #col-outputs > .col-h { margin-bottom: 6px; }
+      #col-outputs #section-results { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+      #col-outputs .results-summary { margin-bottom: 4px; }
+      #col-outputs .cards-meta { flex-shrink: 1; min-height: 0; max-height: 45%; overflow-y: auto; }
+      #col-outputs #cards-grid { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+      .cards-empty { display: none; flex: 1; align-items: center; justify-content: center; font-size: 12px; color: #5F7B97; text-align: center; }
+      #section-results.hidden ~ .cards-empty { display: flex; }
+      .cards-none { padding: 14px 12px; font-size: 12px; line-height: 1.5; color: #85B7EB; }
       /* (REGIME tab) Per-card Regime pane — its OWN footer tab
  (regime is card context, not a stat). Rows are a label/value list, not metric
  tiles; the pane itself inherits .rf layout from the robustness/durability panes. */
@@ -456,10 +424,6 @@
       }
       .eod-warning .eodw-card { opacity: 0.9; }
       .eod-warning .eodw-more { opacity: 0.7; }
-      /* FIX 2: drop the duplicate divider above SELECTION FILTER — the col-h border already separates it */
-      .filter-section > details.collapsible { border-top: 0; padding-top: 0; }
-
-      /* (Part 3 results-table CSS removed — Part 4 reworks the filter to hide/show cards in place) */
 
       /* Upload cells */
       .upload-row { display: flex; flex-direction: row; gap: 10px; align-items: stretch; }
@@ -506,44 +470,12 @@
       .upload-meta.ok { color: var(--success); }
       .upload-meta.err { color: var(--danger); }
 
-      /* Config grid */
-      .config-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px 14px;
-      }
-      .config-grid > label.full { grid-column: 1 / -1; }
-      .config-grid label {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        font-size: 11px;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-      .config-grid input,
-      .config-grid select { width: 100%; }
-      .manual-tick-meta {
-        font-size: 11px;
-        color: var(--text-muted);
-        margin-top: 4px;
-        text-transform: none;
-        letter-spacing: 0;
-      }
-
-      /* Entry Model panel (ARB toggle ). Chrome is entirely the shared
- details.collapsible + .config-grid + .hint idiom, so the panel needs no rules
- of its own. It once carried a bespoke amber caution block; that was retired on
- 2026-08-02 when ARB parity was proven, and the panel now looks exactly like
- Configuration / Scoring Weights. */
-
       /* Run controls */
       #run-btn {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
-        letter-spacing: 2px;
-        padding: 10px 18px;
+        letter-spacing: 1px;
+        padding: 7px 12px;
         background: var(--accent);
         color: #FFFFFF;
         border-color: var(--accent);
@@ -564,6 +496,10 @@
       #cancel-btn:hover:not(:disabled) {
         background: rgba(239, 68, 68, 0.10);
       }
+      #run-btn.pending:not(:disabled) { background: transparent; color: #FAC775; border-color: #FAC775; }
+      #run-btn.pending:not(:disabled)::after { content: " \25CF"; font-size: 8px; vertical-align: 1px; }
+      #section-run { margin-top: 4px; padding-top: 7px; row-gap: 4px; }
+      #btn-new-sample, #cancel-btn { font-size: 11px; padding: 6px 8px; letter-spacing: 0.5px; }
       /* ⓘ beside NEW SAMPLE — title-tooltip rollover
  explaining the seed-based unlock. Mirrors .info-icon-btn geometry, theme-dim. */
       .ns-info {
@@ -580,17 +516,19 @@
         border-color: var(--text-dim);
         outline: none;
       }
-      /* Outputs footer: preset strip far left (its
- margin-right:auto pushes the next sibling), EXPORT SWEEP pinned far right —
- also holds when the strip wraps on narrow viewports. */
-      #outputs-foot #btn-export-sweep { margin-left: auto; }
       #run-status {
         flex: 1 1 100%;
         font-size: 11px;
         color: var(--text-dim);
         letter-spacing: 0.5px;
-        margin-top: 4px;
+        margin-top: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        min-height: 15px;
       }
+      #run-status[data-tab-target] { cursor: pointer; text-decoration: underline dotted; }
 
       /* Results summary */
       .results-summary {
@@ -707,29 +645,6 @@
       }
       .pairing-table th { font-weight: 600; color: #5F6368; }
       .pairing-table tr:last-child td { border-bottom: 0; }
-      /* Weights */
-      .weights-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px 14px;
-      }
-      .weights-grid label {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        font-size: 11px;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-      .weights-grid input { width: 100%; }
-      .weights-footer {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 12px;
-        flex-wrap: wrap;
-      }
       #weight-total {
         font-weight: 700;
         font-size: 12px;
@@ -748,10 +663,6 @@
         color: var(--danger);
         border-color: var(--danger);
         background: rgba(239, 68, 68, 0.10);
-      }
-      .weight-message {
-        color: var(--danger);
-        font-size: 11px;
       }
       #reset-weights-btn {
         font-size: 11px;
@@ -888,9 +799,9 @@
       border: 1px solid currentColor; opacity: .8; vertical-align: middle; }
     .basis-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin-left: 6px; }
   </style>
-    <script type="module" crossorigin src="./assets/frbFilter-B-uqsepa.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-8Z5Ocd-r.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-BZJayBLI.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-BU2mUyPC.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CNfjk4Le.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -956,18 +867,23 @@
 
           <div class="flow">
 
-            <!-- Inputs / Configs col -->
-            <div class="col" id="col-inputs">
-              <div class="col-h">Inputs / Configs</div>
-              <div class="col-scroll">
+            <div class="col col-tabbed" id="col-inputs">
+              <div class="col-h col-h-bar"><span>Inputs / Configs</span><span class="panel-info" id="inputs-title-info" tabindex="0" aria-label="About the setting tags" data-tip="Chart setting = also an input in the strategy on your chart, shown in the card's › panel to copy. Optimizer only = changes how this page searches, scores, filters or sizes. View only = changes only what is shown.">i</span><span class="col-h-actions"><button id="btn-presets" type="button" aria-expanded="false" aria-controls="outputs-foot">PRESETS</button><span class="panel-info" tabindex="0" aria-label="About PRESETS" data-tip="One preset saves every setting in the Optimizer, on every tab, inputs and filters, including market, platform and entry model. Only the price file and the dates are left out. Kept in this browser.">i</span></span></div>
+              <div class="preset-pop" id="outputs-foot" role="dialog" aria-label="Presets" hidden></div>
+              <div class="tabs box-tabs" id="inputs-tabs" role="tablist" aria-label="Run settings">
+                <button class="tab active" type="button" role="tab" id="btab-data" data-boxtab="data" data-tip="Load your price file here. Nothing can run until a file is loaded, and loading a new file clears the result cards." aria-controls="section-upload" aria-selected="true">Data</button>
+                <button class="tab" type="button" role="tab" id="btab-entry" data-boxtab="entry" data-tip="Pick the platform and the entry rules (when the strategy gets into a trade) that the Optimizer tests. Changing the entry model clears the result cards." aria-controls="section-entry-model" aria-selected="false" tabindex="-1">Model</button>
+                <button class="tab" type="button" role="tab" id="btab-config" data-boxtab="config" data-tip="Your market, test dates, account size and risk per trade. Used when you click RUN OPTIMIZER, so after a change, run again." aria-controls="section-config" aria-selected="false" tabindex="-1">Config</button>
+                <button class="tab" type="button" role="tab" id="btab-search" data-boxtab="search" data-tip="How many setting combinations the Optimizer tries, and how many of the best it keeps. Used when you click RUN OPTIMIZER." aria-controls="section-search" aria-selected="false" tabindex="-1">Search</button>
+                <button class="tab" type="button" role="tab" id="btab-scoring" data-boxtab="scoring" data-tip="How the Optimizer grades every setting combination it tries, which decides what makes the list. Optional: you can leave the defaults. Used when you click RUN OPTIMIZER." aria-controls="section-scoring" aria-selected="false" tabindex="-1">Scoring</button>
+              </div>
+              <div class="box-panes">
 
-                <div class="input-section" id="section-upload">
-                  <h3 class="input-section-title">Data</h3>
+                <div class="box-pane" id="section-upload" role="tabpanel" aria-labelledby="btab-data" data-boxpanel="data">
+                  <p class="box-banner">Load your price file. Loading a file clears the cards.</p>
                   <div class="upload-row">
-                    <!-- FRB: Daily upload slot REMOVED — the FRB engine consumes only the 5-min
- series and ignores daily bars, so a daily override has no effect. -->
-                    <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="Preferred Strategy Timeframe OHLCV Data — drop CSV or click to browse">
-                      <label for="file-ohlcv">Preferred Strategy Timeframe OHLCV Data (TradingView's Chart Data CSV)</label>
+                    <div class="upload-cell" id="drop-ohlcv" role="button" tabindex="0" aria-label="Price data, CSV exported from TradingView: drop a file or click to browse">
+                      <label for="file-ohlcv">Price data (CSV exported from TradingView)<span class="panel-info" tabindex="0" aria-label="About the price file" data-tip="Drop your price file here or click to choose it: a CSV (simple spreadsheet file) of price bars (candles) from TradingView, with time, open, high, low, close and Volume columns. Loading a file clears the cards.">i</span></label>
                       <input type="file" id="file-ohlcv" accept=".csv" />
                       <div class="drop-zone-prompt">Drop CSV or click</div>
                       <div class="upload-meta" id="meta-ohlcv">No file selected</div>
@@ -975,138 +891,69 @@
                   </div>
                 </div>
 
-                <!-- Entry Model control. Open by default so the active strategy is never
- hidden behind a collapsed panel.
-
- ⚠ KEEP THIS COMMENT MINIMAL. HTML and CSS comments SURVIVE the build and
- ship in the page bytes, and this page is served unauthenticated — anything
- written here is public. No performance figures, card ids, script names,
- source paths, or rationale. The design notes and the retained model
- reference live in the optimizer's TypeScript source, which is stripped
- from the bundle. The acceptance gate greps this file and will fail if
- internal detail reappears, rendered or commented. -->
-                <details class="collapsible" id="section-entry-model" open>
-                  <summary>Entry Model <span class="panel-info" tabindex="0" data-tip="Which entry logic the sweep runs. Both models are parity-proven against their TradingView scripts. They produce different trade sets — changing this clears the results on screen.">i</span></summary>
-                  <div class="config-grid">
-                    <label class="full">
-                      Entry Model
-                      <select id="input-entry-mechanics">
-                        <option value="sliding" selected>FRB v2.3</option>
-                        <option value="lock_rearm">ARB v1.0</option>
+                <div class="box-pane" id="section-entry-model" role="tabpanel" aria-labelledby="btab-entry" data-boxpanel="entry" hidden>
+                  <p class="box-banner">Which platform and entry logic the sweep runs. Changing the entry model clears the cards.</p>
+                  <div class="bx-grid">
+                    <label class="bx-f bx-full">Platform<span class="panel-info" tabindex="0" aria-label="About Platform" data-tip="Optimizer only: the trading app your strategy runs on. Only TradingView is available now, and this choice does not change any results yet.">i</span>
+                      <select id="input-platform" class="wide" data-dirty-ignore>
+                        <option value="tradingview" selected title="Results are built to match the TradingView version of the strategy.">TradingView</option>
+                        <option value="ninjatrader" disabled title="Coming later. It switches on once the NinjaTrader strategy matches the Optimizer trade for trade.">NinjaTrader</option>
+                      </select>
+                    </label>
+                    <label class="bx-f bx-full">Entry model<span class="panel-info" tabindex="0" aria-label="About Entry model" data-tip="Chart setting: the entry rules (when to get into a trade) the Optimizer tests. Load the matching strategy, FRB v2.3 or ARB v1.0, on your chart; the › panel does not list it. Changing it clears the cards.">i</span>
+                      <select id="input-entry-mechanics" class="wide" data-dirty-ignore>
+                        <option value="sliding" selected title="After 3 green candles in a row (each closed above its open), it buys if the next one closes above their top. After 3 red, it sells short (bets on a fall) on a close below their bottom. It always uses the latest 3.">FRB v2.3</option>
+                        <option value="lock_rearm" title="Waits for 1 red candle, then 3 green, the first green dipping to or below the red one's low. The 3 greens' top and bottom then lock: a close above buys, a close below cancels. Sells short (bets on a fall) on the reverse.">ARB v1.0</option>
                       </select>
                     </label>
                   </div>
-                </details>
+                </div>
 
-                <details class="collapsible" id="section-config">
-                  <summary>Configuration <span class="panel-info" tabindex="0" data-tip="Set up your test: market, money, dates, and risk limits.">i</span></summary>
-                  <div class="config-grid">
-                    <label class="full">
-                      Asset
-                      <select id="input-asset"></select>
-                      <div id="manual-tick-wrap" class="hidden" style="margin-top: 8px;">
-                        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Tick Dollar Value ($/Tick)</div>
-                        <input type="number" id="input-manual-tick-dollar" min="0.01" step="0.01" value="12.50" style="width: 100%;" />
-                        <div class="manual-tick-meta">ES=12.50 | NQ=5.00 | CL=10.00 | ZN=15.625 | 6E=12.50 | ZC=12.50</div>
-                      </div>
-                    </label>
-                    <!-- Row order per 2026-07-10 reorg. Relabels are DISPLAY TEXT ONLY —
- every input id / export key is unchanged. -->
-                    <label class="full">
-                      Account Size ($)
-                      <input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" />
-                    </label>
-                    <label>
-                      Backtest From
-                      <input type="date" id="input-trade-from" />
-                    </label>
-                    <label>
-                      Backtest To
-                      <input type="date" id="input-trade-to" />
-                    </label>
-                    <label>
-                      Target Risk ($)
-                      <input type="number" id="input-target-risk" min="1" step="10" value="250" />
-                    </label>
-                    <label>
-                      Max Risk / Trade ($)
-                      <input type="number" id="input-max-risk" min="1" step="10" value="350" />
-                    </label>
-                    <label>
-                      Max Trades / Day (0 = off)
-                      <!-- Wishlist #12 (2026-07-10): live — the engine's Step 9 per-session-day
- cap (parity with Pine FRSS_v2_0 ADDITION 1). One value/run, not swept.
- 0 = off = certified path. -->
-                      <input type="number" id="input-max-trades-day" min="0" step="1" value="0" />
-                    </label>
-                    <label>
-                      Max Drawdown %
-                      <!-- Default 2.4% reproduces the legacy $1,200 gate at a $50,000 account
- (50000 × 0.024 = 1200). A starting default users override — NOT a universal
- rule. 2.4% is % of CAPITAL; it only equals ~60% of the $2,000 room at $50k.
- Room and capital don't scale together across account tiers. -->
-                      <input type="number" id="input-max-dd-pct" min="0.1" max="100" step="0.1" value="2.4" />
-                    </label>
-                    <label>
-                      Min Trades to Qualify
-                      <input type="number" id="input-min-trades" min="1" step="1" value="25" />
-                    </label>
-                    <label>
-                      Max Contracts
-                      <input type="number" id="input-max-contracts" min="1" step="1" value="40" />
-                    </label>
-                    <label>
-                      Configs to Test
-                      <input type="number" id="input-phase1" min="100" step="100" value="2000" />
-                    </label>
-                    <label>
-                      Top Results to Keep
-                      <input type="number" id="input-top-n" min="1" max="1000" step="1" value="10" />
-                    </label>
+                <div class="box-pane" id="section-config" role="tabpanel" aria-labelledby="btab-config" data-boxpanel="config" hidden>
+                  <p class="box-banner">Market, dates, account and risk. Used when you click RUN OPTIMIZER.</p>
+                  <div class="bx-grid">
+                    <label class="bx-f">Asset<span class="panel-info" tabindex="0" aria-label="About Asset" data-tip="Chart setting: pick the futures contract your price file is for, like MNQ (Micro Nasdaq) or MGC (Micro Gold). It sets the tick (smallest price move), its $ value and the ranges searched. Not listed? Pick Manual Entry.">i</span><select id="input-asset" class="wide"></select></label>
+                    <label class="bx-f">Account size ($)<span class="panel-info" tabindex="0" aria-label="About Account size" data-tip="Optimizer only: the starting balance for the test, at least $1,000. It feeds the balance chart, drawdown % (drop from a high point), the drawdown part of the score and your drawdown budget.">i</span><input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" /></label>
+                    <label class="bx-f">Backtest from<span class="panel-info" tabindex="0" aria-label="About Backtest from" data-tip="Optimizer only: the first day tested (New York date, counted in). Blank = start of the file. Earlier bars only get the indicators (running averages) ready. Use the same dates in TradingView to compare.">i</span><input type="date" id="input-trade-from" /></label>
+                    <label class="bx-f">Backtest to<span class="panel-info" tabindex="0" aria-label="About Backtest to" data-tip="Optimizer only: the last day tested (New York date, counted in). Blank = end of the file. Pick an earlier date to leave the newest bars out of the test.">i</span><input type="date" id="input-trade-to" /></label>
+                    <label class="bx-f">Target risk / trade ($)<span class="panel-info" tabindex="0" aria-label="About Target risk" data-tip="Chart setting: the $ you aim to risk per trade, the loss if it hits its stop (the exit that cuts a loss). Contracts = this ÷ one contract's loss at the stop, rounded up, then held within Max risk and Max contracts.">i</span><input type="number" id="input-target-risk" min="1" step="10" value="250" /></label>
+                    <label class="bx-f">Max risk / trade ($)<span class="panel-info" tabindex="0" aria-label="About Max risk" data-tip="Chart setting: the most a trade may risk. If rounding up goes over it, the size rounds down instead. If even 1 contract risks more, the trade is skipped.">i</span><input type="number" id="input-max-risk" min="1" step="10" value="350" /></label>
+                    <label class="bx-f">Max contracts<span class="panel-info" tabindex="0" aria-label="About Max contracts" data-tip="Chart setting: the most contracts any trade can use. It is the only contract limit: no trade ever uses more, even when your drawdown budget would allow more.">i</span><input type="number" id="input-max-contracts" min="1" step="1" value="40" /></label>
+                    <label class="bx-f">Max trades / day (0 = off)<span class="panel-info" tabindex="0" aria-label="About Max trades per day" data-tip="Chart setting: the most trades taken per trading day (a day starts at 6 pm New York time). 0 = no limit. The V5 view in the details panel needs exactly 1.">i</span><input type="number" id="input-max-trades-day" min="0" step="1" value="0" /></label>
+                    <label class="bx-f bx-full hidden" id="manual-tick-wrap">$ per tick (Manual Entry)<span class="panel-info" tabindex="0" aria-label="About dollars per tick" data-tip="Chart setting, Manual Entry only: how many dollars one tick (the smallest price move) is worth on your contract, for example $12.50 for ES or $5.00 for NQ. The tick size is guessed from your file.">i</span><input type="number" id="input-manual-tick-dollar" min="0.01" step="0.01" value="12.50" /></label>
                   </div>
-                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Backtest From/To bounds are NY wall-clock dates, inclusive; bars before the window are used for warmup but don't enter trades. To reproduce a card in TradingView, set the Strategy Tester to the same date range — parity is entry-exact within the shared window; small residual differences come from exit-fill modeling, not entry logic.</p>
-                </details>
+                </div>
 
-                <details class="collapsible">
-                  <summary>Scoring Weights (Advanced) <span class="panel-info" tabindex="0" data-tip="Tell the optimizer what matters most. Higher = weighs more when ranking.">i</span></summary>
-                  <div class="weights-grid">
-                    <label>PnL Weight
-                      <input type="number" id="input-weight-pnl" min="0" max="1" step="0.05" value="0.40" />
-                    </label>
-                    <label>Profit Factor Weight
-                      <input type="number" id="input-weight-pf" min="0" max="1" step="0.05" value="0.15" />
-                    </label>
-                    <label>Win Rate Weight
-                      <input type="number" id="input-weight-wr" min="0" max="1" step="0.05" value="0.10" />
-                    </label>
-                    <label>Drawdown Penalty Weight
-                      <input type="number" id="input-weight-dd" min="0" max="1" step="0.05" value="0.15" />
-                    </label>
-                    <label>Trade Count Weight
-                      <input type="number" id="input-weight-tc" min="0" max="1" step="0.05" value="0.10" />
-                    </label>
-                    <label>Expectancy Weight
-                      <input type="number" id="input-weight-exp" min="0" max="1" step="0.05" value="0.10" />
-                    </label>
+                <div class="box-pane" id="section-search" role="tabpanel" aria-labelledby="btab-search" data-boxpanel="search" hidden>
+                  <p class="box-banner">How many settings the sweep tries. Used when you click RUN OPTIMIZER.</p>
+                  <div class="bx-grid">
+                    <label class="bx-f">Configs to test<span class="panel-info" tabindex="0" aria-label="About Configs to test" data-tip="Optimizer only: how many random setting combinations the first pass tries (at least 100). A bigger number searches more widely but takes longer. The best 5 are then fine-tuned.">i</span><input type="number" id="input-phase1" min="100" step="100" value="2000" /></label>
+                    <label class="bx-f">Top results to keep<span class="panel-info" tabindex="0" aria-label="About Top results to keep" data-tip="Optimizer only: how many of the best-scoring cards the run lists, 1 to 1,000. Keep more if you want more cards to filter and choose from.">i</span><input type="number" id="input-top-n" min="1" max="1000" step="1" value="10" /></label>
                   </div>
-                  <div class="weights-footer">
-                    <span id="weight-total" class="weight-ok">Total: 1.00</span>
-                    <button type="button" id="reset-weights-btn">Reset to Defaults</button>
+                </div>
+
+                <div class="box-pane" id="section-scoring" role="tabpanel" aria-labelledby="btab-scoring" data-boxpanel="scoring" hidden>
+                  <p class="box-banner">Optional: how results are ranked. Used when you click RUN OPTIMIZER.</p>
+                  <div class="bx-grid">
+                    <label class="bx-f">Min trades to be scored<span class="panel-info" tabindex="0" aria-label="About Min trades to be scored" data-tip="Optimizer only: a setting combination needs at least this many trades in the test to get a score. A few trades can be plain luck, so combinations with fewer cannot make the list.">i</span><input type="number" id="input-min-trades" min="1" step="1" value="25" /></label>
+                    <span class="bx-gap" aria-hidden="true"></span>
+                    <label class="bx-f">PnL weight<span class="panel-info" tabindex="0" aria-label="About PnL weight" data-tip="Optimizer only: how much total profit (PnL = profit and loss) counts in the score. Each measure becomes a 0-to-1 grade against the other combinations tried, then is multiplied by its weight.">i</span><input type="number" id="input-weight-pnl" min="0" max="1" step="0.05" value="0.40" /></label>
+                    <label class="bx-f">Profit factor weight<span class="panel-info" tabindex="0" aria-label="About Profit factor weight" data-tip="Optimizer only: how much profit factor (money won ÷ money lost) counts in the score. Raise it to favour combinations that win clearly more than they lose.">i</span><input type="number" id="input-weight-pf" min="0" max="1" step="0.05" value="0.15" /></label>
+                    <label class="bx-f">Win rate weight<span class="panel-info" tabindex="0" aria-label="About Win rate weight" data-tip="Optimizer only: how much win rate (the share of trades that make money) counts in the score.">i</span><input type="number" id="input-weight-wr" min="0" max="1" step="0.05" value="0.10" /></label>
+                    <label class="bx-f">Drawdown penalty weight<span class="panel-info" tabindex="0" aria-label="About Drawdown penalty weight" data-tip="Optimizer only: how much a small drawdown (the biggest drop from a high point, as a % of that high) counts in the score. Raise it to favour smoother results.">i</span><input type="number" id="input-weight-dd" min="0" max="1" step="0.05" value="0.15" /></label>
+                    <label class="bx-f">Trade count weight<span class="panel-info" tabindex="0" aria-label="About Trade count weight" data-tip="Optimizer only: how much having more trades counts in the score. More trades make a result less likely to be luck.">i</span><input type="number" id="input-weight-tc" min="0" max="1" step="0.05" value="0.10" /></label>
+                    <label class="bx-f">Expectancy weight<span class="panel-info" tabindex="0" aria-label="About Expectancy weight" data-tip="Optimizer only: how much expectancy (the average profit per trade) counts in the score.">i</span><input type="number" id="input-weight-exp" min="0" max="1" step="0.05" value="0.10" /></label>
+                    <div class="bx-f bx-total bx-full"><span id="weight-total" class="weight-ok">Total: 1.00</span><span class="panel-info" tabindex="0" aria-label="About the weight total" data-tip="The six weights must add up to 1.00. RUN OPTIMIZER stays greyed out until they do.">i</span><button type="button" id="reset-weights-btn">Reset weights</button><span class="panel-info" tabindex="0" aria-label="About Reset weights" data-tip="Puts the six weights back to the values the page opens with: PnL 0.40, profit factor 0.15, win rate 0.10, drawdown 0.15, trade count 0.10, expectancy 0.10.">i</span></div>
                   </div>
-                  <p class="hint" style="margin-top: 12px; margin-bottom: 0;">Tune the composite score weights. All six values must sum to 1.00.</p>
-                </details>
+                </div>
 
               </div>
-              <!-- Run controls left→right: RUN / NEW SAMPLE / CANCEL.
- NEW SAMPLE lives HERE (moved from the Outputs footer) and stays greyed until
- the first RUN — RUN establishes the reproducible baseline seed (42); NEW SAMPLE
- then re-samples with a fresh seed. The ⓘ explains that to the user. -->
               <div class="col-foot" id="section-run">
-                <button id="run-btn" disabled>RUN OPTIMIZER</button>
-                <button id="btn-new-sample" disabled title="Re-run the sweep with a fresh Phase-1 sampling seed. Unlocks after the first RUN.">NEW SAMPLE</button>
-                <span class="ns-info" tabindex="0" aria-label="About NEW SAMPLE" title="Why greyed out? RUN OPTIMIZER always samples with the baseline seed (42) so results are reproducible. NEW SAMPLE re-runs the same inputs with a fresh random seed to test selection stability — so it needs a first run to compare against. Whichever seed ran is stamped into every export (scanInputs.phase1Seed).">i</span>
-                <button id="cancel-btn" class="hidden">CANCEL</button>
-                <span id="run-status">Upload your preferred trading timeframe's OHLCV CSV to enable</span>
+                <button id="run-btn" disabled>RUN OPTIMIZER</button><span class="panel-info" tabindex="0" aria-label="About RUN OPTIMIZER" data-tip="Tests many setting combinations on your price file, scores them and lists the best as cards. Uses the Model, Config, Search and Scoring tabs. The same file and inputs give the same cards every time.">i</span>
+                <button id="btn-new-sample" disabled>NEW SAMPLE</button>
+                <span class="ns-info" tabindex="0" aria-label="About NEW SAMPLE" data-tip="Runs again with your current inputs but a fresh random pick of settings, to see whether similar cards turn up. It replaces the cards on screen. RUN OPTIMIZER always uses the same pick. Unlocks after a run finishes.">i</span>
+                <button id="cancel-btn" class="hidden">CANCEL RUN</button><span class="panel-info" tabindex="0" aria-label="About CANCEL RUN" data-tip="Stops the run. Stopped during the search: no cards, as the last run's were already cleared. Stopped during the final stress test (the Robust check): the cards still show, and untested windows can be tested later.">i</span>
+                <span id="run-status" aria-live="polite">Upload your price CSV on the Data tab to enable RUN OPTIMIZER.</span>
               </div>
             </div>
 
@@ -1176,149 +1023,110 @@
               <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </div>
 
-            <!-- Outputs / Cards col -->
-            <div class="col" id="col-outputs">
-              <div class="col-h">Outputs / Cards</div>
-              <div class="col-scroll">
-              <!-- FILTER (sandbox) — filter + cards share one scroll so the cards stay reachable when the filter is open -->
-              <div class="filter-section" id="section-filter">
-                <details class="collapsible">
-                  <summary>Selection Filter <span class="panel-info" tabindex="0" data-tip="Show only cards that pass your rules. Tighter = fewer, stronger results.">i</span></summary>
-                  <div class="filter-body">
-                <div class="filter-grid">
-                  <!-- Selection Filter starts BLANK — matches RESET. Blank APPLY
- falls back to the canonical defaults (readFilterLevers). -->
-                  <label>Min Profit Factor
-                    <input type="number" id="input-filter-pf" min="1.00" max="3.00" step="0.05" />
-                  </label>
-                  <!-- Max DD MC-95th ($) box REMOVED (the drawdown budget migration): the MC survival
- budget is now initialCapital × Max Drawdown % — run inputs (Configuration
- panel), one value/run, shared verbatim with the neighborhood G3 gate. -->
-                  <label>Min Win Rate (%)
-                    <input type="number" id="input-filter-wr" min="0" max="100" step="1" />
-                  </label>
-                  <label>Min Window Trades
-                    <input type="number" id="input-filter-min-trades" min="1" step="1" />
-                  </label>
-                  <label>Time Spread
-                    <select id="input-filter-spread">
-                      <option value="off" selected>off</option>
-                      <option value="soft">soft</option>
-                      <option value="strict">strict</option>
-                    </select>
-                  </label>
-                  <label>Rank By
-                    <select id="input-filter-rank">
-                      <option value="deploy-net" selected>deploy-net</option>
-                      <option value="margin">margin</option>
-                      <option value="pf">pf</option>
-                    </select>
-                  </label>
-                  <!-- (REGIME Territory-Rank filter ) CARD-level:
- keeps cards whose MODAL entry block ranks at/above the selection in
- the sweep's regime ranking. Blank = off. Ties at the cutoff are all
- kept. No breadth dependency — the grade stays parked. -->
-                  <label title="Keep only cards whose Territory (modal entry block) ranks this high in the sweep's regime ranking. Blank = no rank filter. Blocks under the n>=5 membership floor are unranked and never pass. Blocks tied on median block-net at the cutoff are all kept.">Territory Rank
-                    <select id="input-filter-block-rank">
-                      <option value="" selected></option>
-                      <option value="1">#1 only</option>
-                      <option value="3">Top 3</option>
-                      <option value="5">Top 5</option>
-                    </select>
-                  </label>
-                </div>
-                <div class="filter-multi" id="input-filter-k">
-                  <span class="filter-multi-label">k (min_range_k)</span>
-                  <div class="filter-chips">
-                    <label class="chk"><input type="checkbox" value="0" />0</label>
-                    <label class="chk"><input type="checkbox" value="1" />1</label>
-                    <label class="chk"><input type="checkbox" value="1.25" />1.25</label>
-                    <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
-                    <label class="chk"><input type="checkbox" value="1.75" />1.75</label>
-                    <label class="chk"><input type="checkbox" value="2" />2</label>
-                    <label class="chk"><input type="checkbox" value="2.25" />2.25</label>
-                    <label class="chk"><input type="checkbox" value="2.5" />2.5</label>
-                    <label class="chk"><input type="checkbox" value="2.75" />2.75</label>
-                    <label class="chk"><input type="checkbox" value="3" />3</label>
-                    <label class="chk"><input type="checkbox" value="3.25" />3.25</label>
-                    <label class="chk"><input type="checkbox" value="3.5" />3.5</label>
-                  </div>
-                </div>
-                <!-- HNRC sits NEXT TO the R:R block, styled as a
- native Selection Filter control (same filter-multi label + chip treatment).
- Same input id — wiring untouched. -->
-                <div class="filter-multi-row">
-                  <!-- (R:R grid ) chips = the RECOGNIZED vocabulary: the 7 swept
- values (1/1.25/1.5/2/2.25/2.5/3) PLUS sweep-retired 0.5 + 1.2, kept so
- legs from pre-CR exports can still be selected/excluded here. -->
-                  <div class="filter-multi" id="input-filter-rr">
-                    <span class="filter-multi-label">R:R ratio</span>
-                    <div class="filter-chips">
-                      <label class="chk"><input type="checkbox" value="0.5" />0.5</label>
-                      <label class="chk"><input type="checkbox" value="1" />1</label>
-                      <label class="chk"><input type="checkbox" value="1.2" />1.2</label>
-                      <label class="chk"><input type="checkbox" value="1.25" />1.25</label>
-                      <label class="chk"><input type="checkbox" value="1.5" />1.5</label>
-                      <label class="chk"><input type="checkbox" value="2" />2</label>
-                      <label class="chk"><input type="checkbox" value="2.25" />2.25</label>
-                      <label class="chk"><input type="checkbox" value="2.5" />2.5</label>
-                      <label class="chk"><input type="checkbox" value="3" />3</label>
-                    </div>
-                  </div>
-                  <div class="filter-multi" id="input-filter-hide-nonrobust-row"
-                    title="At APPLY, hide every window that is not in the ROBUST pool (FRAGILE / INCONCLUSIVE / zero-loss / untested) OR that fails the filter panel's own gates (min trades / k / R:R / PF / win rate / time-spread — 2026-07-21); a card hides ONLY when ALL its enabled windows are out — a mixed card stays, showing just its passing ROBUST windows (leg-level, 2026-07-17). Budget-fit is NOT consulted here: an over-budget-but-ROBUST window still shows (budget lives in the Selection Filter's survival gate). Display-only — exports keep every window + verdict. Eager: verdicts come from the sweep's Stressed stage; misses compute at APPLY with progress + Cancel.">
-                    <span class="filter-multi-label">Robustness</span>
-                    <div class="filter-chips">
-                      <label class="chk"><input type="checkbox" id="input-filter-hide-nonrobust" /> Hide non-ROBUST (eager)</label>
-                    </div>
-                  </div>
-                </div>
-                  </div>
-                  <div class="filter-foot">
-                    <button id="btn-run-filter" disabled title="Apply the selection filter to the live sweep results">APPLY</button>
-                    <button id="btn-reset-filter" type="button" title="Reset filter levers and show all cards">RESET</button>
-                    <button id="btn-cancel-filter" type="button" class="hidden" title="Cancel the in-progress filtering (keeps results already computed)">CANCEL</button>
-                    <span id="filter-status" class="footer-placeholder"></span>
-                  </div>
-                </details>
+            <div class="col col-tabbed" id="col-filters">
+              <div class="col-h">Filters</div>
+              <div class="tabs box-tabs" id="filter-tabs" role="tablist" aria-label="Filter settings">
+                <button class="tab active" type="button" role="tab" id="btab-filters" data-boxtab="filters" data-tip="Cuts down and sorts the cards from your last run. A card stays if one of its windows (time slots it trades in, like 22:00-06:00) passes. If cards share the same window settings, only the best copy counts." aria-controls="section-filter" aria-selected="true">Filters</button>
+                <button class="tab" type="button" role="tab" id="btab-budget" data-boxtab="budget" data-tip="Your drawdown budget: the biggest drop from a high point you will accept from any one window's trades. Used when you click APPLY FILTERS, with no new run." aria-controls="section-budget" aria-selected="false" tabindex="-1">Budget</button>
               </div>
-                <section id="section-results" class="hidden">
-                  <div class="results-summary" id="results-summary"></div>
-                  <!-- (REGIME A, 2026-07-26) sweep-level regime summary — raw figures only
- (breadth of the full scored pool / trade-attributed block ranking /
- modal-block concentration). Collapsed table; populated at the same
- single-reveal seam as the cards; identical block ships in exports. -->
-                  <div class="results-summary regime-summary hidden" id="regime-summary"></div>
-                  <!-- (GO 2026-07-18) ALWAYS states what the list shows. (unfiltered) = the full
- Top-N from the last sweep — saved filter settings load but never engage on
- their own; (filtered) = survivors of the last explicit APPLY. -->
-                  <div class="results-summary card-count" id="card-count"
-                    title="What the card list currently shows. Every sweep (RUN OPTIMIZER / NEW SAMPLE / new CSV) resets to the full unfiltered Top-N — saved filter settings load into the panel but only engage when you press APPLY."></div>
-                  <div class="cards-grid" id="cards-grid"></div>
-                </section>
-              </div>
-              <!-- Outputs footer: preset strip (Set 1 / Set 2 / Save /
- Clear / Export / Import) mounts FAR LEFT (frb-presets.ts inserts it as first
- child); EXPORT SWEEP sits FAR RIGHT. NEW SAMPLE moved to the run controls. -->
-              <div class="col-foot" id="outputs-foot">
-                <button id="btn-export-sweep" disabled title="Download all top-N cards as one JSON file (selection-stability snapshot)">EXPORT SWEEP</button>
-              </div>
+              <div class="box-panes">
 
-              <!-- B3: slide-out indicator settings panel — overlays Outputs col -->
+                <div class="box-pane" id="section-filter" role="tabpanel" aria-labelledby="btab-filters" data-boxpanel="filters">
+                  <p class="box-banner">Narrows and sorts the cards from your last run; never adds any. A window is one of a card's trading time slots, like 22:00-06:00.</p>
+                  <div class="bx-grid">
+                    <label class="bx-f">Min profit factor<span class="panel-info" tabindex="0" aria-label="About Min profit factor" data-tip="Optimizer only: removes windows whose profit factor (money won ÷ money lost) is below this; default 1.25. The Robust check holds nearby settings to the same minimum. APPLY FILTERS will not run while it is blank.">i</span><input type="number" id="input-filter-pf" min="1.00" max="3.00" step="0.05" value="1.25" /></label>
+                    <label class="bx-f">Min win rate (%)<span class="panel-info" tabindex="0" aria-label="About Min win rate" data-tip="Optimizer only: removes windows that win fewer than this % of their trades. Leave it blank to switch it off.">i</span><input type="number" id="input-filter-wr" min="0" max="100" step="1" placeholder="off" /></label>
+                    <label class="bx-f">Min trades per window<span class="panel-info" tabindex="0" aria-label="About Min trades per window" data-tip="Optimizer only: removes windows with fewer trades than this, since a few trades can be luck; default 45. The Robust check uses the same minimum for the window and its nearby settings.">i</span><input type="number" id="input-filter-min-trades" min="1" step="1" value="45" /></label>
+                    <label class="bx-f">Sort cards by<span class="panel-info" tabindex="0" aria-label="About Sort cards by" data-tip="Optimizer only: changes the order only, never hides a card. Sweep score = the run's order. Deploy net = its best window's profit at its deploy size. Profit factor = the whole card's. Highest first.">i</span>
+                      <select id="input-filter-rank" class="wide">
+                        <option value="score" selected>Sweep score</option>
+                        <option value="deploy-net">Deploy net</option>
+                        <option value="pf">Profit factor</option>
+                      </select>
+                    </label>
+                    <label class="bx-f" id="input-filter-hide-nonrobust-row">Robust only<span class="panel-info" tabindex="0" aria-label="About Robust only" data-tip="Optimizer only: keeps a card only if one of its windows passes every filter (and the budget, if on) and is Robust, meaning it still holds up when its settings are nudged a little. It never adds cards.">i</span><input type="checkbox" id="input-filter-hide-nonrobust" /></label>
+                    <label class="bx-f">Territory rank<span class="panel-info" tabindex="0" aria-label="About Territory rank" data-tip="Optimizer only: 18:00-16:00 has eleven 2-hour blocks, ranked by how this run's cards did there. Keeps cards whose main block (where most trades start) is #1, top 3 or top 5. Blocks with under 5 cards never pass.">i</span>
+                      <select id="input-filter-block-rank">
+                        <option value="" selected>Off</option>
+                        <option value="1">#1 only</option>
+                        <option value="3">Top 3</option>
+                        <option value="5">Top 5</option>
+                      </select>
+                    </label>
+                    <div class="filter-multi bx-full" id="input-filter-rr"><span class="filter-multi-label">R:R</span><span class="panel-info" tabindex="0" aria-label="About R:R" data-tip="Optimizer only: R:R = reward to risk, how far the profit target is from the entry compared with the stop-loss (2 = twice as far). Tick the values to keep; none ticked = keep all.">i</span><div class="filter-chips">
+                      <label class="chk"><input type="checkbox" value="0.5" /><span>0.5</span></label>
+                      <label class="chk"><input type="checkbox" value="1" /><span>1</span></label>
+                      <label class="chk"><input type="checkbox" value="1.2" /><span>1.2</span></label>
+                      <label class="chk"><input type="checkbox" value="1.25" /><span>1.25</span></label>
+                      <label class="chk"><input type="checkbox" value="1.5" /><span>1.5</span></label>
+                      <label class="chk"><input type="checkbox" value="2" /><span>2</span></label>
+                      <label class="chk"><input type="checkbox" value="2.25" /><span>2.25</span></label>
+                      <label class="chk"><input type="checkbox" value="2.5" /><span>2.5</span></label>
+                      <label class="chk"><input type="checkbox" value="3" /><span>3</span></label>
+                    </div></div>
+                    <div class="filter-multi bx-full" id="input-filter-k"><span class="filter-multi-label">Setup k</span><span class="panel-info" tabindex="0" aria-label="About Setup k" data-tip="Optimizer only: k = the smallest 3-candle range a card trades, in ATR (the average bar height over 14 bars). k 1.5 skips ranges under 1.5 × ATR; 0 = no minimum. Tick to keep; none ticked = keep all.">i</span><div class="filter-chips">
+                      <label class="chk"><input type="checkbox" value="0" /><span>0</span></label>
+                      <label class="chk"><input type="checkbox" value="1" /><span>1</span></label>
+                      <label class="chk"><input type="checkbox" value="1.25" /><span>1.25</span></label>
+                      <label class="chk"><input type="checkbox" value="1.5" /><span>1.5</span></label>
+                      <label class="chk"><input type="checkbox" value="1.75" /><span>1.75</span></label>
+                      <label class="chk"><input type="checkbox" value="2" /><span>2</span></label>
+                      <label class="chk"><input type="checkbox" value="2.25" /><span>2.25</span></label>
+                      <label class="chk"><input type="checkbox" value="2.5" /><span>2.5</span></label>
+                      <label class="chk"><input type="checkbox" value="2.75" /><span>2.75</span></label>
+                      <label class="chk"><input type="checkbox" value="3" /><span>3</span></label>
+                      <label class="chk"><input type="checkbox" value="3.25" /><span>3.25</span></label>
+                      <label class="chk"><input type="checkbox" value="3.5" /><span>3.5</span></label>
+                    </div></div>
+                  </div>
+                </div>
+
+                <div class="box-pane" id="section-budget" role="tabpanel" aria-labelledby="btab-budget" data-boxpanel="budget" hidden>
+                  <p class="box-banner">Your drawdown budget. Used when you click APPLY FILTERS; no new run.</p>
+                  <div class="bx-grid">
+                    <label class="bx-f">Fits my drawdown budget<span class="panel-info" tabindex="0" aria-label="About Fits my drawdown budget" data-tip="Optimizer only: when on, removes windows whose bad-case drawdown (found by shuffling their trades into 50,000 random orders) reaches your budget. When off, they still pass, with no deploy size.">i</span><input type="checkbox" id="input-filter-fits-budget" checked /></label>
+                    <label class="bx-f">Max drawdown (% of account)<span class="panel-info" tabindex="0" aria-label="About Max drawdown" data-tip="Optimizer only: your budget as a % of the Account size from your last run (2.4% of $50,000 = $1,200). Read at APPLY FILTERS. It sets each window's deploy size: how far its trades could scale up.">i</span><input type="number" id="input-max-dd-pct" min="0.1" max="100" step="0.1" value="2.4" /></label>
+                    <div class="box-note bx-full" id="budget-readout" aria-live="polite"></div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="filter-foot">
+                <button id="btn-cancel-filter" type="button" class="hidden">CANCEL FILTERING</button><span class="panel-info" tabindex="0" aria-label="About CANCEL FILTERING" data-tip="Stops the filtering. Half-done results are not shown, so click APPLY FILTERS or RESET to see cards again. During a run this button says STOP STRESS TEST: it stops the final check and keeps the cards.">i</span>
+                <button id="btn-run-filter" disabled>APPLY FILTERS</button><span class="panel-info" tabindex="0" aria-label="About APPLY FILTERS" data-tip="Cuts down and sorts the cards from your last run using the Filters and Budget tabs, with no new run. A window that never lost a trade is always removed. After a run, cards show unfiltered until you click this.">i</span>
+                <button id="btn-reset-filter" type="button">RESET</button><span class="panel-info" tabindex="0" aria-label="About RESET" data-tip="Puts every Filters and Budget setting back to its default and shows the full card list from your last run again.">i</span>
+                <button id="btn-export-sweep" disabled>EXPORT SWEEP</button><span class="panel-info" tabindex="0" aria-label="About EXPORT SWEEP" data-tip="Downloads the cards on screen as one JSON file (a data file other tools can read): the full list, or the filtered list after APPLY FILTERS.">i</span>
+                <span id="filter-status" class="footer-placeholder" aria-live="polite"></span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="bottom-row">
+            <div class="col" id="col-outputs">
+              <div class="col-h">Cards</div>
+              <section id="section-results" class="hidden">
+                <div class="card-count-row"><div class="results-summary card-count" id="card-count"></div><span class="panel-info" tabindex="0" aria-label="About the card count" data-tip="How many cards are listed now, and whether filters are switched on. Every run shows the full list; filters only take effect when you click APPLY FILTERS.">i</span></div>
+                <div class="cards-meta">
+                  <div class="results-summary" id="results-summary"></div>
+                  <div class="results-summary regime-summary hidden" id="regime-summary"></div>
+                </div>
+                <div class="cards-grid" id="cards-grid"></div>
+              </section>
+              <div class="cards-empty">Cards appear here when a run finishes.</div>
               <div class="panel" id="settings-panel" aria-hidden="true">
                 <div class="panel-head">
                   <div class="col-h" id="panel-title">Card # — Indicator settings</div>
                   <span class="panel-version">FRB <span data-public-version>v2.0 - Pro</span></span>
                   <button class="panel-x" id="panel-close" aria-label="Close settings">×</button>
                 </div>
-                <div class="panel-body" id="panel-body">
-                  <!-- populated by render-cards.ts on open -->
-                </div>
+                <div class="panel-body" id="panel-body"></div>
               </div>
             </div>
 
-          </div>
-
+            <div class="arrow">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </div>
           <div class="footer">
             <div class="footer-id" id="footer-id">
               <div class="footer-id-card muted" id="ft-card">No card selected</div>
@@ -1333,19 +1141,14 @@
               </div>
             </div>
             <div id="ft-lens-note" style="display:none"></div>
+            <details class="tip-list" id="ft-lens-help"><summary aria-label="About the View buttons">i</summary><div class="tip-list-body"><p><b>View</b> · View only: changes what the details panel shows for the selected card, never which cards were picked or their order. Robustness and Durability always use all its trades.</p><p><b>OFF</b> · View only: every trade the card took. This is the normal view, and the one the cards were picked and scored on.</p><p><b>NR7</b> · View only: just the trades on days right after an NR7 day, a day whose high-to-low price range was the smallest of the last 7. Compare it with OFF to see how those days went.</p><p><b>V5</b> · View only: hides a trade when one 5-minute bar in the 2 hours before it held an unusually big share of volume (how much was traded), and the rest of that day. Needs Max trades / day = 1. Not yet confirmed; tuned on MNQ.</p><p><b>VM</b> · View only: skips whole days in busy-month stretches, when volume (how much was traded) has piled into single bars more over the last 20 days than the last 70. Needs over 70 full days of data. Not proven.</p><p><b>V5+VM</b> · View only: keeps a trade only if both V5 and VM keep it. It needs what both need: a run at Max trades / day = 1, and over 70 full days of data with volume.</p></div></details>
 
             <div class="tabs" id="footer-tabs">
-              <button class="tab active" type="button" data-tab="stats">Stats</button>
-              <!-- FRB: Advanced-stats tab OMITTED (tier is ORB/ORF-calibrated). -->
-              <!-- Robustness tab (sandbox) — card-linked like Stats; managed by main-frss-filter.ts
- (a delegated #footer-tabs listener shows #robustness-pane vs #tab-body).
- Ordered BEFORE Tradelist. -->
-              <!-- Regime is card CONTEXT, not a stat — its own tab,
- sited right after Stats and before the analysis tabs. -->
-              <button class="tab" type="button" data-tab="regime">Regime</button>
-              <button class="tab" type="button" data-tab="robustness">Robustness<span class="basis-tag" id="ft-robustness-basis" style="display:none"></span></button>
-              <button class="tab" type="button" data-tab="durability">Durability<span class="basis-tag" id="ft-durability-basis" style="display:none"></span></button>
-              <button class="tab" type="button" data-tab="tradelist">Tradelist</button>
+              <button class="tab active" type="button" data-tab="stats" data-tip="The selected card's main numbers: net profit, win rate, trades, profit factor (money won ÷ money lost), expectancy (average profit per trade), max drawdown (biggest drop) and a chart of the balance.">Stats</button>
+              <button class="tab" type="button" data-tab="regime" data-tip="Where in the day the card trades. Territory = the 2-hour block where most of its trades start. Rank = that block's place out of 11 for this run's cards. Grade is not switched on yet.">Regime</button>
+              <button class="tab" type="button" data-tab="robustness" data-tip="Re-runs each window 6 ways: start, end (1 hour) or k (one step), each up and down. Robust = 4+ hold up: enough trades, profit factor at least Min PF and 80% of before. Fragile = fewer. Inconclusive = too little to test.">Robustness<span class="basis-tag" id="ft-robustness-basis" style="display:none"></span></button>
+              <button class="tab" type="button" data-tab="durability" data-tip="Plain numbers for each window, no pass or fail: typical, bad-case and worst drops from shuffling its trades, its first two-thirds of trades against its last third, and the drawdown in each third of its dates.">Durability<span class="basis-tag" id="ft-durability-basis" style="display:none"></span></button>
+              <button class="tab" type="button" data-tab="tradelist" data-tip="Download every trade the card took as CSV (opens in Excel) or JSON (a data file for other tools). With a View other than OFF, these give that view's trades. The per-window rows always give all of that window's trades.">Tradelist</button>
             </div>
 
             <div class="tab-body" id="tab-body" style="display:none;">
@@ -1355,12 +1158,12 @@
                 <div class="stat-box"><div class="stat-l">Trades</div><div class="stat-v" id="ft-trades">—</div></div>
                 <div class="stat-box"><div class="stat-l">Profit factor</div><div class="stat-v" id="ft-pf">—</div></div>
                 <div class="stat-box"><div class="stat-l">Expectancy</div><div class="stat-v" id="ft-exp">—</div></div>
-                <div class="stat-box" title="Close-to-close max drawdown of the closed-trade equity curve — matches the Equity tab's curve. The engine's intra-trade max drawdown is unchanged and exports separately."><div class="stat-l">Max DD</div><div class="stat-v" id="ft-mdd">—</div></div>
+                <div class="stat-box"><div class="stat-l">Max DD</div><div class="stat-v" id="ft-mdd">—</div></div>
               </div>
               <details class="collapsible footer-more" id="ft-more-stats">
-                <summary>More stats</summary>
+                <summary>More stats<span class="panel-info" tabindex="0" aria-label="About More stats" data-tip="Opens extra numbers. TP-hit share = the share of trades that ended at their profit target.">i</span></summary>
                 <div class="stat-grid" id="stat-grid-more">
-                  <div class="stat-box" title="Share of trades that exited at target rather than at the stop."><div class="stat-l">TP-hit share</div><div class="stat-v" id="ft-tp">—</div></div>
+                  <div class="stat-box"><div class="stat-l">TP-hit share</div><div class="stat-v" id="ft-tp">—</div></div>
                 </div>
               </details>
               <div class="equity-wrap" id="equity-wrap">
@@ -1382,13 +1185,9 @@
                   </button>
                 </div>
                 <p class="tradelist-hint">CSV opens in Excel directly. JSON preserves data types and includes card metadata for analyst consumption.</p>
-                <!-- ( C1) WINDOW EXPORT — per-window SCOPED tradelist downloads, card-linked.
- Sandbox-owned: rows populated by main-frss-filter.ts (renderWindowExportControls);
- the shared render-cards-frss.ts never touches this block. The whole-card
- Download CSV/JSON buttons above are UNCHANGED. -->
                 <div class="window-export" id="window-export" style="display:none;">
-                  <div class="window-export-h">WINDOW EXPORT
-                    <span class="window-export-hint">— one window's trades with that window's own stats (self-consistent for parity checks)</span>
+                  <div class="window-export-h">WINDOW EXPORT<span class="panel-info" tabindex="0" aria-label="About the window exports" data-tip="Downloads one window's trades on their own, with that window's own numbers, as JSON or CSV. Always all of that window's trades, whatever the View.">i</span>
+                    <span class="window-export-hint">— one window's trades with that window's own numbers</span>
                   </div>
                   <div class="window-export-rows" id="window-export-rows"></div>
                 </div>
@@ -1417,6 +1216,7 @@
  (PENDING while B/C/E stay parked on breadth calibration). Everything here
  also ships per-card in both exports as cards[].regime. -->
             <div id="regime-pane" class="rf hidden"></div>
+          </div>
           </div>
 
         </div>
@@ -1456,6 +1256,6 @@
  injectPublicVersion (main.ts). ENGINE_VERSION lives in
  export-json.ts for audit-trail JSON only — not rendered
  on any UI surface. -->
-
+
   </body>
 </html>
