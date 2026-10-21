@@ -89,6 +89,7 @@
       .panel-row > span:first-child { color: #B5D4F4; flex: 1; }
       .panel-row .panel-val { background: #0C447C; border: 0.5px solid #185FA5; border-radius: 4px; padding: 3px 8px; min-width: 70px; text-align: right; color: #E6F1FB; font-variant-numeric: tabular-nums; }
       .panel-row .panel-val.deprecated { color: #5F7B97; }
+      .panel-note { font-size: 10px; line-height: 1.35; color: #85B7EB; padding: 2px 0 4px; }
 
       .panel-check { display: flex; align-items: center; gap: 9px; padding: 5px 0; font-size: 11px; color: #E6F1FB; cursor: default; }
       .panel-check .cbox { width: 13px; height: 13px; border: 1px solid #5F7B97; border-radius: 2px; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -321,8 +322,17 @@
       .bx-f { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 22px; font-size: 10px; line-height: 1.15; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.35px; }
       .bx-f > input, .bx-f > select { flex-shrink: 0; width: 84px; height: 22px; padding: 2px 5px; font-size: 11px; text-transform: none; letter-spacing: 0; }
       .bx-f > select.wide, .bx-f > input[type="date"] { width: 118px; }
+      .bx-f > input[type="date"] { flex-shrink: 1; min-width: 104px; }
+      .bx-f > select.narrow { width: 66px; }
+      .bx-always { flex-shrink: 0; font-size: 10px; color: #85B7EB; letter-spacing: 0.35px; }
       .bx-f > input[type="checkbox"] { width: 14px; height: 14px; padding: 0; margin: 0; accent-color: var(--accent); }
       .bx-total { justify-content: flex-end; }
+      .cost-hint { display: flex; align-items: center; gap: 6px; min-height: 18px; white-space: nowrap; overflow: hidden; }
+      .cost-hint > #cost-hint-text { overflow: hidden; text-overflow: ellipsis; }
+      .cost-hint > #btn-use-nt-cost { flex-shrink: 0; font-size: 10px; padding: 1px 7px; letter-spacing: 0.5px; line-height: 1.2; }
+      .readout-line { display: flex; align-items: flex-start; gap: 6px; }
+      .readout-line > #grid-readout { flex: 1; min-width: 0; }
+      .readout-line > .panel-info { flex-shrink: 0; }
       #section-upload .upload-cell { min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
       .filter-multi { display: flex; align-items: center; gap: 6px; min-height: 22px; }
       .filter-multi-label { margin: 0; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.35px; white-space: nowrap; }
@@ -404,26 +414,6 @@
       .regime-summary .rg-unranked { opacity: 0.55; }
       .regime-summary .rg-dim { opacity: 0.55; }
       .regime-summary .rg-note { font-size: 11px; opacity: 0.7; max-width: 720px; margin-top: 2px; }
-
-      /* Hold-past-session-close notice . Sits directly UNDER the
- regime block and uses the SAME native <details> disclosure, so it reads as a peer
- of the regime drop rather than a separate alarm.
- DELIBERATELY QUIET: collapsed by default, no panel, no background, no border —
- one orange caution line the user chooses to open. The earlier always-expanded
- amber block was too loud for something informational that clips nothing. */
-      .eod-warning { margin: 4px 0 0; }
-      .eod-warning .eodw-details > summary {
-        cursor: pointer; user-select: none;
-        color: var(--warning); font-size: 12px; letter-spacing: 0.3px;
-      }
-      .eod-warning .eodw-details > summary:hover { text-decoration: underline; }
-      .eod-warning .eodw-body {
-        margin-top: 6px; padding-left: 14px;
-        font-size: 11px; line-height: 1.55; color: var(--text-dim);
-        border-left: 2px solid var(--warning);
-      }
-      .eod-warning .eodw-card { opacity: 0.9; }
-      .eod-warning .eodw-more { opacity: 0.7; }
 
       /* Upload cells */
       .upload-row { display: flex; flex-direction: row; gap: 10px; align-items: stretch; }
@@ -799,9 +789,9 @@
       border: 1px solid currentColor; opacity: .8; vertical-align: middle; }
     .basis-tag { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; margin-left: 6px; }
   </style>
-    <script type="module" crossorigin src="./assets/frbFilter-8Z5Ocd-r.js"></script>
+    <script type="module" crossorigin src="./assets/frbFilter-DUIkNMiT.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/popover-BZJayBLI.js">
-    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-CNfjk4Le.js">
+    <link rel="modulepreload" crossorigin href="./assets/render-cards-frss-BBdxqUrT.js">
   </head>
   <body>
     <div class="mobile-takeover">
@@ -868,13 +858,13 @@
           <div class="flow">
 
             <div class="col col-tabbed" id="col-inputs">
-              <div class="col-h col-h-bar"><span>Inputs / Configs</span><span class="panel-info" id="inputs-title-info" tabindex="0" aria-label="About the setting tags" data-tip="Chart setting = also an input in the strategy on your chart, shown in the card's › panel to copy. Optimizer only = changes how this page searches, scores, filters or sizes. View only = changes only what is shown.">i</span><span class="col-h-actions"><button id="btn-presets" type="button" aria-expanded="false" aria-controls="outputs-foot">PRESETS</button><span class="panel-info" tabindex="0" aria-label="About PRESETS" data-tip="One preset saves every setting in the Optimizer, on every tab, inputs and filters, including market, platform and entry model. Only the price file and the dates are left out. Kept in this browser.">i</span></span></div>
+              <div class="col-h col-h-bar"><span>Inputs / Configs</span><span class="panel-info" id="inputs-title-info" tabindex="0" aria-label="About the setting tags" data-tip="Chart setting = also set in your chart's strategy (Inputs or Properties), shown in the › panel to copy. Optimizer only = changes how this page searches, scores, filters or sizes. View only = changes only what is shown.">i</span><span class="col-h-actions"><button id="btn-presets" type="button" aria-expanded="false" aria-controls="outputs-foot">PRESETS</button><span class="panel-info" tabindex="0" aria-label="About PRESETS" data-tip="One preset saves every setting in the Optimizer, on every tab, inputs and filters, including market, platform and entry model. Only the price file and the dates are left out. Kept in this browser.">i</span></span></div>
               <div class="preset-pop" id="outputs-foot" role="dialog" aria-label="Presets" hidden></div>
               <div class="tabs box-tabs" id="inputs-tabs" role="tablist" aria-label="Run settings">
                 <button class="tab active" type="button" role="tab" id="btab-data" data-boxtab="data" data-tip="Load your price file here. Nothing can run until a file is loaded, and loading a new file clears the result cards." aria-controls="section-upload" aria-selected="true">Data</button>
                 <button class="tab" type="button" role="tab" id="btab-entry" data-boxtab="entry" data-tip="Pick the platform and the entry rules (when the strategy gets into a trade) that the Optimizer tests. Changing the entry model clears the result cards." aria-controls="section-entry-model" aria-selected="false" tabindex="-1">Model</button>
-                <button class="tab" type="button" role="tab" id="btab-config" data-boxtab="config" data-tip="Your market, test dates, account size and risk per trade. Used when you click RUN OPTIMIZER, so after a change, run again." aria-controls="section-config" aria-selected="false" tabindex="-1">Config</button>
-                <button class="tab" type="button" role="tab" id="btab-search" data-boxtab="search" data-tip="How many setting combinations the Optimizer tries, and how many of the best it keeps. Used when you click RUN OPTIMIZER." aria-controls="section-search" aria-selected="false" tabindex="-1">Search</button>
+                <button class="tab" type="button" role="tab" id="btab-config" data-boxtab="config" data-tip="Your market, test dates, account size, risk per trade and trading costs. Used when you click RUN OPTIMIZER, so after a change, run again." aria-controls="section-config" aria-selected="false" tabindex="-1">Config</button>
+                <button class="tab" type="button" role="tab" id="btab-search" data-boxtab="search" data-tip="Which entry times the Optimizer tries, how many setting combinations it tests and how many of the best it keeps. Used when you click RUN OPTIMIZER." aria-controls="section-search" aria-selected="false" tabindex="-1">Search</button>
                 <button class="tab" type="button" role="tab" id="btab-scoring" data-boxtab="scoring" data-tip="How the Optimizer grades every setting combination it tries, which decides what makes the list. Optional: you can leave the defaults. Used when you click RUN OPTIMIZER." aria-controls="section-scoring" aria-selected="false" tabindex="-1">Scoring</button>
               </div>
               <div class="box-panes">
@@ -910,7 +900,7 @@
                 </div>
 
                 <div class="box-pane" id="section-config" role="tabpanel" aria-labelledby="btab-config" data-boxpanel="config" hidden>
-                  <p class="box-banner">Market, dates, account and risk. Used when you click RUN OPTIMIZER.</p>
+                  <p class="box-banner">Market, dates, account, risk and costs. Used when you click RUN OPTIMIZER.</p>
                   <div class="bx-grid">
                     <label class="bx-f">Asset<span class="panel-info" tabindex="0" aria-label="About Asset" data-tip="Chart setting: pick the futures contract your price file is for, like MNQ (Micro Nasdaq) or MGC (Micro Gold). It sets the tick (smallest price move), its $ value and the ranges searched. Not listed? Pick Manual Entry.">i</span><select id="input-asset" class="wide"></select></label>
                     <label class="bx-f">Account size ($)<span class="panel-info" tabindex="0" aria-label="About Account size" data-tip="Optimizer only: the starting balance for the test, at least $1,000. It feeds the balance chart, drawdown % (drop from a high point), the drawdown part of the score and your drawdown budget.">i</span><input type="number" id="input-initial-capital" min="1000" step="1000" value="50000" /></label>
@@ -920,15 +910,23 @@
                     <label class="bx-f">Max risk / trade ($)<span class="panel-info" tabindex="0" aria-label="About Max risk" data-tip="Chart setting: the most a trade may risk. If rounding up goes over it, the size rounds down instead. If even 1 contract risks more, the trade is skipped.">i</span><input type="number" id="input-max-risk" min="1" step="10" value="350" /></label>
                     <label class="bx-f">Max contracts<span class="panel-info" tabindex="0" aria-label="About Max contracts" data-tip="Chart setting: the most contracts any trade can use. It is the only contract limit: no trade ever uses more, even when your drawdown budget would allow more.">i</span><input type="number" id="input-max-contracts" min="1" step="1" value="40" /></label>
                     <label class="bx-f">Max trades / day (0 = off)<span class="panel-info" tabindex="0" aria-label="About Max trades per day" data-tip="Chart setting: the most trades taken per trading day (a day starts at 6 pm New York time). 0 = no limit. The V5 view in the details panel needs exactly 1.">i</span><input type="number" id="input-max-trades-day" min="0" step="1" value="0" /></label>
+                    <label class="bx-f">Commission / side ($)<span class="panel-info" tabindex="0" aria-label="About Commission" data-tip="Chart setting (Properties tab): your broker's all-in charge per contract each time you buy or sell, so a round trip pays it twice. Default $0.50, low even for micro contracts. Set the same Commission in Properties.">i</span><input type="number" id="input-commission" min="0" step="0.01" value="0.50" /></label>
+                    <label class="bx-f">Slippage (ticks)<span class="panel-info" tabindex="0" aria-label="About Slippage" data-tip="Chart setting (Properties tab): how many ticks (smallest price moves) worse your entries and your stop and end-of-day exits fill. Profit targets fill at their price. Default 1. Set the same Slippage in Properties.">i</span><input type="number" id="input-slippage" min="0" step="1" value="1" /></label>
+                    <div class="box-note bx-full cost-hint" id="cost-hint"><span id="cost-hint-text" aria-live="polite"></span><button type="button" id="btn-use-nt-cost"></button><span class="panel-info" tabindex="0" aria-label="About the NinjaTrader cost" data-tip="Puts NinjaTrader's all-in cost a side for this market (Free plan, checked October 2026) into Commission. Brokers change their fees, so check yours. It takes effect at your next RUN OPTIMIZER.">i</span></div>
                     <label class="bx-f bx-full hidden" id="manual-tick-wrap">$ per tick (Manual Entry)<span class="panel-info" tabindex="0" aria-label="About dollars per tick" data-tip="Chart setting, Manual Entry only: how many dollars one tick (the smallest price move) is worth on your contract, for example $12.50 for ES or $5.00 for NQ. The tick size is guessed from your file.">i</span><input type="number" id="input-manual-tick-dollar" min="0.01" step="0.01" value="12.50" /></label>
                   </div>
                 </div>
 
                 <div class="box-pane" id="section-search" role="tabpanel" aria-labelledby="btab-search" data-boxpanel="search" hidden>
-                  <p class="box-banner">How many settings the sweep tries. Used when you click RUN OPTIMIZER.</p>
+                  <p class="box-banner">What the sweep tries and keeps. Used when you click RUN OPTIMIZER.</p>
                   <div class="bx-grid">
-                    <label class="bx-f">Configs to test<span class="panel-info" tabindex="0" aria-label="About Configs to test" data-tip="Optimizer only: how many random setting combinations the first pass tries (at least 100). A bigger number searches more widely but takes longer. The best 5 are then fine-tuned.">i</span><input type="number" id="input-phase1" min="100" step="100" value="2000" /></label>
+                    <label class="bx-f">Configs to test<span class="panel-info" tabindex="0" aria-label="About Configs to test" data-tip="Optimizer only: how many random setting combinations the first pass tries (at least 100). More searches wider but takes longer and uses more browser memory, as the readout below estimates. The best 5 are then fine-tuned.">i</span><input type="number" id="input-phase1" min="100" step="100" value="2000" /></label>
                     <label class="bx-f">Top results to keep<span class="panel-info" tabindex="0" aria-label="About Top results to keep" data-tip="Optimizer only: how many of the best-scoring cards the run lists, 1 to 1,000. Keep more if you want more cards to filter and choose from.">i</span><input type="number" id="input-top-n" min="1" max="1000" step="1" value="10" /></label>
+                    <label class="bx-f">Entry times every<span class="panel-info" tabindex="0" aria-label="About Entry times every" data-tip="Optimizer only: the gap between the start, end and exit-by times the first pass tries. Default 2 h. Finer fits the past more closely: test cards on unseen data. Fine-tuning slides the best 5 up to 2 h each way.">i</span><select id="input-tod-step" class="narrow"><option value="120" selected>2 h</option><option value="60">1 h</option><option value="30">30 min</option></select></label>
+                    <label class="bx-f">Start on the half hour<span class="panel-info" tabindex="0" aria-label="About Start on the half hour" data-tip="Optimizer only: on = windows may also start at half past, like 09:30 (the New York open), and fine-tuning moves times by 30 min. Off = no card starts at half past. Always on at a 30 min step.">i</span><input type="checkbox" id="input-half-hour-starts" /><span class="bx-always hidden" id="half-hour-always">ALWAYS ON</span></label>
+                    <label class="bx-f">Shortest entry window<span class="panel-info" tabindex="0" aria-label="About Shortest entry window" data-tip="Optimizer only: the shortest entry window the search may try. Shorter choices open up with a finer step or half-hour starts. A card whose window is 1 h or less is rarely rated Robust, and never at Setup k 0 or 3.5.">i</span><select id="input-min-window" class="narrow"><option value="30">30 min</option><option value="60">1 h</option><option value="120" selected>2 h</option></select></label>
+                    <span class="bx-gap" aria-hidden="true"></span>
+                    <div class="box-note bx-full readout-line" id="grid-readout-line"><span id="grid-readout" aria-live="polite"></span><span class="panel-info" tabindex="0" aria-label="About the entry windows readout" data-tip="Exit-by times after the 16:00 close count once, as the close exits first. The first pass need not try every window: fine-tuning then moves the best 5. Run time and memory grow with Configs to test and bars, not the step.">i</span></div>
                   </div>
                 </div>
 
